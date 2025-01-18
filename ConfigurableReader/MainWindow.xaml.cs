@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace ConfigurableReader;
@@ -11,36 +10,54 @@ public partial class MainWindow : Window
 {
     private const string ConfigurableReaderFolder = "ConfigurableReader";
     private DispatcherTimer _scrollTimer;
-    private double _scrollSpeed = 0.1; // Adjust this value for different speeds
+    private double _scrollSpeed = 0.1;
     private double _currentPosition = 0;
     private string _documentsPath = string.Empty;
     private string _currentBookFileName = string.Empty;
+    private TextChunkReader _chunkReader;
+    private IEnumerator<string> _chunkEnumerator;
+
     public MainWindow()
     {
         InitializeComponent();
-        _scrollTimer = new DispatcherTimer();
-        _scrollTimer.Interval = TimeSpan.FromMilliseconds(100); // Adjust for different intervals
+        _chunkReader = new TextChunkReader();
+        _scrollTimer = new()
+        {
+            Interval = TimeSpan.FromMilliseconds(100)
+        };
+
         _scrollTimer.Tick += ScrollTimer_Tick;
-        _documentsPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), ConfigurableReaderFolder);
+        _documentsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), ConfigurableReaderFolder);
 
         if (!Directory.Exists(_documentsPath))
-        { // Create the directory
+        { 
+            // Create the directory
             Directory.CreateDirectory(_documentsPath);
+        }
+    }
+
+    private void LoadNextChunk()
+    {
+        if (_chunkEnumerator.MoveNext())
+        {
+            TextBlock.Text = _chunkEnumerator.Current.Replace("\r\n", " ").Replace("\n", " ");
         }
     }
     private void OpenFileButton_Click(object sender, RoutedEventArgs e)
     {
-        Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+        Microsoft.Win32.OpenFileDialog openFileDialog = new();
         if (openFileDialog.ShowDialog() == true)
         {
             _currentBookFileName = openFileDialog.FileName;
-            string text = File.ReadAllText(_currentBookFileName);
-            TextBlock.Text = text.Replace("\r\n", " ").Replace("\n", " ");
 
+            
+            _chunkEnumerator = _chunkReader.ReadChunks(_currentBookFileName, 5024).GetEnumerator();
 
-            if (File.Exists(System.IO.Path.Combine(_documentsPath, System.IO.Path.GetFileName(_currentBookFileName))))
+            LoadNextChunk();
+
+            if (File.Exists(Path.Combine(_documentsPath, Path.GetFileName(_currentBookFileName))))
             {
-                _currentPosition = double.Parse(File.ReadAllText(System.IO.Path.Combine(_documentsPath, System.IO.Path.GetFileName(_currentBookFileName))));
+                _currentPosition = double.Parse(File.ReadAllText(Path.Combine(_documentsPath, Path.GetFileName(_currentBookFileName))));
                 ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
             }
 
@@ -54,19 +71,21 @@ public partial class MainWindow : Window
     {
         _scrollTimer.Stop();
 
-        File.WriteAllText(System.IO.Path.Combine(_documentsPath, System.IO.Path.GetFileName(_currentBookFileName)), $"{_currentPosition}");
+        File.WriteAllText(Path.Combine(_documentsPath, Path.GetFileName(_currentBookFileName)), $"{_currentPosition}");
 
     }
 
     private void ScrollTimer_Tick(object sender, EventArgs e)
     {
-        //_currentPosition= ScrollViewer.HorizontalOffset;
+        _currentPosition = ScrollViewer.HorizontalOffset;
 
         _currentPosition += _scrollSpeed;
-        if (_currentPosition >= TextBlock.ActualWidth)
+        if (ScrollViewer.HorizontalOffset == ScrollViewer.ScrollableWidth) 
         {
+            LoadNextChunk();
             _currentPosition = 0;
         }
+
         ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
     }
     private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -88,9 +107,4 @@ public partial class MainWindow : Window
             TextBlock.FontSize = e.NewValue;
     }
 
-
-    private void TextBlock_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
-    {
-
-    }
 }

@@ -24,7 +24,7 @@
             <Slider x:Name="FontSizeSlider" Minimum="10" Maximum="300" ValueChanged="FontSizeSlider_ValueChanged" Margin="5" Width="100" />
         </StackPanel>
         <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Hidden" Grid.Row="1">
-            <TextBlock x:Name="TextBlock" TextWrapping="NoWrap" FontSize="16" ScrollBar.Scroll="TextBlock_Scroll" />
+            <TextBlock x:Name="TextBlock" TextWrapping="NoWrap" FontSize="16"/>
         </ScrollViewer>
     </Grid>
 </Window>

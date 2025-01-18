@@ -1,0 +1,13 @@
+﻿#Pendent a fer
+
+afegir memoria de la configuració de color font de la lletra etc
+
+
+afegir un scroll que pugui moure's entre "Chunks"
+
+deshabilitar l'scroll del TextBox
+
+
+Modificar "punt de llibre" perque també recordi el "Chunk" al que ens hem quedat del llibre
+
+Millorar la UI
