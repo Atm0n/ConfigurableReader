@@ -10,12 +10,10 @@ namespace ConfigurableReader;
 
 public partial class MainWindow : Window
 {
-    private const string ConfigurableReaderFolder = "ConfigurableReader";
     private readonly DispatcherTimer _scrollTimer;
     private double _scrollSpeed = 0.1;
     private double _currentPosition = 0;
     private int _currentChunk = 0;
-    private string _documentsPath = string.Empty;
     private string? _currentBookFileName;
     private TextChunkReader _chunkReader;
     private IEnumerator<string> _chunkEnumerator;
@@ -29,6 +27,22 @@ public partial class MainWindow : Window
 
         configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
+        LoadBookPositionConfiguration();
+
+        _chunkReader = new TextChunkReader();
+        _scrollTimer = new()
+        {
+            Interval = TimeSpan.FromMilliseconds(10)
+        };
+
+        _scrollTimer.Tick += ScrollTimer_Tick;
+
+        LoadUserConfiguration();
+
+    }
+
+    private void LoadBookPositionConfiguration()
+    {
         if (configuration.Sections["bookPositions"] is null)
         {
             configuration.Sections.Add("bookPositions", new BookPosition());
@@ -36,37 +50,17 @@ public partial class MainWindow : Window
         }
 
         BookPosition = (BookPosition)configuration.GetSection("bookPositions");
-
-        _chunkReader = new TextChunkReader();
-        _scrollTimer = new()
-        {
-            Interval = TimeSpan.FromMilliseconds(100)
-        };
-
-        _scrollTimer.Tick += ScrollTimer_Tick;
-        _documentsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), ConfigurableReaderFolder);
-
-        if (!Directory.Exists(_documentsPath))
-        {
-            Directory.CreateDirectory(_documentsPath);
-
-        }
-
-        LoadUserConfiguration();
-
     }
 
     private void LoadUserConfiguration()
     {
-        FontSizeSlider.Value = Properties.Settings.Default.FontSize;
+        FontSizeSlider.Value = (int)Properties.Settings.Default.FontSize;
         ChangeFontSize(Properties.Settings.Default.FontSize);
-
 
         var colorName = Properties.Settings.Default.TextColor;
 
         ColorPicker.SelectedColor = Color.FromArgb(colorName.A, colorName.R, colorName.G, colorName.B);
         AssignNewColorToText();
-
 
         _scrollSpeed = Properties.Settings.Default.ScrollSpeed;
         SpeedSlider.Value = Properties.Settings.Default.ScrollSpeed;
@@ -86,7 +80,7 @@ public partial class MainWindow : Window
         {
             _currentBookFileName = openFileDialog.FileName;
 
-            _chunkEnumerator = _chunkReader.ReadChunks(_currentBookFileName, 1024).GetEnumerator(); //5024
+            _chunkEnumerator = _chunkReader.ReadChunks(_currentBookFileName, 3024).GetEnumerator(); //5024
 
             ActualBook = BookPosition.Books.FirstOrDefault(book => book.Name == Path.GetFileName(_currentBookFileName));
 
@@ -107,46 +101,49 @@ public partial class MainWindow : Window
                 LoadNextChunk();
 
             }
+            _currentChunk = ActualBook.Chunk;
+            _currentPosition = ActualBook.ScrollPosition;
 
-            _currentPosition = double.Parse(File.ReadAllText(Path.Combine(_documentsPath, Path.GetFileName(_currentBookFileName))));
             ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
+
 
             configuration.Save();
         }
     }
     private void StartButton_Click(object sender, RoutedEventArgs e)
     {
-        _scrollTimer.Start();
+        StartSmoothScroll();
     }
     private void PauseButton_Click(object sender, RoutedEventArgs e)
     {
         _scrollTimer.Stop();
 
-        File.WriteAllText(Path.Combine(_documentsPath, Path.GetFileName(_currentBookFileName)), $"{_currentPosition}");
-
     }
-
+    private void StartSmoothScroll()
+    {
+        _scrollTimer.Interval = TimeSpan.FromMilliseconds(0.0001);
+        _scrollTimer.Tick += ScrollTimer_Tick;
+        _scrollTimer.Start();
+    }
     private void ScrollTimer_Tick(object sender, EventArgs e)
     {
         _currentPosition = ScrollViewer.HorizontalOffset;
 
-        _currentPosition += _scrollSpeed;
+        _currentPosition += SpeedSlider.Value;
         if (ScrollViewer.HorizontalOffset == ScrollViewer.ScrollableWidth)
         {
             LoadNextChunk();
             _currentChunk++;
             _currentPosition = 0;
+            Title = $"{_currentChunk}";
         }
 
         ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
     }
+
     private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         _scrollSpeed = e.NewValue;
-    }
-    private void FontSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        ChangeFontSize(e.NewValue);
     }
 
     private void ChangeFontSize(double value)
@@ -183,14 +180,17 @@ public partial class MainWindow : Window
         if (ActualBook is not null)
         {
             ActualBook.Chunk = _currentChunk;
-            ActualBook.ScrollPosition = _currentPosition;
+            ActualBook.ScrollPosition = ScrollViewer.HorizontalOffset;
 
         }
     }
 
     private void SaveUserConfiguration()
     {
-        Properties.Settings.Default.FontSize = FontSizeSlider.Value;
+        if( FontSizeSlider.Value is not null)
+        {
+            Properties.Settings.Default.FontSize = (double)FontSizeSlider.Value;
+        }
 
         if (ColorPicker.SelectedColor is not null)
         {
@@ -207,5 +207,14 @@ public partial class MainWindow : Window
         Properties.Settings.Default.ScrollSpeed = _scrollSpeed;
 
         Properties.Settings.Default.Save();
+    }
+
+    private void FontSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+    {
+        if(e.NewValue is not null)
+        {
+            int value = (int)e.NewValue;
+            ChangeFontSize((int)e.NewValue);
+        }
     }
 }

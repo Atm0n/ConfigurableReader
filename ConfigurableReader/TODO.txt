@@ -14,4 +14,4 @@ Afegir colorPicker //DONE
 
 Millorar la UI
 
-Fer que al fer scroll automatic no sembli un powerpoint (smooth)
+Fer que al fer scroll automatic no sembli un powerpoint //DONE
