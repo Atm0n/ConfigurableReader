@@ -10,10 +10,11 @@ Modificar "punt de llibre" perque també recordi el "Chunk" al que ens hem queda
 
 Afegir colorPicker //DONE
 
-Millorar la UI
+Millorar la UI //DONE
 
 Fer que al fer scroll automatic no sembli un powerpoint //DONE
 
+Afegir suport per xbox controller //DONE
 
 el text quedi centrat a la pantalla, //FET
 poder triar el color de fons //FET

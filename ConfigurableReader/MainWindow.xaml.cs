@@ -6,11 +6,15 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Xceed.Wpf.Toolkit;
 using System.Windows.Input;
+using SharpDX.XInput;
+
 
 namespace ConfigurableReader;
 
 public partial class MainWindow : Window
 {
+    private Controller controller;
+    private DispatcherTimer inputTimer;
     private readonly DispatcherTimer _scrollTimer;
     private double _scrollSpeed = 0.1;
     private double _currentPosition = 0;
@@ -22,10 +26,20 @@ public partial class MainWindow : Window
     private Configuration configuration;
     private BookPosition BookPosition;
     private BookPosition.Book? ActualBook;
+    private bool isProcessingInput = false;
 
     public MainWindow()
     {
         InitializeComponent();
+
+        //XBOX controller
+        controller = new Controller(UserIndex.One);
+        inputTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(10),
+        };
+        inputTimer.Tick += InputTimer_Tick;
+        inputTimer.Start();
 
         configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
@@ -41,6 +55,39 @@ public partial class MainWindow : Window
 
         LoadUserConfiguration();
 
+    }
+
+    private void InputTimer_Tick(object sender, EventArgs e)
+    {
+        if (controller.IsConnected && !isProcessingInput)
+        {
+            var state = controller.GetState();
+            var gamepad = state.Gamepad;
+            if ((gamepad.Buttons & GamepadButtonFlags.DPadRight) != 0)
+            {
+                isProcessingInput = true;
+                DelayInputProcessing();
+
+            }
+            else if ((gamepad.Buttons & GamepadButtonFlags.DPadLeft) != 0)
+            {
+                isProcessingInput = true;
+                DelayInputProcessing();
+
+            }
+            else if ((gamepad.Buttons & GamepadButtonFlags.A) != 0)
+            {
+                isProcessingInput = true;
+                StartStop();
+                DelayInputProcessing();
+
+            }
+        }
+    }
+    private async void DelayInputProcessing()
+    {
+        await Task.Delay(200);
+        isProcessingInput = false;
     }
 
     private void LoadBookPositionConfiguration()
@@ -142,7 +189,7 @@ public partial class MainWindow : Window
                 StartStop();
 
             }
-           
+
         }
 
         ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
@@ -233,7 +280,6 @@ public partial class MainWindow : Window
     {
         if (e.NewValue is not null)
         {
-            int value = (int)e.NewValue;
             ChangeFontSize((int)e.NewValue);
         }
     }
