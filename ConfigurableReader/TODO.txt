@@ -1,10 +1,21 @@
 ﻿#Pendent a fer
 
+
+
+que es pugui avançar (o recular) mentre es té una tecla apretada.  
+
+
+afegir una manera de moure's entre "Chunks"
+
+buscar una manera de passar de chunk sense tallar paraules
+
+
+
+
+
+#Fet
+
 afegir memoria de la configuració de color font de la lletra etc //DONE
-
-
-deshabilitar l'scroll del TextBox //done
-
 
 Modificar "punt de llibre" perque també recordi el "Chunk" al que ens hem quedat del llibre //DONE
 
@@ -17,10 +28,9 @@ Fer que al fer scroll automatic no sembli un powerpoint //DONE
 Afegir suport per xbox controller //DONE
 
 el text quedi centrat a la pantalla, //FET
+
 poder triar el color de fons //FET
+
 guardar el color en memoria //FET
 
-que es pugui avançar (o recular) mentre es té una tecla apretada.  //afegir un scroll que pugui moure's entre "Chunks"
-
-
-Control Start/Stop tant amb el botó com amb l'SPACE //DONE
+Control Start/Stop tant amb el botó com amb l'SPACE i amb el mando de l'xbox //DONE
