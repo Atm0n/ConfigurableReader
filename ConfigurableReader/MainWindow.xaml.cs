@@ -57,13 +57,16 @@ public partial class MainWindow : Window
         FontSizeSlider.Value = (int)Properties.Settings.Default.FontSize;
         ChangeFontSize(Properties.Settings.Default.FontSize);
 
-        var colorName = Properties.Settings.Default.TextColor;
+        var textColor = Properties.Settings.Default.TextColor;
 
-        ColorPicker.SelectedColor = Color.FromArgb(colorName.A, colorName.R, colorName.G, colorName.B);
+        ColorPicker.SelectedColor = Color.FromArgb(textColor.A, textColor.R, textColor.G, textColor.B);
         AssignNewColorToText();
 
         _scrollSpeed = Properties.Settings.Default.ScrollSpeed;
         SpeedSlider.Value = Properties.Settings.Default.ScrollSpeed;
+
+        var backgroundColor = Properties.Settings.Default.BackgoundColor;
+        this.Background = new SolidColorBrush(Color.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B));
     }
 
     private void LoadNextChunk()
@@ -203,6 +206,19 @@ public partial class MainWindow : Window
                 color.B
             );
         }
+        if (BackgroundColorPicker.SelectedColor is not null)
+        {
+            var backgoundColor = BackgroundColorPicker.SelectedColor.Value;
+            Properties.Settings.Default.BackgoundColor = System.Drawing.Color.FromArgb
+            (
+                backgoundColor.A,
+                backgoundColor.R,
+                backgoundColor.G,
+                backgoundColor.B
+            );
+
+
+        }
 
         Properties.Settings.Default.ScrollSpeed = _scrollSpeed;
 
@@ -220,8 +236,9 @@ public partial class MainWindow : Window
 
     private void BackgroundColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (e.NewValue.HasValue) { 
-            this.Background = new SolidColorBrush(e.NewValue.Value); 
+        if (e.NewValue.HasValue)
+        {
+            this.Background = new SolidColorBrush(e.NewValue.Value);
         }
     }
 }

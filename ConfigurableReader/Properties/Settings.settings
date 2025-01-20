@@ -6,10 +6,13 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="TextColor" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">LightSalmon</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="FontSize" Type="System.Double" Scope="User">
       <Value Profile="(Default)">16</Value>
+    </Setting>
+    <Setting Name="BackgoundColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>
