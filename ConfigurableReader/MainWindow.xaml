@@ -38,8 +38,12 @@
             <TextBlock Text="Font Size:" VerticalAlignment="Center" />
             <xctk:IntegerUpDown x:Name="FontSizeSlider" AllowTextInput="True" Minimum="10" Maximum="1000" ValueChanged="FontSizeSlider_ValueChanged" Width="100" />
         </StackPanel>
-        <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Grid.Row="1">
-            <TextBlock x:Name="TextBlock" TextWrapping="NoWrap" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
-        </ScrollViewer>
+        <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock x:Name="TextBlock" TextWrapping="NoWrap" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Window>

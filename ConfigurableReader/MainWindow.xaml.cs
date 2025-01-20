@@ -71,12 +71,14 @@ public partial class MainWindow : Window
         this.Background = new SolidColorBrush(Color.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B));
     }
 
-    private void LoadNextChunk()
+    private bool LoadNextChunk()
     {
-        if (_chunkEnumerator.MoveNext())
+        bool hasNextChunk = _chunkEnumerator.MoveNext();
+        if (hasNextChunk)
         {
             TextBlock.Text = _chunkEnumerator.Current.Replace("\r\n", " ").Replace("\n", " ");
         }
+        return hasNextChunk;
     }
     private void OpenFileButton_Click(object sender, RoutedEventArgs e)
     {
@@ -129,10 +131,18 @@ public partial class MainWindow : Window
         _currentPosition += SpeedSlider.Value;
         if (ScrollViewer.HorizontalOffset == ScrollViewer.ScrollableWidth)
         {
-            LoadNextChunk();
-            _currentChunk++;
-            _currentPosition = 0;
-            Title = $"{_currentChunk}";
+            if (LoadNextChunk())
+            {
+                _currentChunk++;
+                _currentPosition = 0;
+                Title = $"{_currentChunk}";
+            }
+            else
+            {
+                StartStop();
+
+            }
+           
         }
 
         ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
