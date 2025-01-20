@@ -187,7 +187,7 @@ public partial class MainWindow : Window
 
     private void SaveUserConfiguration()
     {
-        if( FontSizeSlider.Value is not null)
+        if (FontSizeSlider.Value is not null)
         {
             Properties.Settings.Default.FontSize = (double)FontSizeSlider.Value;
         }
@@ -211,10 +211,17 @@ public partial class MainWindow : Window
 
     private void FontSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if(e.NewValue is not null)
+        if (e.NewValue is not null)
         {
             int value = (int)e.NewValue;
             ChangeFontSize((int)e.NewValue);
+        }
+    }
+
+    private void BackgroundColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (e.NewValue.HasValue) { 
+            this.Background = new SolidColorBrush(e.NewValue.Value); 
         }
     }
 }

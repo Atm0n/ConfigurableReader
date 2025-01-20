@@ -15,11 +15,12 @@
             <TextBlock Text="Speed:" VerticalAlignment="Center" Margin="5" />
             <Slider x:Name="SpeedSlider" Minimum="0" Maximum="10" ValueChanged="SpeedSlider_ValueChanged" Margin="5" Width="300" />
             <xctk:ColorPicker x:Name="ColorPicker" SelectedColorChanged="ColorPicker_SelectedColorChanged" />
+            <xctk:ColorPicker x:Name="BackgroundColorPicker" SelectedColorChanged="BackgroundColorPicker_SelectedColorChanged" />
             <TextBlock Text="Font Size:" VerticalAlignment="Center" Margin="5" />
             <xctk:IntegerUpDown x:Name="FontSizeSlider" AllowTextInput="True" Minimum="10" Maximum="600" ValueChanged="FontSizeSlider_ValueChanged" Margin="5" Width="100" />
         </StackPanel>
-        <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Grid.Row="1">
-            <TextBlock x:Name="TextBlock" TextWrapping="NoWrap" FontSize="16"/>
+        <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"  Grid.Row="1">
+            <TextBlock x:Name="TextBlock" TextWrapping="NoWrap" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </ScrollViewer>
     </Grid>
 </Window>

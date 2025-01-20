@@ -3,7 +3,7 @@
 afegir memoria de la configuració de color font de la lletra etc //DONE
 
 
-afegir un scroll que pugui moure's entre "Chunks"
+
 
 deshabilitar l'scroll del TextBox //done
 
@@ -15,3 +15,10 @@ Afegir colorPicker //DONE
 Millorar la UI
 
 Fer que al fer scroll automatic no sembli un powerpoint //DONE
+
+
+el text quedi centrat a la pantalla,
+poder triar el color de fons //FET
+guardar el color en memoria
+
+que es pugui avançar (o recular) mentre es té una tecla apretada.  //afegir un scroll que pugui moure's entre "Chunks"
