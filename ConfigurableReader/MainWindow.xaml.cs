@@ -76,7 +76,7 @@ public partial class MainWindow : Window
         bool hasNextChunk = _chunkEnumerator.MoveNext();
         if (hasNextChunk)
         {
-            TextBlock.Text = _chunkEnumerator.Current.Replace("\r\n", " ").Replace("\n", " ");
+            TextBlock.Text = _chunkEnumerator.Current.Replace("\r", " ").Replace("\n", " ");
         }
         return hasNextChunk;
     }
@@ -87,7 +87,7 @@ public partial class MainWindow : Window
         {
             _currentBookFileName = openFileDialog.FileName;
 
-            _chunkEnumerator = _chunkReader.ReadChunks(_currentBookFileName, 3024).GetEnumerator(); //5024
+            _chunkEnumerator = _chunkReader.ReadChunks(_currentBookFileName, 524).GetEnumerator(); //5024
 
             ActualBook = BookPosition.Books.FirstOrDefault(book => book.Name == Path.GetFileName(_currentBookFileName));
 
