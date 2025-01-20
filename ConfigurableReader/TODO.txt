@@ -3,8 +3,6 @@
 afegir memoria de la configuració de color font de la lletra etc //DONE
 
 
-
-
 deshabilitar l'scroll del TextBox //done
 
 
@@ -17,8 +15,11 @@ Millorar la UI
 Fer que al fer scroll automatic no sembli un powerpoint //DONE
 
 
-el text quedi centrat a la pantalla,
+el text quedi centrat a la pantalla, //FET
 poder triar el color de fons //FET
-guardar el color en memoria
+guardar el color en memoria //FET
 
 que es pugui avançar (o recular) mentre es té una tecla apretada.  //afegir un scroll que pugui moure's entre "Chunks"
+
+
+Control Start/Stop tant amb el botó com amb l'SPACE //DONE

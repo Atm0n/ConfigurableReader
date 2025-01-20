@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Xceed.Wpf.Toolkit;
+using System.Windows.Input;
 
 namespace ConfigurableReader;
 
@@ -14,6 +15,7 @@ public partial class MainWindow : Window
     private double _scrollSpeed = 0.1;
     private double _currentPosition = 0;
     private int _currentChunk = 0;
+    private bool IsPaused = true;
     private string? _currentBookFileName;
     private TextChunkReader _chunkReader;
     private IEnumerator<string> _chunkEnumerator;
@@ -113,15 +115,7 @@ public partial class MainWindow : Window
             configuration.Save();
         }
     }
-    private void StartButton_Click(object sender, RoutedEventArgs e)
-    {
-        StartSmoothScroll();
-    }
-    private void PauseButton_Click(object sender, RoutedEventArgs e)
-    {
-        _scrollTimer.Stop();
 
-    }
     private void StartSmoothScroll()
     {
         _scrollTimer.Interval = TimeSpan.FromMilliseconds(0.0001);
@@ -240,5 +234,34 @@ public partial class MainWindow : Window
         {
             this.Background = new SolidColorBrush(e.NewValue.Value);
         }
+    }
+
+    private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == Key.Space)
+        {
+            StartStop();
+        }
+    }
+
+    private void StartStop()
+    {
+
+        if (IsPaused)
+        {
+            IsPaused = false;
+            StartSmoothScroll();
+        }
+        else
+        {
+            IsPaused = true;
+
+            _scrollTimer.Stop();
+        }
+    }
+
+    private void StartStopButton_Click(object sender, RoutedEventArgs e)
+    {
+        StartStop();
     }
 }
