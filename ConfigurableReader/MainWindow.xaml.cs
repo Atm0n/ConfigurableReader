@@ -103,7 +103,7 @@ public partial class MainWindow : Window
 
     private void LoadUserConfiguration()
     {
-        FontSizeSlider.Value = (int)Properties.Settings.Default.FontSize;
+        FontSizeSlider.Value = Properties.Settings.Default.FontSize;
         ChangeFontSize(Properties.Settings.Default.FontSize);
 
         var textColor = Properties.Settings.Default.TextColor;
@@ -124,12 +124,16 @@ public partial class MainWindow : Window
         if (hasNextChunk)
         {
             TextBlock.Text = _chunkEnumerator.Current.Replace("\r", " ").Replace("\n", " ");
+            Title = $"Chunk {_currentChunk}";
         }
         return hasNextChunk;
     }
     private void OpenFileButton_Click(object sender, RoutedEventArgs e)
     {
-        Microsoft.Win32.OpenFileDialog openFileDialog = new();
+        Microsoft.Win32.OpenFileDialog openFileDialog = new()
+        {
+            Filter = "Text files (*.txt)|*.txt"
+        };
         if (openFileDialog.ShowDialog() == true)
         {
             _currentBookFileName = openFileDialog.FileName;
@@ -174,22 +178,19 @@ public partial class MainWindow : Window
     private void ScrollTimer_Tick(object sender, EventArgs e)
     {
         _currentPosition = ScrollViewer.HorizontalOffset;
+        _currentPosition += SpeedSlider.Value * _scrollSpeed;
 
-        _currentPosition += SpeedSlider.Value;
-        if (ScrollViewer.HorizontalOffset == ScrollViewer.ScrollableWidth)
+        if (_currentPosition >= ScrollViewer.ScrollableWidth)
         {
             if (LoadNextChunk())
             {
                 _currentChunk++;
                 _currentPosition = 0;
-                Title = $"{_currentChunk}";
             }
             else
             {
                 StartStop();
-
             }
-
         }
 
         ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
@@ -243,7 +244,7 @@ public partial class MainWindow : Window
     {
         if (FontSizeSlider.Value is not null)
         {
-            Properties.Settings.Default.FontSize = (double)FontSizeSlider.Value;
+            Properties.Settings.Default.FontSize = FontSizeSlider.Value.Value;
         }
 
         if (ColorPicker.SelectedColor is not null)
@@ -302,18 +303,22 @@ public partial class MainWindow : Window
 
     private void StartStop()
     {
-
-        if (IsPaused)
+        if(_chunkEnumerator is not null)
         {
-            IsPaused = false;
-            StartSmoothScroll();
+            if (IsPaused)
+            {
+                StartStopButton.Content = "Start";
+                IsPaused = !IsPaused;
+                StartSmoothScroll();
+            }
+            else
+            {
+                StartStopButton.Content = "Stop";
+                IsPaused = !IsPaused;
+                _scrollTimer.Stop();
+            }
         }
-        else
-        {
-            IsPaused = true;
-
-            _scrollTimer.Stop();
-        }
+        
     }
 
     private void StartStopButton_Click(object sender, RoutedEventArgs e)

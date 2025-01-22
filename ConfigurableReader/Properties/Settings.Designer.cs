@@ -49,9 +49,9 @@ namespace ConfigurableReader.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("16")]
-        public double FontSize {
+        public int FontSize {
             get {
-                return ((double)(this["FontSize"]));
+                return ((int)(this["FontSize"]));
             }
             set {
                 this["FontSize"] = value;

@@ -8,7 +8,7 @@
     <Setting Name="TextColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="FontSize" Type="System.Double" Scope="User">
+    <Setting Name="FontSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">16</Value>
     </Setting>
     <Setting Name="BackgoundColor" Type="System.Drawing.Color" Scope="User">
