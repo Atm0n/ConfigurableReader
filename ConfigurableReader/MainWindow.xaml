@@ -19,8 +19,12 @@
             <Setter Property="Margin" Value="5"/>
         </Style>
     </Window.Resources>
-    <DockPanel LastChildFill="True">
-        <StackPanel Orientation="Horizontal"  DockPanel.Dock="Top">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="15*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal"  DockPanel.Dock="Top">
             <Button Content="Open File" Click="OpenFileButton_Click" />
             <Button x:Name="StartStopButton" Content="Start" Click="StartStopButton_Click" />
             <TextBlock Text="Speed:" VerticalAlignment="Center" />
@@ -28,10 +32,22 @@
             <xctk:ColorPicker x:Name="ColorPicker" SelectedColorChanged="ColorPicker_SelectedColorChanged" />
             <xctk:ColorPicker x:Name="BackgroundColorPicker" SelectedColorChanged="BackgroundColorPicker_SelectedColorChanged" />
             <TextBlock Text="Font Size:" VerticalAlignment="Center" />
-            <xctk:IntegerUpDown x:Name="FontSizeSlider" AllowTextInput="True" Minimum="10" Maximum="1000" ValueChanged="FontSizeSlider_ValueChanged" Width="100" />
+            <xctk:IntegerUpDown x:Name="FontSizeSlider" AllowTextInput="True" Minimum="10" Maximum="2000" ValueChanged="FontSizeSlider_ValueChanged" Width="100" />
         </StackPanel>
-        <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" DockPanel.Dock="Bottom">
-            <TextBlock x:Name="TextBlock" TextWrapping="Wrap" FontSize="16" />
-        </ScrollViewer>
-    </DockPanel>
+        <StackPanel Grid.Row="1">
+            <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Auto"  Margin="0,0,0,0" Padding="0,0,0,0"   FontWeight="Light" VerticalAlignment="Top">
+                <TextBlock x:Name="TextBlock" 
+           Text=" MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon"
+            FontSize="16" Margin="0,0,0,0" Padding="0,0,0,0"  Height="Auto"
+           VerticalAlignment="Center" TextAlignment="Center" 
+           TextWrapping="NoWrap"
+           />
+            </ScrollViewer>
+
+            <!--LineHeight="10"-->
+            <!---->
+
+        </StackPanel>
+
+    </Grid>
 </Window>
