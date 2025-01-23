@@ -15,14 +15,13 @@ public partial class MainWindow : Window
 {
     private Controller controller;
     private DispatcherTimer inputTimer;
+    private readonly DispatcherTimer _textUpdateTimer;
     private readonly DispatcherTimer _scrollTimer;
     private double _scrollSpeed = 0.1;
-    private double _currentPosition = 0;
-    private int _currentChunk = 0;
+    private int? _currentPosition;
     private bool IsPaused = true;
     private string? _currentBookFileName;
-    private TextChunkReader _chunkReader;
-    private IEnumerator<string> _chunkEnumerator;
+    private string _fullText;
     private Configuration configuration;
     private BookPosition BookPosition;
     private BookPosition.Book? ActualBook;
@@ -41,17 +40,15 @@ public partial class MainWindow : Window
         inputTimer.Tick += InputTimer_Tick;
         inputTimer.Start();
 
+        _textUpdateTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(10) // Adjust interval as needed
+        };
+        _textUpdateTimer.Tick += UpdateText;
+
         configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
         LoadBookPositionConfiguration();
-
-        _chunkReader = new TextChunkReader();
-        _scrollTimer = new()
-        {
-            Interval = TimeSpan.FromMilliseconds(10)
-        };
-
-        _scrollTimer.Tick += ScrollTimer_Tick;
 
         LoadUserConfiguration();
 
@@ -118,16 +115,7 @@ public partial class MainWindow : Window
         this.Background = new SolidColorBrush(Color.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B));
     }
 
-    private bool LoadNextChunk()
-    {
-        bool hasNextChunk = _chunkEnumerator.MoveNext();
-        if (hasNextChunk)
-        {
-            TextBlock.Text = _chunkEnumerator.Current.Replace("\r", " ").Replace("\n", " ");
-            Title = $"Chunk {_currentChunk}";
-        }
-        return hasNextChunk;
-    }
+
     private void OpenFileButton_Click(object sender, RoutedEventArgs e)
     {
         Microsoft.Win32.OpenFileDialog openFileDialog = new()
@@ -138,7 +126,9 @@ public partial class MainWindow : Window
         {
             _currentBookFileName = openFileDialog.FileName;
 
-            _chunkEnumerator = _chunkReader.ReadChunks(_currentBookFileName, 524).GetEnumerator(); //5024
+            //_chunkEnumerator = _chunkReader.ReadChunks(_currentBookFileName, 524).GetEnumerator(); //5024
+
+            _fullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " "); ;
 
             ActualBook = BookPosition.Books.FirstOrDefault(book => book.Name == Path.GetFileName(_currentBookFileName));
 
@@ -154,47 +144,31 @@ public partial class MainWindow : Window
                 BookPosition.Books.Add(ActualBook);
             }
 
-            for (int i = 0; i <= ActualBook.Chunk; i++)
-            {
-                LoadNextChunk();
+            _currentPosition = (int)ActualBook.ScrollPosition;
 
-            }
-            _currentChunk = ActualBook.Chunk;
-            _currentPosition = ActualBook.ScrollPosition;
+            TextBlock.Text = _fullText.Substring((int)_currentPosition, _fullText.Length - (int)_currentPosition);
 
-            ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
+            ScrollViewer.ScrollToHorizontalOffset((int)_currentPosition);
 
 
             configuration.Save();
         }
     }
-
-    private void StartSmoothScroll()
+    private void UpdateText(object sender, EventArgs e)
     {
-        _scrollTimer.Interval = TimeSpan.FromMilliseconds(0.0001);
-        _scrollTimer.Tick += ScrollTimer_Tick;
-        _scrollTimer.Start();
-    }
-    private void ScrollTimer_Tick(object sender, EventArgs e)
-    {
-        _currentPosition = ScrollViewer.HorizontalOffset;
-        _currentPosition += SpeedSlider.Value * _scrollSpeed;
-
-        if (_currentPosition >= ScrollViewer.ScrollableWidth)
+        if (_currentPosition < _fullText.Length)
         {
-            if (LoadNextChunk())
-            {
-                _currentChunk++;
-                _currentPosition = 0;
-            }
-            else
-            {
-                StartStop();
-            }
+            TextBlock.Text = _fullText.Substring((int)_currentPosition, _fullText.Length - (int)_currentPosition);
+            _currentPosition += 1; // Move forward by one character
         }
-
-        ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
+        else
+        {
+            StartStop();
+            Microsoft.Win32.OpenFolderDialog a =new();
+            a.ShowDialog();
+        }
     }
+
 
     private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
@@ -209,7 +183,6 @@ public partial class MainWindow : Window
 
     private void ColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-
         AssignNewColorToText();
     }
 
@@ -234,7 +207,6 @@ public partial class MainWindow : Window
     {
         if (ActualBook is not null)
         {
-            ActualBook.Chunk = _currentChunk;
             ActualBook.ScrollPosition = ScrollViewer.HorizontalOffset;
 
         }
@@ -303,22 +275,24 @@ public partial class MainWindow : Window
 
     private void StartStop()
     {
-        if(_chunkEnumerator is not null)
+        if (_currentPosition is not null)
         {
             if (IsPaused)
             {
                 StartStopButton.Content = "Start";
                 IsPaused = !IsPaused;
-                StartSmoothScroll();
+                _textUpdateTimer.Start();
             }
             else
             {
                 StartStopButton.Content = "Stop";
                 IsPaused = !IsPaused;
                 _scrollTimer.Stop();
+                _textUpdateTimer.Stop();
+
             }
         }
-        
+
     }
 
     private void StartStopButton_Click(object sender, RoutedEventArgs e)
