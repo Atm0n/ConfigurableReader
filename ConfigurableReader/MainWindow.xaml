@@ -37,8 +37,7 @@
         <StackPanel Grid.Row="1">
             <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Auto"  Margin="0,0,0,0" Padding="0,0,0,0"   FontWeight="Light" VerticalAlignment="Top">
                 <TextBlock x:Name="TextBlock" 
-           Text=" MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon MIERdon"
-            FontSize="16" Margin="0,0,0,0" Padding="0,0,0,0"  Height="Auto"
+           Text="" FontSize="16" Margin="0,0,0,0" Padding="0,0,0,0"  Height="Auto"
            VerticalAlignment="Center" TextAlignment="Center" 
            TextWrapping="NoWrap"
            />
