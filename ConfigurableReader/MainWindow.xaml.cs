@@ -18,11 +18,11 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _scrollTimer;
     private double _scrollSpeed = 0.1;
     private double _currentPosition = 0;
-    private int _currentChunk = 0;
+    //private int _currentChunk = 0;
     private bool IsPaused = true;
     private string? _currentBookFileName;
     private TextChunkReader _chunkReader;
-    private IEnumerator<string> _chunkEnumerator;
+    private string[] _textChunks;
     private Configuration configuration;
     private BookPosition BookPosition;
     private BookPosition.Book? ActualBook;
@@ -118,16 +118,16 @@ public partial class MainWindow : Window
         this.Background = new SolidColorBrush(Color.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B));
     }
 
-    private bool LoadNextChunk()
-    {
-        bool hasNextChunk = _chunkEnumerator.MoveNext();
-        if (hasNextChunk)
-        {
-            TextBlock.Text = _chunkEnumerator.Current.Replace("\r", " ").Replace("\n", " ");
-            Title = $"Chunk {_currentChunk}";
-        }
-        return hasNextChunk;
-    }
+    //private bool LoadNextChunk()
+    //{
+    //    bool hasNextChunk = _textChunks.MoveNext();
+    //    if (hasNextChunk)
+    //    {
+    //        //TextBlock.Text = _chunkEnumerator.Current.Replace("\r", " ").Replace("\n", " ");
+    //        Title = $"Chunk {_currentChunk}";
+    //    }
+    //    return hasNextChunk;
+    //}
     private void OpenFileButton_Click(object sender, RoutedEventArgs e)
     {
         Microsoft.Win32.OpenFileDialog openFileDialog = new()
@@ -138,8 +138,19 @@ public partial class MainWindow : Window
         {
             _currentBookFileName = openFileDialog.FileName;
 
-            _chunkEnumerator = _chunkReader.ReadChunks(_currentBookFileName, 524).GetEnumerator(); //5024
+            _textChunks = _chunkReader.ReadChunks(_currentBookFileName, 524); //5024
 
+
+            foreach (var textChunk in _textChunks)
+            {
+                var textBlock = new TextBlock()
+                {
+
+                    Text = textChunk,
+                };
+
+                Stack.Children.Add(textBlock);
+            }
             ActualBook = BookPosition.Books.FirstOrDefault(book => book.Name == Path.GetFileName(_currentBookFileName));
 
             if (ActualBook is null)
@@ -154,12 +165,12 @@ public partial class MainWindow : Window
                 BookPosition.Books.Add(ActualBook);
             }
 
-            for (int i = 0; i <= ActualBook.Chunk; i++)
-            {
-                LoadNextChunk();
+            //for (int i = 0; i <= ActualBook.Chunk; i++)
+            //{
+            //    LoadNextChunk();
 
-            }
-            _currentChunk = ActualBook.Chunk;
+            //}
+            //_currentChunk = ActualBook.Chunk;
             _currentPosition = ActualBook.ScrollPosition;
 
             ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
@@ -182,15 +193,16 @@ public partial class MainWindow : Window
 
         if (_currentPosition >= ScrollViewer.ScrollableWidth)
         {
-            if (LoadNextChunk())
-            {
-                _currentChunk++;
-                _currentPosition = 0;
-            }
-            else
-            {
-                StartStop();
-            }
+            //if (LoadNextChunk())
+            //{
+            //    //_currentChunk++;
+            //    _currentPosition = 0;
+            //}
+            //else
+            //{
+
+            //}
+            StartStop();
         }
 
         ScrollViewer.ScrollToHorizontalOffset(_currentPosition);
@@ -203,8 +215,8 @@ public partial class MainWindow : Window
 
     private void ChangeFontSize(double value)
     {
-        if (TextBlock is not null)
-            TextBlock.FontSize = value;
+        //if (TextBlock is not null)
+        //    TextBlock.FontSize = value;
     }
 
     private void ColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
@@ -217,7 +229,7 @@ public partial class MainWindow : Window
     {
         if (ColorPicker.SelectedColor is not null)
         {
-            TextBlock.Foreground = new SolidColorBrush((Color)ColorPicker.SelectedColor);
+            //TextBlock.Foreground = new SolidColorBrush((Color)ColorPicker.SelectedColor);
         }
     }
 
@@ -234,7 +246,7 @@ public partial class MainWindow : Window
     {
         if (ActualBook is not null)
         {
-            ActualBook.Chunk = _currentChunk;
+            //ActualBook.Chunk = _currentChunk;
             ActualBook.ScrollPosition = ScrollViewer.HorizontalOffset;
 
         }
@@ -303,7 +315,7 @@ public partial class MainWindow : Window
 
     private void StartStop()
     {
-        if(_chunkEnumerator is not null)
+        if (_textChunks is not null)
         {
             if (IsPaused)
             {
@@ -318,7 +330,7 @@ public partial class MainWindow : Window
                 _scrollTimer.Stop();
             }
         }
-        
+
     }
 
     private void StartStopButton_Click(object sender, RoutedEventArgs e)
