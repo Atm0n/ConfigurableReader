@@ -13,12 +13,10 @@ namespace ConfigurableReader;
 
 public partial class MainWindow : Window
 {
-    private Controller controller;
+    private Controller controller = new(UserIndex.One);
     private DispatcherTimer inputTimer;
     private readonly DispatcherTimer _textUpdateTimer;
-    private readonly DispatcherTimer _scrollTimer;
-    private double _scrollSpeed = 0.1;
-    private int? _currentPosition;
+    private int _currentPosition = 0;
     private bool IsPaused = true;
     private string? _currentBookFileName;
     private string _fullText;
@@ -31,18 +29,11 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        //XBOX controller
-        controller = new Controller(UserIndex.One);
-        inputTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(10),
-        };
-        inputTimer.Tick += InputTimer_Tick;
-        inputTimer.Start();
+        XboxController();
 
         _textUpdateTimer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromMilliseconds(10) // Adjust interval as needed
+            Interval = TimeSpan.FromMilliseconds(1), // Adjust interval as needed
         };
         _textUpdateTimer.Tick += UpdateText;
 
@@ -54,33 +45,6 @@ public partial class MainWindow : Window
 
     }
 
-    private void InputTimer_Tick(object sender, EventArgs e)
-    {
-        if (controller.IsConnected && !isProcessingInput)
-        {
-            var state = controller.GetState();
-            var gamepad = state.Gamepad;
-            if ((gamepad.Buttons & GamepadButtonFlags.DPadRight) != 0)
-            {
-                isProcessingInput = true;
-                DelayInputProcessing();
-
-            }
-            else if ((gamepad.Buttons & GamepadButtonFlags.DPadLeft) != 0)
-            {
-                isProcessingInput = true;
-                DelayInputProcessing();
-
-            }
-            else if ((gamepad.Buttons & GamepadButtonFlags.A) != 0)
-            {
-                isProcessingInput = true;
-                StartStop();
-                DelayInputProcessing();
-
-            }
-        }
-    }
     private async void DelayInputProcessing()
     {
         await Task.Delay(200);
@@ -103,76 +67,38 @@ public partial class MainWindow : Window
         FontSizeSlider.Value = Properties.Settings.Default.FontSize;
         ChangeFontSize(Properties.Settings.Default.FontSize);
 
-        var textColor = Properties.Settings.Default.TextColor;
+        var textColor = CreateColorFromDrawingColor(Properties.Settings.Default.TextColor);
 
-        ColorPicker.SelectedColor = Color.FromArgb(textColor.A, textColor.R, textColor.G, textColor.B);
-        AssignNewColorToText();
+        ColorPicker.SelectedColor = textColor;
 
-        _scrollSpeed = Properties.Settings.Default.ScrollSpeed;
+        TextBlock.Foreground = CreateBrush(textColor);
+
         SpeedSlider.Value = Properties.Settings.Default.ScrollSpeed;
 
         var backgroundColor = Properties.Settings.Default.BackgoundColor;
         this.Background = new SolidColorBrush(Color.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B));
     }
 
-
-    private void OpenFileButton_Click(object sender, RoutedEventArgs e)
+    private static Color CreateColorFromDrawingColor(System.Drawing.Color textColor)
     {
-        Microsoft.Win32.OpenFileDialog openFileDialog = new()
-        {
-            Filter = "Text files (*.txt)|*.txt"
-        };
-        if (openFileDialog.ShowDialog() == true)
-        {
-            _currentBookFileName = openFileDialog.FileName;
-
-            //_chunkEnumerator = _chunkReader.ReadChunks(_currentBookFileName, 524).GetEnumerator(); //5024
-
-            _fullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " "); ;
-
-            ActualBook = BookPosition.Books.FirstOrDefault(book => book.Name == Path.GetFileName(_currentBookFileName));
-
-            if (ActualBook is null)
-            {
-
-                ActualBook = new BookPosition.Book()
-                {
-                    Name = Path.GetFileName(_currentBookFileName),
-                    Chunk = 0,
-                    ScrollPosition = 0
-                };
-                BookPosition.Books.Add(ActualBook);
-            }
-
-            _currentPosition = (int)ActualBook.ScrollPosition;
-
-            TextBlock.Text = _fullText.Substring((int)_currentPosition, _fullText.Length - (int)_currentPosition);
-
-            ScrollViewer.ScrollToHorizontalOffset((int)_currentPosition);
-
-
-            configuration.Save();
-        }
+        return Color.FromArgb(textColor.A, textColor.R, textColor.G, textColor.B);
     }
+
     private void UpdateText(object sender, EventArgs e)
     {
         if (_currentPosition < _fullText.Length)
         {
-            TextBlock.Text = _fullText.Substring((int)_currentPosition, _fullText.Length - (int)_currentPosition);
-            _currentPosition += 1; // Move forward by one character
+            TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
+            _currentPosition += 1;
         }
         else
         {
             StartStop();
-            Microsoft.Win32.OpenFolderDialog a =new();
+
+            //TODO s'ha de fer algúna cosa per marcar fi del llibre
+            Microsoft.Win32.OpenFolderDialog a = new();
             a.ShowDialog();
         }
-    }
-
-
-    private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        _scrollSpeed = e.NewValue;
     }
 
     private void ChangeFontSize(double value)
@@ -181,34 +107,19 @@ public partial class MainWindow : Window
             TextBlock.FontSize = value;
     }
 
-    private void ColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
+    private SolidColorBrush CreateBrush(Color? color)
     {
-        AssignNewColorToText();
+        if (color is not null)
+            return new SolidColorBrush((Color)color);
+        return new SolidColorBrush();
     }
 
-    private void AssignNewColorToText()
-    {
-        if (ColorPicker.SelectedColor is not null)
-        {
-            TextBlock.Foreground = new SolidColorBrush((Color)ColorPicker.SelectedColor);
-        }
-    }
-
-    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-    {
-        SaveActualBookConfiguration();
-        SaveUserConfiguration();
-
-        configuration.Save();
-
-    }
-
+    #region configuration
     private void SaveActualBookConfiguration()
     {
         if (ActualBook is not null)
         {
-            ActualBook.ScrollPosition = ScrollViewer.HorizontalOffset;
-
+            ActualBook.ScrollPosition = _currentPosition;
         }
     }
 
@@ -244,9 +155,95 @@ public partial class MainWindow : Window
 
         }
 
-        Properties.Settings.Default.ScrollSpeed = _scrollSpeed;
+        Properties.Settings.Default.ScrollSpeed = SpeedSlider.Value;
 
         Properties.Settings.Default.Save();
+    }
+
+    #endregion
+    #region Events
+        #region xboxController
+    private void InputXboxTimer_Tick(object sender, EventArgs e)
+    {
+        if (controller.IsConnected && !isProcessingInput)
+        {
+            var state = controller.GetState();
+            var gamepad = state.Gamepad;
+            if ((gamepad.Buttons & GamepadButtonFlags.DPadRight) != 0)
+            {
+                isProcessingInput = true;
+                DelayInputProcessing();
+
+            }
+            else if ((gamepad.Buttons & GamepadButtonFlags.DPadLeft) != 0)
+            {
+                isProcessingInput = true;
+                DelayInputProcessing();
+
+            }
+            else if ((gamepad.Buttons & GamepadButtonFlags.A) != 0)
+            {
+                isProcessingInput = true;
+                StartStop();
+                DelayInputProcessing();
+
+            }
+        }
+    }
+
+    private void XboxController()
+    {
+        //XBOX controller
+        inputTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1),
+        };
+        inputTimer.Tick += InputXboxTimer_Tick;
+        inputTimer.Start();
+    }
+        #endregion xboxController
+    private void OpenFileButton_Click(object sender, RoutedEventArgs e)
+    {
+        Microsoft.Win32.OpenFileDialog openFileDialog = new()
+        {
+            Filter = "Text files (*.txt)|*.txt"
+        };
+        if (openFileDialog.ShowDialog() == true)
+        {
+            _currentBookFileName = openFileDialog.FileName;
+
+            _fullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " "); ;
+
+            ActualBook = BookPosition.Books.FirstOrDefault(book => book.Name == Path.GetFileName(_currentBookFileName));
+
+            if (ActualBook is null)
+            {
+
+                ActualBook = new BookPosition.Book()
+                {
+                    Name = Path.GetFileName(_currentBookFileName),
+                    ScrollPosition = 0
+                };
+                BookPosition.Books.Add(ActualBook);
+            }
+
+            _currentPosition = ActualBook.ScrollPosition;
+
+            TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
+            TextSlider.Maximum = _fullText.Length;
+
+            configuration.Save();
+        }
+    }
+
+    private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        _textUpdateTimer.Interval = TimeSpan.FromSeconds(e.NewValue);
+    }
+
+    private void ColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        TextBlock.Foreground = CreateBrush(e.NewValue);
     }
 
     private void FontSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -272,10 +269,23 @@ public partial class MainWindow : Window
             StartStop();
         }
     }
+    private void StartStopButton_Click(object sender, RoutedEventArgs e)
+    {
+        StartStop();
+    }
+    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+        SaveActualBookConfiguration();
+        SaveUserConfiguration();
 
+        configuration.Save();
+
+    }
+
+    #endregion
     private void StartStop()
     {
-        if (_currentPosition is not null)
+        if (_currentBookFileName is not null)
         {
             if (IsPaused)
             {
@@ -287,7 +297,6 @@ public partial class MainWindow : Window
             {
                 StartStopButton.Content = "Stop";
                 IsPaused = !IsPaused;
-                _scrollTimer.Stop();
                 _textUpdateTimer.Stop();
 
             }
@@ -295,8 +304,12 @@ public partial class MainWindow : Window
 
     }
 
-    private void StartStopButton_Click(object sender, RoutedEventArgs e)
+    private void TextSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        StartStop();
+        if (IsPaused)
+        {
+            _currentPosition = (int)TextSlider.Value;
+            TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
+        }
     }
 }
