@@ -24,6 +24,7 @@ public partial class MainWindow : Window
     private BookPosition BookPosition;
     private BookPosition.Book? ActualBook;
     private bool isProcessingInput = false;
+    private bool isReversing = false;
 
     public MainWindow()
     {
@@ -64,13 +65,12 @@ public partial class MainWindow : Window
 
     private void LoadUserConfiguration()
     {
-        FontSizeSlider.Value = Properties.Settings.Default.FontSize;
         ChangeFontSize(Properties.Settings.Default.FontSize);
 
         var textColor = CreateColorFromDrawingColor(Properties.Settings.Default.TextColor);
 
         ColorPicker.SelectedColor = textColor;
-
+        TextBlock.FontSize = Properties.Settings.Default.FontSize;
         TextBlock.Foreground = CreateBrush(textColor);
 
         SpeedSlider.Value = Properties.Settings.Default.ScrollSpeed;
@@ -86,19 +86,38 @@ public partial class MainWindow : Window
 
     private void UpdateText(object sender, EventArgs e)
     {
-        if (_currentPosition < _fullText.Length)
-        {
-            TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
-            _currentPosition += 1;
-        }
-        else
-        {
-            StartStop();
+        int modifier = isReversing ? -1 : 1;
 
-            //TODO s'ha de fer algúna cosa per marcar fi del llibre
-            Microsoft.Win32.OpenFolderDialog a = new();
-            a.ShowDialog();
+
+        UpdateTextBlock(modifier);
+    }
+
+    private void UpdateTextBlock(int modifier)
+    {
+        if (_currentPosition > 0 && isReversing)
+        {
+            _currentPosition += modifier;
+            if (_currentPosition < 0)
+            {
+                _currentPosition = 0;
+                StartStop();
+                Xceed.Wpf.Toolkit.MessageBox.Show("Start of the book reached");
+                isReversing = false;
+            }
         }
+        else if (_currentPosition < _fullText.Length && !isReversing)
+        {
+            _currentPosition += modifier;
+            if (_currentPosition > _fullText.Length)
+            {
+                _currentPosition = _fullText.Length;
+                StartStop();
+                Xceed.Wpf.Toolkit.MessageBox.Show("End of the book reached");
+            }
+        }
+
+        TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
+        TextSlider.Value = _currentPosition;
     }
 
     private void ChangeFontSize(double value)
@@ -107,7 +126,7 @@ public partial class MainWindow : Window
             TextBlock.FontSize = value;
     }
 
-    private SolidColorBrush CreateBrush(Color? color)
+    private static SolidColorBrush CreateBrush(Color? color)
     {
         if (color is not null)
             return new SolidColorBrush((Color)color);
@@ -125,10 +144,7 @@ public partial class MainWindow : Window
 
     private void SaveUserConfiguration()
     {
-        if (FontSizeSlider.Value is not null)
-        {
-            Properties.Settings.Default.FontSize = FontSizeSlider.Value.Value;
-        }
+        Properties.Settings.Default.FontSize = (int)TextBlock.FontSize;
 
         if (ColorPicker.SelectedColor is not null)
         {
@@ -162,7 +178,7 @@ public partial class MainWindow : Window
 
     #endregion
     #region Events
-        #region xboxController
+    #region xboxController
     private void InputXboxTimer_Tick(object sender, EventArgs e)
     {
         if (controller.IsConnected && !isProcessingInput)
@@ -201,7 +217,7 @@ public partial class MainWindow : Window
         inputTimer.Tick += InputXboxTimer_Tick;
         inputTimer.Start();
     }
-        #endregion xboxController
+    #endregion xboxController
     private void OpenFileButton_Click(object sender, RoutedEventArgs e)
     {
         Microsoft.Win32.OpenFileDialog openFileDialog = new()
@@ -212,7 +228,7 @@ public partial class MainWindow : Window
         {
             _currentBookFileName = openFileDialog.FileName;
 
-            _fullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " "); ;
+            _fullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " ").Replace("  ", " "); ;
 
             ActualBook = BookPosition.Books.FirstOrDefault(book => book.Name == Path.GetFileName(_currentBookFileName));
 
@@ -222,7 +238,6 @@ public partial class MainWindow : Window
                 ActualBook = new BookPosition.Book()
                 {
                     Name = Path.GetFileName(_currentBookFileName),
-                    ScrollPosition = 0
                 };
                 BookPosition.Books.Add(ActualBook);
             }
@@ -230,6 +245,7 @@ public partial class MainWindow : Window
             _currentPosition = ActualBook.ScrollPosition;
 
             TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
+
             TextSlider.Maximum = _fullText.Length;
 
             configuration.Save();
@@ -264,9 +280,27 @@ public partial class MainWindow : Window
 
     private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
-        if (e.Key == Key.Space)
+        this.Focus();
+
+        switch (e.Key)
         {
-            StartStop();
+            case Key.Left:
+                isReversing = true;
+                break;
+            case Key.Right:
+                isReversing = false;
+                break;
+            case Key.Space:
+                StartStop();
+                break;
+            case Key.Up:
+                TextBlock.FontSize += 1;
+                break;
+            case Key.Down:
+                TextBlock.FontSize -= 1;
+                break;
+            default:
+                break;
         }
     }
     private void StartStopButton_Click(object sender, RoutedEventArgs e)
@@ -311,5 +345,10 @@ public partial class MainWindow : Window
             _currentPosition = (int)TextSlider.Value;
             TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
         }
+    }
+
+    private void ReverseButton_Click(object sender, RoutedEventArgs e)
+    {
+        isReversing = !isReversing;
     }
 }
