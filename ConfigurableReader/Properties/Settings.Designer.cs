@@ -37,7 +37,7 @@ namespace ConfigurableReader.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("LightSalmon")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
         public global::System.Drawing.Color TextColor {
             get {
                 return ((global::System.Drawing.Color)(this["TextColor"]));
@@ -50,12 +50,24 @@ namespace ConfigurableReader.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("16")]
-        public double FontSize {
+        public int FontSize {
             get {
-                return ((double)(this["FontSize"]));
+                return ((int)(this["FontSize"]));
             }
             set {
                 this["FontSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("White")]
+        public global::System.Drawing.Color BackgoundColor {
+            get {
+                return ((global::System.Drawing.Color)(this["BackgoundColor"]));
+            }
+            set {
+                this["BackgoundColor"] = value;
             }
         }
     }
