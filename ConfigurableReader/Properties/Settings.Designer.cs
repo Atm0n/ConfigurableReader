@@ -37,6 +37,7 @@ namespace ConfigurableReader.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
         public global::System.Drawing.Color TextColor {
             get {
                 return ((global::System.Drawing.Color)(this["TextColor"]));
@@ -60,6 +61,7 @@ namespace ConfigurableReader.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("White")]
         public global::System.Drawing.Color BackgoundColor {
             get {
                 return ((global::System.Drawing.Color)(this["BackgoundColor"]));

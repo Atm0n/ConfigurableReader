@@ -44,24 +44,12 @@ public class BookPosition : ConfigurationSection
                 this["name"] = value;
             }
         }
-        [ConfigurationProperty("chunk", IsRequired = true)]
-        public int Chunk
-        {
-            get
-            {
-                return (int)this["chunk"];
-            }
-            set
-            {
-                this["chunk"] = value;
-            }
-        }
         [ConfigurationProperty("scrollPosition", IsRequired = true)]
-        public double ScrollPosition
+        public int ScrollPosition
         {
             get
             {
-                return (double)this["scrollPosition"];
+                return (int)this["scrollPosition"];
             }
             set
             {
