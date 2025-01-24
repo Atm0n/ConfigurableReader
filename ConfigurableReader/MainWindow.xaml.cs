@@ -13,15 +13,15 @@ namespace ConfigurableReader;
 
 public partial class MainWindow : Window
 {
-    private Controller controller = new(UserIndex.One);
-    private DispatcherTimer inputTimer;
+    private readonly Controller controller = new(UserIndex.One);
+    private readonly DispatcherTimer inputTimer;
     private readonly DispatcherTimer _textUpdateTimer;
     private int _currentPosition = 0;
     private bool IsPaused = true;
     private string? _currentBookFileName;
-    private string _fullText;
-    private Configuration configuration;
-    private BookPosition BookPosition;
+    private string _fullText = string.Empty;
+    private readonly Configuration configuration;
+    private BookPosition? BookPosition;
     private BookPosition.Book? ActualBook;
     private bool isProcessingInput = false;
     private bool isReversing = false;
@@ -29,6 +29,11 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
+        inputTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1),
+        };
 
         XboxController();
 
@@ -61,6 +66,7 @@ public partial class MainWindow : Window
         }
 
         BookPosition = (BookPosition)configuration.GetSection("bookPositions");
+        if (BookPosition is null) throw new Exception("BookPosition is null");
     }
 
     private void LoadUserConfiguration()
@@ -209,11 +215,6 @@ public partial class MainWindow : Window
 
     private void XboxController()
     {
-        //XBOX controller
-        inputTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromSeconds(1),
-        };
         inputTimer.Tick += InputXboxTimer_Tick;
         inputTimer.Start();
     }
@@ -230,7 +231,7 @@ public partial class MainWindow : Window
 
             _fullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " ").Replace("  ", " "); ;
 
-            ActualBook = BookPosition.Books.FirstOrDefault(book => book.Name == Path.GetFileName(_currentBookFileName));
+            ActualBook = BookPosition!.Books.FirstOrDefault(book => book.Name == Path.GetFileName(_currentBookFileName));
 
             if (ActualBook is null)
             {
@@ -239,7 +240,7 @@ public partial class MainWindow : Window
                 {
                     Name = Path.GetFileName(_currentBookFileName),
                 };
-                BookPosition.Books.Add(ActualBook);
+                BookPosition!.Books.Add(ActualBook);
             }
 
             _currentPosition = ActualBook.ScrollPosition;
@@ -323,13 +324,13 @@ public partial class MainWindow : Window
         {
             if (IsPaused)
             {
-                StartStopButton.Content = "Start";
+                StartStopButton.Content = "Stop";
                 IsPaused = !IsPaused;
                 _textUpdateTimer.Start();
             }
             else
             {
-                StartStopButton.Content = "Stop";
+                StartStopButton.Content = "Start";
                 IsPaused = !IsPaused;
                 _textUpdateTimer.Stop();
 
