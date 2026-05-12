@@ -1,4 +1,3 @@
 <Solution>
   <Project Path="ConfigurableReader/ConfigurableReader.csproj" />
-  <Project Path="Test/Test.csproj" />
 </Solution>
