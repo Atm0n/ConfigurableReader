@@ -62,12 +62,12 @@ namespace ConfigurableReader.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("White")]
-        public global::System.Drawing.Color BackgoundColor {
+        public global::System.Drawing.Color BackgroundColor {
             get {
-                return ((global::System.Drawing.Color)(this["BackgoundColor"]));
+                return ((global::System.Drawing.Color)(this["BackgroundColor"]));
             }
             set {
-                this["BackgoundColor"] = value;
+                this["BackgroundColor"] = value;
             }
         }
     }

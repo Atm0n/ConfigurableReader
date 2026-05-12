@@ -81,7 +81,7 @@ public partial class MainWindow : Window
 
         SpeedSlider.Value = Properties.Settings.Default.ScrollSpeed;
 
-        var backgroundColor = Properties.Settings.Default.BackgoundColor;
+        var backgroundColor = Properties.Settings.Default.BackgroundColor;
         this.Background = new SolidColorBrush(Color.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B));
     }
 
@@ -165,13 +165,13 @@ public partial class MainWindow : Window
         }
         if (BackgroundColorPicker.SelectedColor is not null)
         {
-            var backgoundColor = BackgroundColorPicker.SelectedColor.Value;
-            Properties.Settings.Default.BackgoundColor = System.Drawing.Color.FromArgb
+            var backgroundColor = BackgroundColorPicker.SelectedColor.Value;
+            Properties.Settings.Default.BackgroundColor = System.Drawing.Color.FromArgb
             (
-                backgoundColor.A,
-                backgoundColor.R,
-                backgoundColor.G,
-                backgoundColor.B
+                backgroundColor.A,
+                backgroundColor.R,
+                backgroundColor.G,
+                backgroundColor.B
             );
 
 
