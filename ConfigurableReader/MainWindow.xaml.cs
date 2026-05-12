@@ -90,7 +90,7 @@ public partial class MainWindow : Window
         return Color.FromArgb(textColor.A, textColor.R, textColor.G, textColor.B);
     }
 
-    private void UpdateText(object sender, EventArgs e)
+    private void UpdateText(object? sender, EventArgs e)
     {
         int modifier = isReversing ? -1 : 1;
 
@@ -185,7 +185,7 @@ public partial class MainWindow : Window
     #endregion
     #region Events
     #region xboxController
-    private void InputXboxTimer_Tick(object sender, EventArgs e)
+    private void InputXboxTimer_Tick(object? sender, EventArgs e)
     {
         if (controller.IsConnected && !isProcessingInput)
         {
