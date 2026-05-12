@@ -1,0 +1,66 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		x:Name="Windows"
+        x:Class="Test.MainWindow"
+        KeyDown="Window_KeyDown"
+		Closing="Window_Closing"
+        Title="Test">
+	<Window.Styles>
+		<StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Simple/Simple.xaml" />
+		<!--<Style Selector="Button">
+			<Setter Property="Margin" Value="5"/>
+			<Setter Property="Padding" Value="10"/>
+			<Setter Property="Background" Value="LightGray"/>
+
+		</Style>
+		<Style Selector="Slider">
+			<Setter Property="Margin" Value="5"/>
+		</Style>
+		<Style Selector="TextBlock">
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+		<Style Selector="NumericUpDown">
+			<Setter Property="Margin" Value="5"/>
+		</Style>-->
+		<Style Selector="ColorPicker">
+			<Setter Property="Margin" Value="2"/>
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Background="DarkGray">
+			<Button Content="Open File" Click="OpenFileButton_Click"/>
+			<Button x:Name="StartStopButton" Content="Start" Click="StartStopButton_Click"/>
+			<Button x:Name="ReverseButton" Content="Reverse/Resume" Click="ReverseButton_Click"/>
+			<TextBlock Text="Speed:" VerticalAlignment="Center"/>
+			<Slider x:Name="SpeedSlider" Minimum="0" Maximum="0.4" Ticks="0.001" Width="100" ValueChanged="SpeedSlider_ValueChanged"/>
+			<TextBlock Text="Text Color:" VerticalAlignment="Center"/>
+			<ColorPicker x:Name="ColorPicker" ColorChanged="ColorPicker_ColorChanged" Width="100" Height="50"/>
+			<TextBlock Text="Background Color:" VerticalAlignment="Center"/>
+			<ColorPicker x:Name="BackgroundColorPicker" ColorChanged="BackgroundColorPicker_ColorChanged" Width="100" Height="50"/>
+			<TextBlock Text="Font Size:" VerticalAlignment="Center"/>
+			<NumericUpDown x:Name="FontSizeSlider" Minimum="0" Maximum="900"  Width="300" ValueChanged="NumericUpDown_ValueChanged" Increment="1"/>
+		</StackPanel>
+		<ScrollViewer Grid.Row="1" Margin="10">
+			<TextBlock
+                x:Name="TextBlock"
+                Text="ConfigurableReader"
+                FontSize="16"
+                VerticalAlignment="Center"
+                TextAlignment="Center"
+                TextWrapping="NoWrap"
+            />
+		</ScrollViewer>
+		<Slider x:Name="TextSlider" Grid.Row="2" Minimum="0" Maximum="0" TickFrequency="1"  ValueChanged="Slider_ValueChanged"
+				/>
+	</Grid>
+</Window>
