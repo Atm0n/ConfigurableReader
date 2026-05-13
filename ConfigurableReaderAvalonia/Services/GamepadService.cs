@@ -17,6 +17,8 @@ public class GamepadService : IDisposable
     public event Action? ToggleStartStopRequested;
     public event Action? ToggleReverseRequested;
     public event Action? ToggleFadeRequested;
+    public event Action? ToggleSettingsRequested;
+    public event Action? ShowInfoRequested;
     public event Action<int>? FontSizeAdjustmentRequested;
     public event Action<double>? SpeedAdjustmentRequested;
     public event Action<int>? PositionAdjustmentRequested;
@@ -28,6 +30,8 @@ public class GamepadService : IDisposable
     private bool _lastButtonBState = false;
     private bool _lastButtonXState = false;
     private bool _lastButtonYState = false;
+    private bool _lastButtonStartState = false;
+    private bool _lastButtonBackState = false;
     private bool _lastDPadUpState = false;
     private bool _lastDPadDownState = false;
     private bool _lastDPadLeftState = false;
@@ -97,6 +101,21 @@ public class GamepadService : IDisposable
             ToggleFadeRequested?.Invoke();
         }
         _lastButtonYState = yPressed;
+
+        // Menu Buttons
+        bool startPressed = gamepad.Start;
+        if (startPressed && !_lastButtonStartState)
+        {
+            ToggleSettingsRequested?.Invoke();
+        }
+        _lastButtonStartState = startPressed;
+
+        bool backPressed = gamepad.Select;
+        if (backPressed && !_lastButtonBackState)
+        {
+            ShowInfoRequested?.Invoke();
+        }
+        _lastButtonBackState = backPressed;
 
         // DPad
         Direction hat = gamepad.Hat;

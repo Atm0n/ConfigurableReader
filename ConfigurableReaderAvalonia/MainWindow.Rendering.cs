@@ -120,5 +120,21 @@ public partial class MainWindow
         MainTextBlock.FontSize = Math.Clamp(newSize, 10, 800);
         FontSizeNumeric.Value = (decimal)MainTextBlock.FontSize;
         ClearCharWidthCache();
+        
+        // Update UI immediately
+        UpdateDisplayedText();
+        
+        // Centering logic needs to be triggered manually if paused
+        if (_readerService.IsPaused)
+        {
+            Dispatcher.UIThread.Post(() => 
+            {
+                if (ReadingAreaCanvas.Bounds.Height > 0 && MainTextBlock.Bounds.Height > 0)
+                {
+                    double top = (ReadingAreaCanvas.Bounds.Height - MainTextBlock.Bounds.Height) / 2;
+                    Canvas.SetTop(MainTextBlock, top);
+                }
+            }, DispatcherPriority.Loaded);
+        }
     }
 }

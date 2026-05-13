@@ -28,6 +28,13 @@ public partial class MainWindow
             FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked;
         };
 
+        _gamepadService.ToggleSettingsRequested += () =>
+        {
+            SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded;
+        };
+
+        _gamepadService.ShowInfoRequested += () => _ = ShowInfoAsync();
+
         _gamepadService.FontSizeAdjustmentRequested += AdjustFontSize;
 
         _gamepadService.SpeedAdjustmentRequested += delta => 
