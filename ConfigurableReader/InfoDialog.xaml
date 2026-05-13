@@ -59,6 +59,7 @@
                     <TextBlock Text="• X Button: Toggle Direction" />
                     <TextBlock Text="• Y Button: Toggle Edge Fade" />
                     <TextBlock Text="• LB / RB (Bumpers): Adjust Speed" />
+                    <TextBlock Text="• LT / RT (Triggers): Rewind / Fast-Forward (Double-tap for Turbo)" />
                     <TextBlock Text="• Start: Toggle Settings" />
                     <TextBlock Text="• Back: Show Info" />
                 </StackPanel>

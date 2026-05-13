@@ -31,6 +31,23 @@ public partial class MainWindow : Window
     private DateTime _lastRenderTime;
     private readonly Dictionary<char, double> _charWidths = new();
 
+    private DateTime _lastLTPressTime = DateTime.MinValue;
+    private DateTime _lastRTPressTime = DateTime.MinValue;
+    private bool _ltWasDown = false;
+    private bool _rtWasDown = false;
+    private bool _ltBoosted = false;
+    private bool _rtBoosted = false;
+
+    private DateTime _lastDPadUpTime = DateTime.MinValue;
+    private DateTime _lastDPadDownTime = DateTime.MinValue;
+    private bool _dpadUpWasDown = false;
+    private bool _dpadDownWasDown = false;
+
+    private DateTime _lastKeyUpTime = DateTime.MinValue;
+    private DateTime _lastKeyDownTime = DateTime.MinValue;
+    private DateTime _lastKeyPlusTime = DateTime.MinValue;
+    private DateTime _lastKeyMinusTime = DateTime.MinValue;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -344,81 +361,143 @@ public partial class MainWindow : Window
     #region xboxController
     private void InputXboxTimer_Tick(object? sender, EventArgs e)
     {
-        if (controller.IsConnected && !isProcessingInput)
+        if (controller.IsConnected)
         {
             var state = controller.GetState();
             var gamepad = state.Gamepad;
-            if ((gamepad.Buttons & GamepadButtonFlags.DPadRight) != 0)
-            {
-                isProcessingInput = true;
-                isReversing = false;
-                DelayInputProcessing();
 
-            }
-            else if ((gamepad.Buttons & GamepadButtonFlags.DPadLeft) != 0)
+            // Trigger Boost Detection (Double-Tap LT/RT)
+            bool ltIsDown = gamepad.LeftTrigger > 30;
+            if (ltIsDown && !_ltWasDown)
             {
-                isProcessingInput = true;
-                isReversing = true;
-                DelayInputProcessing();
+                if ((DateTime.Now - _lastLTPressTime).TotalMilliseconds < 400)
+                    _ltBoosted = true;
+                else
+                    _ltBoosted = false;
+                _lastLTPressTime = DateTime.Now;
+            }
+            if (!ltIsDown) _ltBoosted = false;
+            _ltWasDown = ltIsDown;
 
-            }
-            else if ((gamepad.Buttons & GamepadButtonFlags.DPadUp) != 0)
+            bool rtIsDown = gamepad.RightTrigger > 30;
+            if (rtIsDown && !_rtWasDown)
             {
-                isProcessingInput = true;
-                TextBlock.FontSize += 1;
-                ClearCharWidthCache();
-                DelayInputProcessing();
+                if ((DateTime.Now - _lastRTPressTime).TotalMilliseconds < 400)
+                    _rtBoosted = true;
+                else
+                    _rtBoosted = false;
+                _lastRTPressTime = DateTime.Now;
             }
-            else if ((gamepad.Buttons & GamepadButtonFlags.DPadDown) != 0)
+            if (!rtIsDown) _rtBoosted = false;
+            _rtWasDown = rtIsDown;
+
+            // Analog Triggers for fast-forward/rewind
+            if (rtIsDown)
             {
-                isProcessingInput = true;
-                TextBlock.FontSize -= 1;
-                ClearCharWidthCache();
-                DelayInputProcessing();
+                int multiplier = _rtBoosted ? 4 : 1;
+                int moveAmount = (gamepad.RightTrigger - 30) / 3 * multiplier; 
+                if (moveAmount > 0)
+                {
+                    _currentPosition = Math.Min(_fullText.Length, _currentPosition + moveAmount);
+                    _currentOffsetX = 0;
+                    UpdateDisplayedText();
+                }
             }
-            else if ((gamepad.Buttons & (GamepadButtonFlags.A | GamepadButtonFlags.B)) != 0)
+            else if (ltIsDown)
             {
-                isProcessingInput = true;
-                StartStop();
-                DelayInputProcessing();
+                int multiplier = _ltBoosted ? 4 : 1;
+                int moveAmount = (gamepad.LeftTrigger - 30) / 3 * multiplier;
+                if (moveAmount > 0)
+                {
+                    _currentPosition = Math.Max(0, _currentPosition - moveAmount);
+                    _currentOffsetX = 0;
+                    UpdateDisplayedText();
+                }
             }
-            else if ((gamepad.Buttons & GamepadButtonFlags.X) != 0)
+
+            if (!isProcessingInput)
             {
-                isProcessingInput = true;
-                isReversing = !isReversing;
-                DelayInputProcessing();
-            }
-            else if ((gamepad.Buttons & GamepadButtonFlags.Y) != 0)
-            {
-                isProcessingInput = true;
-                FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked;
-                DelayInputProcessing();
-            }
-            else if ((gamepad.Buttons & GamepadButtonFlags.LeftShoulder) != 0)
-            {
-                isProcessingInput = true;
-                SpeedSlider.Value -= 10;
-                DelayInputProcessing();
-            }
-            else if ((gamepad.Buttons & GamepadButtonFlags.RightShoulder) != 0)
-            {
-                isProcessingInput = true;
-                SpeedSlider.Value += 10;
-                DelayInputProcessing();
-            }
-            else if ((gamepad.Buttons & GamepadButtonFlags.Start) != 0)
-            {
-                isProcessingInput = true;
-                SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded;
-                DelayInputProcessing();
-            }
-            else if ((gamepad.Buttons & GamepadButtonFlags.Back) != 0)
-            {
-                isProcessingInput = true;
-                InfoButton_Click(this, new RoutedEventArgs());
-                DelayInputProcessing();
+                if ((gamepad.Buttons & GamepadButtonFlags.DPadRight) != 0)
+                {
+                    isProcessingInput = true;
+                    isReversing = false;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.DPadLeft) != 0)
+                {
+                    isProcessingInput = true;
+                    isReversing = true;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.DPadUp) != 0)
+                {
+                    isProcessingInput = true;
+                    int step = 1;
+                    if ((DateTime.Now - _lastDPadUpTime).TotalMilliseconds < 400) step = 10;
+                    _lastDPadUpTime = DateTime.Now;
+                    AdjustFontSize(step);
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.DPadDown) != 0)
+                {
+                    isProcessingInput = true;
+                    int step = -1;
+                    if ((DateTime.Now - _lastDPadDownTime).TotalMilliseconds < 400) step = -10;
+                    _lastDPadDownTime = DateTime.Now;
+                    AdjustFontSize(step);
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & (GamepadButtonFlags.A | GamepadButtonFlags.B)) != 0)
+                {
+                    isProcessingInput = true;
+                    StartStop();
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.X) != 0)
+                {
+                    isProcessingInput = true;
+                    isReversing = !isReversing;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.Y) != 0)
+                {
+                    isProcessingInput = true;
+                    FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.LeftShoulder) != 0)
+                {
+                    isProcessingInput = true;
+                    SpeedSlider.Value -= 50;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.RightShoulder) != 0)
+                {
+                    isProcessingInput = true;
+                    SpeedSlider.Value += 50;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.Start) != 0)
+                {
+                    isProcessingInput = true;
+                    SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.Back) != 0)
+                {
+                    isProcessingInput = true;
+                    InfoButton_Click(this, new RoutedEventArgs());
+                    DelayInputProcessing();
+                }
             }
         }
+    }
+
+    private void AdjustFontSize(int delta)
+    {
+        double newSize = TextBlock.FontSize + delta;
+        TextBlock.FontSize = Math.Clamp(newSize, 10, 800);
+        ClearCharWidthCache();
     }
 
     private void XboxController()
@@ -518,12 +597,20 @@ public partial class MainWindow : Window
                 StartStop();
                 break;
             case Key.Up:
-                TextBlock.FontSize += 1;
-                ClearCharWidthCache();
+                {
+                    int step = 1;
+                    if ((DateTime.Now - _lastKeyUpTime).TotalMilliseconds < 400) step = 10;
+                    _lastKeyUpTime = DateTime.Now;
+                    AdjustFontSize(step);
+                }
                 break;
             case Key.Down:
-                TextBlock.FontSize -= 1;
-                ClearCharWidthCache();
+                {
+                    int step = -1;
+                    if ((DateTime.Now - _lastKeyDownTime).TotalMilliseconds < 400) step = -10;
+                    _lastKeyDownTime = DateTime.Now;
+                    AdjustFontSize(step);
+                }
                 break;
             case Key.R:
                 isReversing = !isReversing;
@@ -539,11 +626,11 @@ public partial class MainWindow : Window
                 break;
             case Key.OemPlus:
             case Key.Add:
-                SpeedSlider.Value += 10;
+                SpeedSlider.Value += 50;
                 break;
             case Key.OemMinus:
             case Key.Subtract:
-                SpeedSlider.Value -= 10;
+                SpeedSlider.Value -= 50;
                 break;
             default:
                 break;

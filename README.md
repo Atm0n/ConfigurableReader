@@ -32,6 +32,7 @@ A highly customizable text reader for Windows (WPF) designed for a comfortable a
 - **X Button:** Toggle Direction
 - **Y Button:** Toggle Edge Fade
 - **LB / RB (Bumpers):** Adjust Scroll Speed
+- **LT / RT (Triggers):** Rewind / Fast-Forward (Double-tap for Turbo)
 - **Start Button:** Toggle Settings Panel
 - **Back Button:** Show Info / About
 
