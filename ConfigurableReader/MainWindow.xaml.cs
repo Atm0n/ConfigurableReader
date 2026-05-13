@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Configuration;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using Xceed.Wpf.Toolkit;
 using System.Windows.Input;
 using SharpDX.XInput;
+using System.Text.Json;
 
 
 namespace ConfigurableReader;
@@ -15,16 +16,37 @@ public partial class MainWindow : Window
 {
     private readonly Controller controller = new(UserIndex.One);
     private readonly DispatcherTimer inputTimer;
-    private readonly DispatcherTimer _textUpdateTimer;
     private int _currentPosition = 0;
     private bool IsPaused = true;
     private string? _currentBookFileName;
     private string _fullText = string.Empty;
-    private readonly Configuration configuration;
-    private BookPosition? BookPosition;
-    private BookPosition.Book? ActualBook;
+    
+    private List<BookRecord> _bookRecords = new();
+    
     private bool isProcessingInput = false;
     private bool isReversing = false;
+    private bool _isUpdatingFromCode = false;
+
+    private double _currentOffsetX = 0;
+    private DateTime _lastRenderTime;
+    private readonly Dictionary<char, double> _charWidths = new();
+
+    private DateTime _lastLTPressTime = DateTime.MinValue;
+    private DateTime _lastRTPressTime = DateTime.MinValue;
+    private bool _ltWasDown = false;
+    private bool _rtWasDown = false;
+    private bool _ltBoosted = false;
+    private bool _rtBoosted = false;
+
+    private DateTime _lastDPadUpTime = DateTime.MinValue;
+    private DateTime _lastDPadDownTime = DateTime.MinValue;
+    private bool _dpadUpWasDown = false;
+    private bool _dpadDownWasDown = false;
+
+    private DateTime _lastKeyUpTime = DateTime.MinValue;
+    private DateTime _lastKeyDownTime = DateTime.MinValue;
+    private DateTime _lastKeyPlusTime = DateTime.MinValue;
+    private DateTime _lastKeyMinusTime = DateTime.MinValue;
 
     public MainWindow()
     {
@@ -32,23 +54,151 @@ public partial class MainWindow : Window
 
         inputTimer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromSeconds(1),
+            Interval = TimeSpan.FromMilliseconds(20),
         };
 
         XboxController();
 
-        _textUpdateTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(1), // Adjust interval as needed
-        };
-        _textUpdateTimer.Tick += UpdateText;
-
-        configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-
         LoadBookPositionConfiguration();
 
+        PopulateFontList();
         LoadUserConfiguration();
 
+    }
+
+    private void OnRendering(object? sender, EventArgs e)
+    {
+        if (IsPaused || string.IsNullOrEmpty(_fullText)) return;
+
+        DateTime now = DateTime.Now;
+        if (_lastRenderTime == DateTime.MinValue)
+        {
+            _lastRenderTime = now;
+            return;
+        }
+
+        double deltaTime = (now - _lastRenderTime).TotalSeconds;
+        _lastRenderTime = now;
+
+        double speed = SpeedSlider.Value;
+        double pixelsToMove = speed * deltaTime;
+
+        if (isReversing)
+        {
+            _currentOffsetX += pixelsToMove;
+            while (_currentOffsetX > 0)
+            {
+                if (_currentPosition > 0)
+                {
+                    _currentPosition--;
+                    double charWidth = GetCharacterWidth(_fullText[_currentPosition]);
+                    _currentOffsetX -= charWidth;
+                }
+                else
+                {
+                    _currentOffsetX = 0;
+                    StartStop();
+                    inputTimer.Stop();
+                    MessageDialog.Show(this, "Start of the book reached");
+                    inputTimer.Start();
+                    break;
+                }
+            }
+        }
+        else
+        {
+            _currentOffsetX -= pixelsToMove;
+            while (true)
+            {
+                if (_currentPosition >= _fullText.Length)
+                {
+                    _currentOffsetX = 0;
+                    StartStop();
+                    inputTimer.Stop();
+                    MessageDialog.Show(this, "End of the book reached");
+                    inputTimer.Start();
+                    break;
+                }
+
+                double charWidth = GetCharacterWidth(_fullText[_currentPosition]);
+                if (_currentOffsetX <= -charWidth)
+                {
+                    _currentOffsetX += charWidth;
+                    _currentPosition++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        TextTranslateTransform.X = _currentOffsetX;
+        
+        // Pixel-Perfect Visual Centering
+        // We ensure the TextBlock is centered within the Canvas based on its real rendered height.
+        if (ReadingAreaCanvas.ActualHeight > 0 && TextBlock.ActualHeight > 0)
+        {
+            // Calculate the exact center of the screen
+            double canvasCenter = ReadingAreaCanvas.ActualHeight / 2;
+            
+            // Calculate the exact center of the text block
+            double textBlockCenter = TextBlock.ActualHeight / 2;
+            
+            // At massive font sizes, WPF's internal BaselineOffset can be misleading.
+            // We use a simpler, robust mathematical centering:
+            double top = canvasCenter - textBlockCenter;
+            
+            // Apply a small corrective factor for visual balance if needed, 
+            // but pure mathematical center is most consistent for giant fonts.
+            Canvas.SetTop(TextBlock, top);
+        }
+        
+        UpdateDisplayedText();
+    }
+
+    private void UpdateDisplayedText()
+    {
+        // Increase buffer to 5000 for massive lookahead. 
+        // Using a Canvas ensures these characters are pre-rendered far beyond the screen edge.
+        int length = Math.Min(5000, _fullText.Length - _currentPosition);
+        string newText = _fullText.Substring(_currentPosition, length);
+        
+        if (TextBlock.Text != newText)
+        {
+            TextBlock.Text = newText;
+        }
+
+        TextSlider.Value = _currentPosition;
+        UpdatePercentage();
+    }
+
+    private double GetCharacterWidth(char c)
+    {
+        if (_charWidths.TryGetValue(c, out double width)) return width;
+
+        FormattedText formattedText = new FormattedText(
+            c.ToString(),
+            System.Globalization.CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            new Typeface(TextBlock.FontFamily, TextBlock.FontStyle, TextBlock.FontWeight, TextBlock.FontStretch),
+            TextBlock.FontSize,
+            TextBlock.Foreground,
+            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+        width = formattedText.WidthIncludingTrailingWhitespace;
+        _charWidths[c] = width;
+        return width;
+    }
+
+    private void ClearCharWidthCache()
+    {
+        _charWidths.Clear();
+    }
+
+    private void PopulateFontList()
+    {
+        FontComboBox.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
     }
 
     private async void DelayInputProcessing()
@@ -59,14 +209,18 @@ public partial class MainWindow : Window
 
     private void LoadBookPositionConfiguration()
     {
-        if (configuration.Sections["bookPositions"] is null)
+        try
         {
-            configuration.Sections.Add("bookPositions", new BookPosition());
-
+            string json = Properties.Settings.Default.BookPositionsJson;
+            if (!string.IsNullOrEmpty(json))
+            {
+                _bookRecords = JsonSerializer.Deserialize<List<BookRecord>>(json) ?? new List<BookRecord>();
+            }
         }
-
-        BookPosition = (BookPosition)configuration.GetSection("bookPositions");
-        if (BookPosition is null) throw new Exception("BookPosition is null");
+        catch
+        {
+            _bookRecords = new List<BookRecord>();
+        }
     }
 
     private void LoadUserConfiguration()
@@ -83,6 +237,16 @@ public partial class MainWindow : Window
 
         var backgroundColor = Properties.Settings.Default.BackgroundColor;
         this.Background = new SolidColorBrush(Color.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B));
+
+        FadeCheckBox.IsChecked = Properties.Settings.Default.EnableEdgeFading;
+        UpdateEdgeFading(Properties.Settings.Default.EnableEdgeFading);
+
+        if (!string.IsNullOrEmpty(Properties.Settings.Default.FontFamily))
+        {
+            var fontFamily = new FontFamily(Properties.Settings.Default.FontFamily);
+            TextBlock.FontFamily = fontFamily;
+            FontComboBox.SelectedItem = Fonts.SystemFontFamilies.FirstOrDefault(f => f.Source == fontFamily.Source);
+        }
     }
 
     private static Color CreateColorFromDrawingColor(System.Drawing.Color textColor)
@@ -90,40 +254,13 @@ public partial class MainWindow : Window
         return Color.FromArgb(textColor.A, textColor.R, textColor.G, textColor.B);
     }
 
-    private void UpdateText(object sender, EventArgs e)
+    private void UpdatePercentage()
     {
-        int modifier = isReversing ? -1 : 1;
-
-
-        UpdateTextBlock(modifier);
-    }
-
-    private void UpdateTextBlock(int modifier)
-    {
-        if (_currentPosition > 0 && isReversing)
+        if (_fullText.Length > 0)
         {
-            _currentPosition += modifier;
-            if (_currentPosition < 0)
-            {
-                _currentPosition = 0;
-                StartStop();
-                Xceed.Wpf.Toolkit.MessageBox.Show("Start of the book reached");
-                isReversing = false;
-            }
+            double percentage = (double)_currentPosition / _fullText.Length * 100;
+            PercentageText.Text = $"{percentage:F1}%";
         }
-        else if (_currentPosition < _fullText.Length && !isReversing)
-        {
-            _currentPosition += modifier;
-            if (_currentPosition > _fullText.Length)
-            {
-                _currentPosition = _fullText.Length;
-                StartStop();
-                Xceed.Wpf.Toolkit.MessageBox.Show("End of the book reached");
-            }
-        }
-
-        TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
-        TextSlider.Value = _currentPosition;
     }
 
     private void ChangeFontSize(double value)
@@ -142,9 +279,21 @@ public partial class MainWindow : Window
     #region configuration
     private void SaveActualBookConfiguration()
     {
-        if (ActualBook is not null)
+        if (_currentBookFileName is not null)
         {
-            ActualBook.ScrollPosition = _currentPosition;
+            string bookName = Path.GetFileName(_currentBookFileName);
+            var record = _bookRecords.FirstOrDefault(r => r.Name == bookName);
+            
+            if (record == null)
+            {
+                record = new BookRecord { Name = bookName };
+                _bookRecords.Add(record);
+            }
+            
+            record.ScrollPosition = _currentPosition;
+            
+            string json = JsonSerializer.Serialize(_bookRecords);
+            Properties.Settings.Default.BookPositionsJson = json;
         }
     }
 
@@ -179,38 +328,180 @@ public partial class MainWindow : Window
 
         Properties.Settings.Default.ScrollSpeed = SpeedSlider.Value;
 
+        if (TextBlock.FontFamily != null)
+        {
+            Properties.Settings.Default.FontFamily = TextBlock.FontFamily.Source;
+        }
+
+        Properties.Settings.Default.EnableEdgeFading = FadeCheckBox.IsChecked ?? true;
+
         Properties.Settings.Default.Save();
     }
 
     #endregion
     #region Events
-    #region xboxController
-    private void InputXboxTimer_Tick(object sender, EventArgs e)
+    private void UpdateEdgeFading(bool enable)
     {
-        if (controller.IsConnected && !isProcessingInput)
+        if (ReadingAreaCanvas != null)
+        {
+            ReadingAreaCanvas.OpacityMask = enable ? (Brush)FindResource("EdgeFadeMask") : null;
+        }
+    }
+
+    private void FadeCheckBox_Toggled(object sender, RoutedEventArgs e)
+    {
+        UpdateEdgeFading(FadeCheckBox.IsChecked ?? true);
+    }
+
+    private void FontComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (FontComboBox.SelectedItem is FontFamily fontFamily)
+        {
+            TextBlock.FontFamily = fontFamily;
+            ClearCharWidthCache();
+        }
+    }
+
+    #region xboxController
+    private void InputXboxTimer_Tick(object? sender, EventArgs e)
+    {
+        if (controller.IsConnected)
         {
             var state = controller.GetState();
             var gamepad = state.Gamepad;
-            if ((gamepad.Buttons & GamepadButtonFlags.DPadRight) != 0)
-            {
-                isProcessingInput = true;
-                DelayInputProcessing();
 
+            // Trigger Boost Detection (Double-Tap LT/RT)
+            bool ltIsDown = gamepad.LeftTrigger > 30;
+            if (ltIsDown && !_ltWasDown)
+            {
+                if ((DateTime.Now - _lastLTPressTime).TotalMilliseconds < 400)
+                    _ltBoosted = true;
+                else
+                    _ltBoosted = false;
+                _lastLTPressTime = DateTime.Now;
             }
-            else if ((gamepad.Buttons & GamepadButtonFlags.DPadLeft) != 0)
-            {
-                isProcessingInput = true;
-                DelayInputProcessing();
+            if (!ltIsDown) _ltBoosted = false;
+            _ltWasDown = ltIsDown;
 
+            bool rtIsDown = gamepad.RightTrigger > 30;
+            if (rtIsDown && !_rtWasDown)
+            {
+                if ((DateTime.Now - _lastRTPressTime).TotalMilliseconds < 400)
+                    _rtBoosted = true;
+                else
+                    _rtBoosted = false;
+                _lastRTPressTime = DateTime.Now;
             }
-            else if ((gamepad.Buttons & GamepadButtonFlags.A) != 0)
-            {
-                isProcessingInput = true;
-                StartStop();
-                DelayInputProcessing();
+            if (!rtIsDown) _rtBoosted = false;
+            _rtWasDown = rtIsDown;
 
+            // Analog Triggers for fast-forward/rewind
+            if (rtIsDown)
+            {
+                int multiplier = _rtBoosted ? 4 : 1;
+                int moveAmount = (gamepad.RightTrigger - 30) / 3 * multiplier; 
+                if (moveAmount > 0)
+                {
+                    _currentPosition = Math.Min(_fullText.Length, _currentPosition + moveAmount);
+                    _currentOffsetX = 0;
+                    UpdateDisplayedText();
+                }
+            }
+            else if (ltIsDown)
+            {
+                int multiplier = _ltBoosted ? 4 : 1;
+                int moveAmount = (gamepad.LeftTrigger - 30) / 3 * multiplier;
+                if (moveAmount > 0)
+                {
+                    _currentPosition = Math.Max(0, _currentPosition - moveAmount);
+                    _currentOffsetX = 0;
+                    UpdateDisplayedText();
+                }
+            }
+
+            if (!isProcessingInput)
+            {
+                if ((gamepad.Buttons & GamepadButtonFlags.DPadRight) != 0)
+                {
+                    isProcessingInput = true;
+                    isReversing = false;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.DPadLeft) != 0)
+                {
+                    isProcessingInput = true;
+                    isReversing = true;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.DPadUp) != 0)
+                {
+                    isProcessingInput = true;
+                    int step = 1;
+                    if ((DateTime.Now - _lastDPadUpTime).TotalMilliseconds < 400) step = 10;
+                    _lastDPadUpTime = DateTime.Now;
+                    AdjustFontSize(step);
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.DPadDown) != 0)
+                {
+                    isProcessingInput = true;
+                    int step = -1;
+                    if ((DateTime.Now - _lastDPadDownTime).TotalMilliseconds < 400) step = -10;
+                    _lastDPadDownTime = DateTime.Now;
+                    AdjustFontSize(step);
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & (GamepadButtonFlags.A | GamepadButtonFlags.B)) != 0)
+                {
+                    isProcessingInput = true;
+                    StartStop();
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.X) != 0)
+                {
+                    isProcessingInput = true;
+                    isReversing = !isReversing;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.Y) != 0)
+                {
+                    isProcessingInput = true;
+                    FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.LeftShoulder) != 0)
+                {
+                    isProcessingInput = true;
+                    SpeedSlider.Value -= 50;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.RightShoulder) != 0)
+                {
+                    isProcessingInput = true;
+                    SpeedSlider.Value += 50;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.Start) != 0)
+                {
+                    isProcessingInput = true;
+                    SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded;
+                    DelayInputProcessing();
+                }
+                else if ((gamepad.Buttons & GamepadButtonFlags.Back) != 0)
+                {
+                    isProcessingInput = true;
+                    InfoButton_Click(this, new RoutedEventArgs());
+                    DelayInputProcessing();
+                }
             }
         }
+    }
+
+    private void AdjustFontSize(int delta)
+    {
+        double newSize = TextBlock.FontSize + delta;
+        TextBlock.FontSize = Math.Clamp(newSize, 10, 800);
+        ClearCharWidthCache();
     }
 
     private void XboxController()
@@ -227,40 +518,54 @@ public partial class MainWindow : Window
         };
         if (openFileDialog.ShowDialog() == true)
         {
+            // Save previous book progress before opening new one
+            SaveActualBookConfiguration();
+
             _currentBookFileName = openFileDialog.FileName;
+            string bookName = Path.GetFileName(_currentBookFileName);
 
             _fullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " ").Replace("  ", " "); ;
 
-            ActualBook = BookPosition!.Books.FirstOrDefault(book => book.Name == Path.GetFileName(_currentBookFileName));
+            var actualBook = _bookRecords.FirstOrDefault(r => r.Name == bookName);
 
-            if (ActualBook is null)
+            if (actualBook is null)
             {
-
-                ActualBook = new BookPosition.Book()
-                {
-                    Name = Path.GetFileName(_currentBookFileName),
-                };
-                BookPosition!.Books.Add(ActualBook);
+                actualBook = new BookRecord { Name = bookName };
+                _bookRecords.Add(actualBook);
             }
 
-            _currentPosition = ActualBook.ScrollPosition;
+            _isUpdatingFromCode = true;
+            try
+            {
+                _currentPosition = actualBook.ScrollPosition;
+                _currentOffsetX = 0;
+                TextTranslateTransform.X = 0;
 
-            TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
+                TextSlider.Maximum = _fullText.Length;
+                TextSlider.Value = _currentPosition;
+                BookNameText.Text = bookName;
+                
+                UpdateDisplayedText();
+                UpdatePercentage();
+            }
+            finally
+            {
+                _isUpdatingFromCode = false;
+            }
 
-            TextSlider.Maximum = _fullText.Length;
-
-            configuration.Save();
+            SaveUserConfiguration(); // This saves both user settings and book positions
         }
     }
 
     private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        _textUpdateTimer.Interval = TimeSpan.FromSeconds(e.NewValue);
+        // Speed is now handled in OnRendering
     }
 
     private void ColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
         TextBlock.Foreground = CreateBrush(e.NewValue);
+        ClearCharWidthCache();
     }
 
     private void FontSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -268,6 +573,7 @@ public partial class MainWindow : Window
         if (e.NewValue is not null)
         {
             ChangeFontSize((int)e.NewValue);
+            ClearCharWidthCache();
         }
     }
 
@@ -295,10 +601,40 @@ public partial class MainWindow : Window
                 StartStop();
                 break;
             case Key.Up:
-                TextBlock.FontSize += 1;
+                {
+                    int step = 1;
+                    if ((DateTime.Now - _lastKeyUpTime).TotalMilliseconds < 400) step = 10;
+                    _lastKeyUpTime = DateTime.Now;
+                    AdjustFontSize(step);
+                }
                 break;
             case Key.Down:
-                TextBlock.FontSize -= 1;
+                {
+                    int step = -1;
+                    if ((DateTime.Now - _lastKeyDownTime).TotalMilliseconds < 400) step = -10;
+                    _lastKeyDownTime = DateTime.Now;
+                    AdjustFontSize(step);
+                }
+                break;
+            case Key.R:
+                isReversing = !isReversing;
+                break;
+            case Key.F:
+                FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked;
+                break;
+            case Key.S:
+                SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded;
+                break;
+            case Key.I:
+                InfoButton_Click(this, new RoutedEventArgs());
+                break;
+            case Key.OemPlus:
+            case Key.Add:
+                SpeedSlider.Value += 50;
+                break;
+            case Key.OemMinus:
+            case Key.Subtract:
+                SpeedSlider.Value -= 50;
                 break;
             default:
                 break;
@@ -312,9 +648,6 @@ public partial class MainWindow : Window
     {
         SaveActualBookConfiguration();
         SaveUserConfiguration();
-
-        configuration.Save();
-
     }
 
     #endregion
@@ -325,15 +658,16 @@ public partial class MainWindow : Window
             if (IsPaused)
             {
                 StartStopButton.Content = "Stop";
-                IsPaused = !IsPaused;
-                _textUpdateTimer.Start();
+                IsPaused = false;
+                _lastRenderTime = DateTime.MinValue;
+                CompositionTarget.Rendering += OnRendering;
+                SettingsExpander.IsExpanded = false;
             }
             else
             {
                 StartStopButton.Content = "Start";
-                IsPaused = !IsPaused;
-                _textUpdateTimer.Stop();
-
+                IsPaused = true;
+                CompositionTarget.Rendering -= OnRendering;
             }
         }
 
@@ -341,15 +675,28 @@ public partial class MainWindow : Window
 
     private void TextSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        if (IsPaused)
+        if (IsPaused && !_isUpdatingFromCode)
         {
             _currentPosition = (int)TextSlider.Value;
-            TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
+            _currentOffsetX = 0;
+            TextTranslateTransform.X = 0;
+            UpdateDisplayedText();
         }
     }
 
     private void ReverseButton_Click(object sender, RoutedEventArgs e)
     {
         isReversing = !isReversing;
+    }
+
+    private void InfoButton_Click(object sender, RoutedEventArgs e)
+    {
+        inputTimer.Stop();
+        InfoDialog infoDialog = new InfoDialog
+        {
+            Owner = this
+        };
+        infoDialog.ShowDialog();
+        inputTimer.Start();
     }
 }
