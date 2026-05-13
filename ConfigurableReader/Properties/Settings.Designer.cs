@@ -82,5 +82,17 @@ namespace ConfigurableReader.Properties {
                 this["FontFamily"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableEdgeFading {
+            get {
+                return ((bool)(this["EnableEdgeFading"]));
+            }
+            set {
+                this["EnableEdgeFading"] = value;
+            }
+        }
     }
 }

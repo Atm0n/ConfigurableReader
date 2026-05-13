@@ -15,7 +15,6 @@ public partial class MainWindow : Window
 {
     private readonly Controller controller = new(UserIndex.One);
     private readonly DispatcherTimer inputTimer;
-    private readonly DispatcherTimer _textUpdateTimer;
     private int _currentPosition = 0;
     private bool IsPaused = true;
     private string? _currentBookFileName;
@@ -25,6 +24,10 @@ public partial class MainWindow : Window
     private BookPosition.Book? ActualBook;
     private bool isProcessingInput = false;
     private bool isReversing = false;
+
+    private double _currentOffsetX = 0;
+    private DateTime _lastRenderTime;
+    private readonly Dictionary<char, double> _charWidths = new();
 
     public MainWindow()
     {
@@ -37,12 +40,6 @@ public partial class MainWindow : Window
 
         XboxController();
 
-        _textUpdateTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(1), // Adjust interval as needed
-        };
-        _textUpdateTimer.Tick += UpdateText;
-
         configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
         LoadBookPositionConfiguration();
@@ -50,6 +47,106 @@ public partial class MainWindow : Window
         PopulateFontList();
         LoadUserConfiguration();
 
+    }
+
+    private void OnRendering(object? sender, EventArgs e)
+    {
+        if (IsPaused || string.IsNullOrEmpty(_fullText)) return;
+
+        DateTime now = DateTime.Now;
+        if (_lastRenderTime == DateTime.MinValue)
+        {
+            _lastRenderTime = now;
+            return;
+        }
+
+        double deltaTime = (now - _lastRenderTime).TotalSeconds;
+        _lastRenderTime = now;
+
+        double speed = SpeedSlider.Value;
+        double pixelsToMove = speed * deltaTime;
+
+        if (isReversing)
+        {
+            _currentOffsetX += pixelsToMove;
+            while (_currentOffsetX > 0)
+            {
+                if (_currentPosition > 0)
+                {
+                    _currentPosition--;
+                    double charWidth = GetCharacterWidth(_fullText[_currentPosition]);
+                    _currentOffsetX -= charWidth;
+                    UpdateDisplayedText();
+                }
+                else
+                {
+                    _currentOffsetX = 0;
+                    StartStop();
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Start of the book reached");
+                    break;
+                }
+            }
+        }
+        else
+        {
+            _currentOffsetX -= pixelsToMove;
+            while (true)
+            {
+                if (_currentPosition >= _fullText.Length)
+                {
+                    _currentOffsetX = 0;
+                    StartStop();
+                    Xceed.Wpf.Toolkit.MessageBox.Show("End of the book reached");
+                    break;
+                }
+
+                double charWidth = GetCharacterWidth(_fullText[_currentPosition]);
+                if (_currentOffsetX <= -charWidth)
+                {
+                    _currentOffsetX += charWidth;
+                    _currentPosition++;
+                    UpdateDisplayedText();
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        TextTranslateTransform.X = _currentOffsetX;
+    }
+
+    private void UpdateDisplayedText()
+    {
+        // Display a buffer of characters for performance
+        int length = Math.Min(500, _fullText.Length - _currentPosition);
+        TextBlock.Text = _fullText.Substring(_currentPosition, length);
+        TextSlider.Value = _currentPosition;
+        UpdatePercentage();
+    }
+
+    private double GetCharacterWidth(char c)
+    {
+        if (_charWidths.TryGetValue(c, out double width)) return width;
+
+        FormattedText formattedText = new FormattedText(
+            c.ToString(),
+            System.Globalization.CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            new Typeface(TextBlock.FontFamily, TextBlock.FontStyle, TextBlock.FontWeight, TextBlock.FontStretch),
+            TextBlock.FontSize,
+            TextBlock.Foreground,
+            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+        width = formattedText.WidthIncludingTrailingWhitespace;
+        _charWidths[c] = width;
+        return width;
+    }
+
+    private void ClearCharWidthCache()
+    {
+        _charWidths.Clear();
     }
 
     private void PopulateFontList()
@@ -90,6 +187,9 @@ public partial class MainWindow : Window
         var backgroundColor = Properties.Settings.Default.BackgroundColor;
         this.Background = new SolidColorBrush(Color.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B));
 
+        FadeCheckBox.IsChecked = Properties.Settings.Default.EnableEdgeFading;
+        UpdateEdgeFading(Properties.Settings.Default.EnableEdgeFading);
+
         if (!string.IsNullOrEmpty(Properties.Settings.Default.FontFamily))
         {
             var fontFamily = new FontFamily(Properties.Settings.Default.FontFamily);
@@ -101,43 +201,6 @@ public partial class MainWindow : Window
     private static Color CreateColorFromDrawingColor(System.Drawing.Color textColor)
     {
         return Color.FromArgb(textColor.A, textColor.R, textColor.G, textColor.B);
-    }
-
-    private void UpdateText(object? sender, EventArgs e)
-    {
-        int modifier = isReversing ? -1 : 1;
-
-
-        UpdateTextBlock(modifier);
-    }
-
-    private void UpdateTextBlock(int modifier)
-    {
-        if (_currentPosition > 0 && isReversing)
-        {
-            _currentPosition += modifier;
-            if (_currentPosition < 0)
-            {
-                _currentPosition = 0;
-                StartStop();
-                Xceed.Wpf.Toolkit.MessageBox.Show("Start of the book reached");
-                isReversing = false;
-            }
-        }
-        else if (_currentPosition < _fullText.Length && !isReversing)
-        {
-            _currentPosition += modifier;
-            if (_currentPosition > _fullText.Length)
-            {
-                _currentPosition = _fullText.Length;
-                StartStop();
-                Xceed.Wpf.Toolkit.MessageBox.Show("End of the book reached");
-            }
-        }
-
-        TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
-        TextSlider.Value = _currentPosition;
-        UpdatePercentage();
     }
 
     private void UpdatePercentage()
@@ -207,16 +270,32 @@ public partial class MainWindow : Window
             Properties.Settings.Default.FontFamily = TextBlock.FontFamily.Source;
         }
 
+        Properties.Settings.Default.EnableEdgeFading = FadeCheckBox.IsChecked ?? true;
+
         Properties.Settings.Default.Save();
     }
 
     #endregion
     #region Events
+    private void UpdateEdgeFading(bool enable)
+    {
+        if (ReadingAreaGrid != null)
+        {
+            ReadingAreaGrid.OpacityMask = enable ? (Brush)FindResource("EdgeFadeMask") : null;
+        }
+    }
+
+    private void FadeCheckBox_Toggled(object sender, RoutedEventArgs e)
+    {
+        UpdateEdgeFading(FadeCheckBox.IsChecked ?? true);
+    }
+
     private void FontComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (FontComboBox.SelectedItem is FontFamily fontFamily)
         {
             TextBlock.FontFamily = fontFamily;
+            ClearCharWidthCache();
         }
     }
 
@@ -280,8 +359,10 @@ public partial class MainWindow : Window
             }
 
             _currentPosition = ActualBook.ScrollPosition;
+            _currentOffsetX = 0;
+            TextTranslateTransform.X = 0;
 
-            TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
+            UpdateDisplayedText();
 
             TextSlider.Maximum = _fullText.Length;
             BookNameText.Text = Path.GetFileName(_currentBookFileName);
@@ -293,12 +374,13 @@ public partial class MainWindow : Window
 
     private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        _textUpdateTimer.Interval = TimeSpan.FromSeconds(e.NewValue);
+        // Speed is now handled in OnRendering
     }
 
     private void ColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
         TextBlock.Foreground = CreateBrush(e.NewValue);
+        ClearCharWidthCache();
     }
 
     private void FontSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -306,6 +388,7 @@ public partial class MainWindow : Window
         if (e.NewValue is not null)
         {
             ChangeFontSize((int)e.NewValue);
+            ClearCharWidthCache();
         }
     }
 
@@ -334,9 +417,11 @@ public partial class MainWindow : Window
                 break;
             case Key.Up:
                 TextBlock.FontSize += 1;
+                ClearCharWidthCache();
                 break;
             case Key.Down:
                 TextBlock.FontSize -= 1;
+                ClearCharWidthCache();
                 break;
             default:
                 break;
@@ -363,16 +448,16 @@ public partial class MainWindow : Window
             if (IsPaused)
             {
                 StartStopButton.Content = "Stop";
-                IsPaused = !IsPaused;
-                _textUpdateTimer.Start();
+                IsPaused = false;
+                _lastRenderTime = DateTime.MinValue;
+                CompositionTarget.Rendering += OnRendering;
                 SettingsExpander.IsExpanded = false;
             }
             else
             {
                 StartStopButton.Content = "Start";
-                IsPaused = !IsPaused;
-                _textUpdateTimer.Stop();
-
+                IsPaused = true;
+                CompositionTarget.Rendering -= OnRendering;
             }
         }
 
@@ -383,7 +468,9 @@ public partial class MainWindow : Window
         if (IsPaused)
         {
             _currentPosition = (int)TextSlider.Value;
-            TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
+            _currentOffsetX = 0;
+            TextTranslateTransform.X = 0;
+            UpdateDisplayedText();
         }
     }
 

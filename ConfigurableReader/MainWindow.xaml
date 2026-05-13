@@ -70,6 +70,13 @@
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Margin" Value="5"/>
         </Style>
+
+        <LinearGradientBrush x:Key="EdgeFadeMask" StartPoint="0,0.5" EndPoint="1,0.5">
+            <GradientStop Color="Transparent" Offset="0"/>
+            <GradientStop Color="Black" Offset="0.1"/>
+            <GradientStop Color="Black" Offset="0.9"/>
+            <GradientStop Color="Transparent" Offset="1"/>
+        </LinearGradientBrush>
     </Window.Resources>
 
     <Grid>
@@ -101,7 +108,7 @@
                             <Button x:Name="StartStopButton" Content="Start" Click="StartStopButton_Click" Focusable="False" Width="60"/>
                             <Button x:Name="ReverseButton" Content="Reverse" Click="ReverseButton_Click" Focusable="False"/>
                             <TextBlock Text="Speed:" Style="{StaticResource LabelStyle}"/>
-                            <Slider x:Name="SpeedSlider" Minimum="0" Maximum="0.4" ValueChanged="SpeedSlider_ValueChanged" Width="150" Focusable="False"/>
+                            <Slider x:Name="SpeedSlider" Minimum="0" Maximum="1000" Value="100" ValueChanged="SpeedSlider_ValueChanged" Width="150" Focusable="False"/>
                         </StackPanel>
                     </Border>
 
@@ -110,6 +117,8 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Font:" Style="{StaticResource LabelStyle}"/>
                             <ComboBox x:Name="FontComboBox" Width="120" SelectionChanged="FontComboBox_SelectionChanged" Focusable="False"/>
+
+                            <CheckBox x:Name="FadeCheckBox" Content="Edge Fade" VerticalAlignment="Center" Margin="10,0" Checked="FadeCheckBox_Toggled" Unchecked="FadeCheckBox_Toggled" Focusable="False" Foreground="{StaticResource TextForeground}"/>
 
                             <TextBlock Text="Text:" Style="{StaticResource LabelStyle}"/>
                             <xctk:ColorPicker x:Name="ColorPicker" Width="45" SelectedColorChanged="ColorPicker_SelectedColorChanged" Focusable="False"/>
@@ -128,23 +137,19 @@
         </Expander>
 
         <!-- Main Reading Area -->
-        <Grid Grid.Row="1" VerticalAlignment="Center">
-            <Grid.OpacityMask>
-                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                    <GradientStop Color="Transparent" Offset="0"/>
-                    <GradientStop Color="Black" Offset="0.1"/>
-                    <GradientStop Color="Black" Offset="0.9"/>
-                    <GradientStop Color="Transparent" Offset="1"/>
-                </LinearGradientBrush>
-            </Grid.OpacityMask>
+        <Grid x:Name="ReadingAreaGrid" Grid.Row="1" VerticalAlignment="Center" ClipToBounds="True">
             <TextBlock 
                 x:Name="TextBlock" 
                 Text="ConfigurableReader" 
                 FontSize="48" 
-                TextAlignment="Center" 
+                HorizontalAlignment="Left"
+                TextAlignment="Left" 
                 TextWrapping="NoWrap"
-                Focusable="False"
-            />
+                Focusable="False">
+                <TextBlock.RenderTransform>
+                    <TranslateTransform x:Name="TextTranslateTransform" />
+                </TextBlock.RenderTransform>
+            </TextBlock>
         </Grid>
 
         <!-- Progress Area -->
