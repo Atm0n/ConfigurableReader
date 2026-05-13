@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="ConfigurableReader/ConfigurableReader.csproj" />
+  <Project Path="ConfigurableReaderAvalonia/ConfigurableReaderAvalonia.csproj" Id="36247950-0af4-47ae-850b-4024bf2bc536" />
 </Solution>
