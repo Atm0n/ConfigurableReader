@@ -22,14 +22,14 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _timer;
     private readonly TranslateTransform _textTranslateTransform = new();
     private int _currentPosition = 0;
-    private bool IsPaused = true;
+    private bool _isPaused = true;
     private string? _currentBookFileName;
     private string _fullText = string.Empty;
 
     private List<BookRecord> _bookRecords = [];
     private AppSettings _settings = new();
 
-    private bool isReversing = false;
+    private bool _isReversing = false;
     private bool _isUpdatingFromCode = false;
 
     private double _currentOffsetX = 0;
@@ -137,7 +137,7 @@ public partial class MainWindow : Window
         bool xPressed = gamepad.XButton;
         if (xPressed && !_lastButtonXState)
         {
-            isReversing = !isReversing;
+            _isReversing = !_isReversing;
         }
         _lastButtonXState = xPressed;
 
@@ -173,13 +173,13 @@ public partial class MainWindow : Window
 
         if (leftPressed && !_lastDPadLeftState)
         {
-            isReversing = true;
+            _isReversing = true;
         }
         _lastDPadLeftState = leftPressed;
 
         if (rightPressed && !_lastDPadRightState)
         {
-            isReversing = false;
+            _isReversing = false;
         }
         _lastDPadRightState = rightPressed;
 
@@ -254,7 +254,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            if (IsPaused || string.IsNullOrEmpty(_fullText)) return;
+            if (_isPaused || string.IsNullOrEmpty(_fullText)) return;
 
             DateTime now = DateTime.Now;
             if (_lastRenderTime == DateTime.MinValue)
@@ -269,7 +269,7 @@ public partial class MainWindow : Window
             double speed = SpeedSlider.Value;
             double pixelsToMove = speed * deltaTime;
 
-            if (isReversing)
+            if (_isReversing)
             {
                 _currentOffsetX += pixelsToMove;
                 while (_currentOffsetX > 0)
@@ -519,17 +519,17 @@ public partial class MainWindow : Window
     }
 
     private void StartStopButton_Click(object? sender, RoutedEventArgs e) => ToggleStartStop();
-    private void ReverseButton_Click(object? sender, RoutedEventArgs e) => isReversing = !isReversing;
+    private void ReverseButton_Click(object? sender, RoutedEventArgs e) => _isReversing = !_isReversing;
     private void InfoButton_Click(object? sender, RoutedEventArgs e) => _ = ShowInfoAsync();
 
     private void ToggleStartStop()
     {
         if (_currentBookFileName == null) return;
 
-        if (IsPaused)
+        if (_isPaused)
         {
             StartStopButton.Content = "Stop";
-            IsPaused = false;
+            _isPaused = false;
             _lastRenderTime = DateTime.MinValue;
             SettingsExpander.IsExpanded = false;
         }
@@ -542,7 +542,7 @@ public partial class MainWindow : Window
     private void StopReading()
     {
         StartStopButton.Content = "Start";
-        IsPaused = true;
+        _isPaused = true;
     }
 
     private async Task ShowInfoAsync()
@@ -562,8 +562,8 @@ public partial class MainWindow : Window
     {
         switch (e.Key)
         {
-            case Key.Left: isReversing = true; break;
-            case Key.Right: isReversing = false; break;
+            case Key.Left: _isReversing = true; break;
+            case Key.Right: _isReversing = false; break;
             case Key.Space: ToggleStartStop(); break;
             case Key.Up:
                 int upStep = (DateTime.Now - _lastKeyUpTime).TotalMilliseconds < 400 ? 10 : 1;
@@ -575,7 +575,7 @@ public partial class MainWindow : Window
                 _lastKeyDownTime = DateTime.Now;
                 AdjustFontSize(downStep);
                 break;
-            case Key.R: isReversing = !isReversing; break;
+            case Key.R: _isReversing = !_isReversing; break;
             case Key.F: FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked; break;
             case Key.S: SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded; break;
             case Key.I: _ = ShowInfoAsync(); break;
@@ -618,7 +618,7 @@ public partial class MainWindow : Window
 
     private void TextSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
-        if (IsPaused && !_isUpdatingFromCode)
+        if (_isPaused && !_isUpdatingFromCode)
         {
             _currentPosition = (int)TextSlider.Value;
             _currentOffsetX = 0;
