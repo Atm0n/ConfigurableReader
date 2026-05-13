@@ -21,7 +21,7 @@ public partial class MainWindow : Window
     private string? _currentBookFileName;
     private string _fullText = string.Empty;
     
-    private List<BookRecord> _bookRecords = new();
+    private List<BookRecord> _bookRecords = [];
     
     private bool isProcessingInput = false;
     private bool isReversing = false;
@@ -29,7 +29,7 @@ public partial class MainWindow : Window
 
     private double _currentOffsetX = 0;
     private DateTime _lastRenderTime;
-    private readonly Dictionary<char, double> _charWidths = new();
+    private readonly Dictionary<char, double> _charWidths = [];
 
     private DateTime _lastLTPressTime = DateTime.MinValue;
     private DateTime _lastRTPressTime = DateTime.MinValue;
@@ -40,13 +40,9 @@ public partial class MainWindow : Window
 
     private DateTime _lastDPadUpTime = DateTime.MinValue;
     private DateTime _lastDPadDownTime = DateTime.MinValue;
-    private bool _dpadUpWasDown = false;
-    private bool _dpadDownWasDown = false;
 
     private DateTime _lastKeyUpTime = DateTime.MinValue;
     private DateTime _lastKeyDownTime = DateTime.MinValue;
-    private DateTime _lastKeyPlusTime = DateTime.MinValue;
-    private DateTime _lastKeyMinusTime = DateTime.MinValue;
 
     public MainWindow()
     {
@@ -177,7 +173,7 @@ public partial class MainWindow : Window
     {
         if (_charWidths.TryGetValue(c, out double width)) return width;
 
-        FormattedText formattedText = new FormattedText(
+        FormattedText formattedText = new(
             c.ToString(),
             System.Globalization.CultureInfo.CurrentCulture,
             FlowDirection.LeftToRight,
@@ -214,12 +210,12 @@ public partial class MainWindow : Window
             string json = Properties.Settings.Default.BookPositionsJson;
             if (!string.IsNullOrEmpty(json))
             {
-                _bookRecords = JsonSerializer.Deserialize<List<BookRecord>>(json) ?? new List<BookRecord>();
+                _bookRecords = JsonSerializer.Deserialize<List<BookRecord>>(json) ?? [];
             }
         }
         catch
         {
-            _bookRecords = new List<BookRecord>();
+            _bookRecords = [];
         }
     }
 
@@ -265,8 +261,7 @@ public partial class MainWindow : Window
 
     private void ChangeFontSize(double value)
     {
-        if (TextBlock is not null)
-            TextBlock.FontSize = value;
+        TextBlock?.FontSize = value;
     }
 
     private static SolidColorBrush CreateBrush(Color? color)
@@ -342,10 +337,7 @@ public partial class MainWindow : Window
     #region Events
     private void UpdateEdgeFading(bool enable)
     {
-        if (ReadingAreaCanvas != null)
-        {
-            ReadingAreaCanvas.OpacityMask = enable ? (Brush)FindResource("EdgeFadeMask") : null;
-        }
+        ReadingAreaCanvas?.OpacityMask = enable ? (Brush)FindResource("EdgeFadeMask") : null;
     }
 
     private void FadeCheckBox_Toggled(object sender, RoutedEventArgs e)
@@ -692,7 +684,7 @@ public partial class MainWindow : Window
     private void InfoButton_Click(object sender, RoutedEventArgs e)
     {
         inputTimer.Stop();
-        InfoDialog infoDialog = new InfoDialog
+        InfoDialog infoDialog = new()
         {
             Owner = this
         };
