@@ -48,6 +48,8 @@
                 <TextBlock Text="Gamepad Controls" Classes="SubHeaderStyle"/>
                 <StackPanel Margin="10,0">
                     <TextBlock Text="• A / B: Play / Pause" />
+                    <TextBlock Text="• DPad Up / Down: Font Size" />
+                    <TextBlock Text="• DPad Left / Right: Direction" />
                     <TextBlock Text="• X / Y: Direction / Edge Fade" />
                     <TextBlock Text="• LB / RB: Adjust Speed" />
                     <TextBlock Text="• LT / RT: Rewind / Fast-Forward" />

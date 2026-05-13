@@ -28,7 +28,8 @@ A highly customizable text reader designed for a comfortable and hands-free read
 
 ### Gamepad (Avalonia Version)
 - **A / B Buttons:** Play / Pause
-- **DPad:** (Coming Soon)
+- **DPad Up / Down:** Adjust Font Size
+- **DPad Left / Right:** Set Direction (Forward/Backward)
 - **X Button:** Toggle Direction
 - **Y Button:** Toggle Edge Fade
 - **LB / RB (Bumpers):** Adjust Scroll Speed
