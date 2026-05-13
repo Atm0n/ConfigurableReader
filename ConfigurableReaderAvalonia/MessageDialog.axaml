@@ -3,7 +3,7 @@
         x:Class="ConfigurableReaderAvalonia.MessageDialog"
         Title="Notification" Width="300" Height="150"
         WindowStartupLocation="CenterOwner"
-        SystemDecorations="None"
+        WindowDecorations="None"
         Background="Transparent"
         TransparencyLevelHint="Transparent">
     <Border Background="#2D2D30" BorderBrush="#007ACC" BorderThickness="2" CornerRadius="8">

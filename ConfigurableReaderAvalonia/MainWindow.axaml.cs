@@ -249,79 +249,86 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnRendering()
+    private async void OnRendering()
     {
-        if (IsPaused || string.IsNullOrEmpty(_fullText)) return;
-
-        DateTime now = DateTime.Now;
-        if (_lastRenderTime == DateTime.MinValue)
+        try
         {
+            if (IsPaused || string.IsNullOrEmpty(_fullText)) return;
+
+            DateTime now = DateTime.Now;
+            if (_lastRenderTime == DateTime.MinValue)
+            {
+                _lastRenderTime = now;
+                return;
+            }
+
+            double deltaTime = (now - _lastRenderTime).TotalSeconds;
             _lastRenderTime = now;
-            return;
-        }
 
-        double deltaTime = (now - _lastRenderTime).TotalSeconds;
-        _lastRenderTime = now;
+            double speed = SpeedSlider.Value;
+            double pixelsToMove = speed * deltaTime;
 
-        double speed = SpeedSlider.Value;
-        double pixelsToMove = speed * deltaTime;
-
-        if (isReversing)
-        {
-            _currentOffsetX += pixelsToMove;
-            while (_currentOffsetX > 0)
+            if (isReversing)
             {
-                if (_currentPosition > 0)
+                _currentOffsetX += pixelsToMove;
+                while (_currentOffsetX > 0)
                 {
-                    _currentPosition--;
+                    if (_currentPosition > 0)
+                    {
+                        _currentPosition--;
+                        double charWidth = GetCharacterWidth(_fullText[_currentPosition]);
+                        _currentOffsetX -= charWidth;
+                    }
+                    else
+                    {
+                        _currentOffsetX = 0;
+                        StopReading();
+                        await MessageDialog.ShowAsync(this, "Start of the book reached");
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                _currentOffsetX -= pixelsToMove;
+                while (true)
+                {
+                    if (_currentPosition >= _fullText.Length)
+                    {
+                        _currentOffsetX = 0;
+                        StopReading();
+                        await MessageDialog.ShowAsync(this, "End of the book reached");
+                        break;
+                    }
+
                     double charWidth = GetCharacterWidth(_fullText[_currentPosition]);
-                    _currentOffsetX -= charWidth;
-                }
-                else
-                {
-                    _currentOffsetX = 0;
-                    StopReading();
-                    MessageDialog.Show(this, "Start of the book reached");
-                    break;
+                    if (_currentOffsetX <= -charWidth)
+                    {
+                        _currentOffsetX += charWidth;
+                        _currentPosition++;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
-        }
-        else
-        {
-            _currentOffsetX -= pixelsToMove;
-            while (true)
+
+            _textTranslateTransform.X = _currentOffsetX;
+
+            // Centering logic
+            if (ReadingAreaCanvas.Bounds.Height > 0 && MainTextBlock.Bounds.Height > 0)
             {
-                if (_currentPosition >= _fullText.Length)
-                {
-                    _currentOffsetX = 0;
-                    StopReading();
-                    MessageDialog.Show(this, "End of the book reached");
-                    break;
-                }
-
-                double charWidth = GetCharacterWidth(_fullText[_currentPosition]);
-                if (_currentOffsetX <= -charWidth)
-                {
-                    _currentOffsetX += charWidth;
-                    _currentPosition++;
-                }
-                else
-                {
-                    break;
-                }
+                double top = (ReadingAreaCanvas.Bounds.Height - MainTextBlock.Bounds.Height) / 2;
+                Canvas.SetTop(MainTextBlock, top);
             }
+
+            UpdateDisplayedText();
         }
-
-        _textTranslateTransform.X = _currentOffsetX;
-
-        // Centering logic
-        if (ReadingAreaCanvas.Bounds.Height > 0 && MainTextBlock.Bounds.Height > 0)
+        catch (Exception ex)
         {
-            double top = (ReadingAreaCanvas.Bounds.Height - MainTextBlock.Bounds.Height) / 2;
-            Canvas.SetTop(MainTextBlock, top);
+            System.Diagnostics.Debug.WriteLine($"Error in OnRendering: {ex.Message}");
         }
-
-        UpdateDisplayedText();
     }
 
     private void UpdateDisplayedText()
@@ -461,43 +468,50 @@ public partial class MainWindow : Window
 
     private async void OpenFileButton_Click(object? sender, RoutedEventArgs e)
     {
-        var options = new Avalonia.Platform.Storage.FilePickerOpenOptions
+        try
         {
-            Title = "Open Text File",
-            FileTypeFilter = [new Avalonia.Platform.Storage.FilePickerFileType("Text Files") { Patterns = ["*.txt"] }]
-        };
-
-        var result = await this.StorageProvider.OpenFilePickerAsync(options);
-        if (result.Count > 0)
-        {
-            SaveSettings();
-
-            _currentBookFileName = result[0].Path.LocalPath;
-            string bookName = Path.GetFileName(_currentBookFileName);
-
-            _fullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " ").Replace("  ", " ");
-
-            var actualBook = _bookRecords.FirstOrDefault(r => r.Name == bookName);
-            if (actualBook is null)
+            var options = new Avalonia.Platform.Storage.FilePickerOpenOptions
             {
-                actualBook = new BookRecord { Name = bookName };
-                _bookRecords.Add(actualBook);
+                Title = "Open Text File",
+                FileTypeFilter = [new Avalonia.Platform.Storage.FilePickerFileType("Text Files") { Patterns = ["*.txt"] }]
+            };
+
+            var result = await this.StorageProvider.OpenFilePickerAsync(options);
+            if (result.Count > 0)
+            {
+                SaveSettings();
+
+                _currentBookFileName = result[0].Path.LocalPath;
+                string bookName = Path.GetFileName(_currentBookFileName);
+
+                _fullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " ").Replace("  ", " ");
+
+                var actualBook = _bookRecords.FirstOrDefault(r => r.Name == bookName);
+                if (actualBook is null)
+                {
+                    actualBook = new BookRecord { Name = bookName };
+                    _bookRecords.Add(actualBook);
+                }
+
+                _isUpdatingFromCode = true;
+                _currentPosition = actualBook.ScrollPosition;
+                _currentOffsetX = 0;
+                _textTranslateTransform.X = 0;
+
+                TextSlider.Maximum = _fullText.Length;
+                TextSlider.Value = _currentPosition;
+                BookNameText.Text = bookName;
+
+                UpdateDisplayedText();
+                UpdatePercentage();
+                _isUpdatingFromCode = false;
+
+                SaveSettings();
             }
-
-            _isUpdatingFromCode = true;
-            _currentPosition = actualBook.ScrollPosition;
-            _currentOffsetX = 0;
-            _textTranslateTransform.X = 0;
-
-            TextSlider.Maximum = _fullText.Length;
-            TextSlider.Value = _currentPosition;
-            BookNameText.Text = bookName;
-
-            UpdateDisplayedText();
-            UpdatePercentage();
-            _isUpdatingFromCode = false;
-
-            SaveSettings();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error opening file: {ex.Message}");
         }
     }
 
@@ -528,10 +542,17 @@ public partial class MainWindow : Window
         IsPaused = true;
     }
 
-    private void ShowInfo()
+    private async void ShowInfo()
     {
-        var dialog = new InfoDialog();
-        dialog.ShowDialog(this);
+        try
+        {
+            var dialog = new InfoDialog();
+            await dialog.ShowDialog(this);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error showing info: {ex.Message}");
+        }
     }
 
     private void Window_KeyDown(object? sender, KeyEventArgs e)

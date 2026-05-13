@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
@@ -10,11 +11,11 @@ public partial class MessageDialog : Window
         InitializeComponent();
     }
 
-    public static void Show(Window owner, string message)
+    public static async Task ShowAsync(Window owner, string message)
     {
         var dialog = new MessageDialog();
         dialog.FindControl<TextBlock>("MessageText")!.Text = message;
-        dialog.ShowDialog(owner);
+        await dialog.ShowDialog(owner);
     }
 
     private void OkButton_Click(object? sender, RoutedEventArgs e)
