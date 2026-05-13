@@ -478,4 +478,13 @@ public partial class MainWindow : Window
     {
         isReversing = !isReversing;
     }
-}
+
+    private void InfoButton_Click(object sender, RoutedEventArgs e)
+    {
+        InfoDialog infoDialog = new InfoDialog
+        {
+            Owner = this
+        };
+        infoDialog.ShowDialog();
+    }
+    }

@@ -132,6 +132,13 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- Info Group -->
+                    <Border Style="{StaticResource GroupBorder}">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Info" Click="InfoButton_Click" Focusable="False"/>
+                        </StackPanel>
+                    </Border>
+
                 </WrapPanel>
             </Border>
         </Expander>
