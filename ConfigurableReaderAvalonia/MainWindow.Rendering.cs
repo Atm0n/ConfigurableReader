@@ -12,7 +12,6 @@ public partial class MainWindow
 {
     private readonly DispatcherTimer _timer;
     private readonly TranslateTransform _textTranslateTransform = new();
-    private double _currentOffsetX = 0;
     private DateTime _lastRenderTime;
     private readonly Dictionary<char, double> _charWidths = [];
 
@@ -31,7 +30,7 @@ public partial class MainWindow
     {
         try
         {
-            if (_isPaused || string.IsNullOrEmpty(_fullText)) return;
+            if (_readerService.IsPaused || string.IsNullOrEmpty(_readerService.FullText)) return;
 
             DateTime now = DateTime.Now;
             if (_lastRenderTime == DateTime.MinValue)
@@ -43,56 +42,9 @@ public partial class MainWindow
             double deltaTime = (now - _lastRenderTime).TotalSeconds;
             _lastRenderTime = now;
 
-            double speed = SpeedSlider.Value;
-            double pixelsToMove = speed * deltaTime;
+            _readerService.Update(deltaTime, SpeedSlider.Value, GetCharacterWidth);
 
-            if (_isReversing)
-            {
-                _currentOffsetX += pixelsToMove;
-                while (_currentOffsetX > 0)
-                {
-                    if (_currentPosition > 0)
-                    {
-                        _currentPosition--;
-                        double charWidth = GetCharacterWidth(_fullText[_currentPosition]);
-                        _currentOffsetX -= charWidth;
-                    }
-                    else
-                    {
-                        _currentOffsetX = 0;
-                        StopReading();
-                        await MessageDialog.ShowAsync(this, "Start of the book reached");
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                _currentOffsetX -= pixelsToMove;
-                while (true)
-                {
-                    if (_currentPosition >= _fullText.Length)
-                    {
-                        _currentOffsetX = 0;
-                        StopReading();
-                        await MessageDialog.ShowAsync(this, "End of the book reached");
-                        break;
-                    }
-
-                    double charWidth = GetCharacterWidth(_fullText[_currentPosition]);
-                    if (_currentOffsetX <= -charWidth)
-                    {
-                        _currentOffsetX += charWidth;
-                        _currentPosition++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-
-            _textTranslateTransform.X = _currentOffsetX;
+            _textTranslateTransform.X = _readerService.CurrentOffsetX;
 
             // Centering logic
             if (ReadingAreaCanvas.Bounds.Height > 0 && MainTextBlock.Bounds.Height > 0)
@@ -111,8 +63,8 @@ public partial class MainWindow
 
     private void UpdateDisplayedText()
     {
-        int length = Math.Min(5000, _fullText.Length - _currentPosition);
-        string newText = _fullText.Substring(_currentPosition, length);
+        int length = Math.Min(5000, _readerService.FullText.Length - _readerService.CurrentPosition);
+        string newText = _readerService.FullText.Substring(_readerService.CurrentPosition, length);
 
         if (MainTextBlock.Text != newText)
         {
@@ -120,7 +72,7 @@ public partial class MainWindow
         }
 
         _isUpdatingFromCode = true;
-        TextSlider.Value = _currentPosition;
+        TextSlider.Value = _readerService.CurrentPosition;
         _isUpdatingFromCode = false;
 
         UpdatePercentage();
@@ -150,9 +102,9 @@ public partial class MainWindow
 
     private void UpdatePercentage()
     {
-        if (_fullText.Length > 0)
+        if (_readerService.FullText.Length > 0)
         {
-            double percentage = (double)_currentPosition / _fullText.Length * 100;
+            double percentage = (double)_readerService.CurrentPosition / _readerService.FullText.Length * 100;
             PercentageText.Text = $"{percentage:F1}%";
         }
     }

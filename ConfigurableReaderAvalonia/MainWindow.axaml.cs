@@ -8,17 +8,16 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Controls.Primitives;
+using ConfigurableReaderAvalonia.Services;
 
 namespace ConfigurableReaderAvalonia;
 
 public partial class MainWindow : Window
 {
-    private int _currentPosition = 0;
-    private bool _isPaused = true;
+    private readonly GamepadService _gamepadService = new();
+    private readonly ReaderService _readerService = new();
+    
     private string? _currentBookFileName;
-    private string _fullText = string.Empty;
-
-    private bool _isReversing = false;
     private bool _isUpdatingFromCode = false;
 
     private DateTime _lastKeyUpTime = DateTime.MinValue;
@@ -40,6 +39,42 @@ public partial class MainWindow : Window
 
         InitializeRendering();
         InitializeGamepad();
+
+        _readerService.StartOfBookReached += () => 
+        {
+            Dispatcher.UIThread.Post(() => _ = OnStartOfBookReachedAsync());
+        };
+
+        _readerService.EndOfBookReached += () => 
+        {
+            Dispatcher.UIThread.Post(() => _ = OnEndOfBookReachedAsync());
+        };
+    }
+
+    private async Task OnStartOfBookReachedAsync()
+    {
+        try
+        {
+            StopReading();
+            await MessageDialog.ShowAsync(this, "Start of the book reached");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error showing start of book dialog: {ex.Message}");
+        }
+    }
+
+    private async Task OnEndOfBookReachedAsync()
+    {
+        try
+        {
+            StopReading();
+            await MessageDialog.ShowAsync(this, "End of the book reached");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error showing end of book dialog: {ex.Message}");
+        }
     }
 
     private void OpenFileButton_Click(object? sender, RoutedEventArgs e) => _ = OpenFileAsync();
@@ -62,7 +97,7 @@ public partial class MainWindow : Window
                 _currentBookFileName = result[0].Path.LocalPath;
                 string bookName = Path.GetFileName(_currentBookFileName);
 
-                _fullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " ").Replace("  ", " ");
+                _readerService.FullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " ").Replace("  ", " ");
 
                 var actualBook = _bookRecords.FirstOrDefault(r => r.Name == bookName);
                 if (actualBook is null)
@@ -72,12 +107,10 @@ public partial class MainWindow : Window
                 }
 
                 _isUpdatingFromCode = true;
-                _currentPosition = actualBook.ScrollPosition;
-                _currentOffsetX = 0;
-                _textTranslateTransform.X = 0;
+                _readerService.ResetPosition(actualBook.ScrollPosition);
 
-                TextSlider.Maximum = _fullText.Length;
-                TextSlider.Value = _currentPosition;
+                TextSlider.Maximum = _readerService.FullText.Length;
+                TextSlider.Value = _readerService.CurrentPosition;
                 BookNameText.Text = bookName;
 
                 UpdateDisplayedText();
@@ -94,17 +127,17 @@ public partial class MainWindow : Window
     }
 
     private void StartStopButton_Click(object? sender, RoutedEventArgs e) => ToggleStartStop();
-    private void ReverseButton_Click(object? sender, RoutedEventArgs e) => _isReversing = !_isReversing;
+    private void ReverseButton_Click(object? sender, RoutedEventArgs e) => _readerService.IsReversing = !_readerService.IsReversing;
     private void InfoButton_Click(object? sender, RoutedEventArgs e) => _ = ShowInfoAsync();
 
     private void ToggleStartStop()
     {
         if (_currentBookFileName == null) return;
 
-        if (_isPaused)
+        if (_readerService.IsPaused)
         {
             StartStopButton.Content = "Stop";
-            _isPaused = false;
+            _readerService.IsPaused = false;
             _lastRenderTime = DateTime.MinValue;
             SettingsExpander.IsExpanded = false;
         }
@@ -117,7 +150,7 @@ public partial class MainWindow : Window
     private void StopReading()
     {
         StartStopButton.Content = "Start";
-        _isPaused = true;
+        _readerService.IsPaused = true;
     }
 
     private async Task ShowInfoAsync()
@@ -137,8 +170,8 @@ public partial class MainWindow : Window
     {
         switch (e.Key)
         {
-            case Key.Left: _isReversing = true; break;
-            case Key.Right: _isReversing = false; break;
+            case Key.Left: _readerService.IsReversing = true; break;
+            case Key.Right: _readerService.IsReversing = false; break;
             case Key.Space: ToggleStartStop(); break;
             case Key.Up:
                 int upStep = (DateTime.Now - _lastKeyUpTime).TotalMilliseconds < 400 ? 10 : 1;
@@ -150,7 +183,7 @@ public partial class MainWindow : Window
                 _lastKeyDownTime = DateTime.Now;
                 AdjustFontSize(downStep);
                 break;
-            case Key.R: _isReversing = !_isReversing; break;
+            case Key.R: _readerService.IsReversing = !_readerService.IsReversing; break;
             case Key.F: FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked; break;
             case Key.S: SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded; break;
             case Key.I: _ = ShowInfoAsync(); break;
@@ -162,8 +195,7 @@ public partial class MainWindow : Window
     private void Window_Closing(object? sender, WindowClosingEventArgs e)
     {
         SaveSettings();
-        _gamepadSubscription?.Dispose();
-        _devices.Dispose();
+        _gamepadService.Dispose();
     }
 
     private void FontComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -193,11 +225,9 @@ public partial class MainWindow : Window
 
     private void TextSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
-        if (_isPaused && !_isUpdatingFromCode)
+        if (_readerService.IsPaused && !_isUpdatingFromCode)
         {
-            _currentPosition = (int)TextSlider.Value;
-            _currentOffsetX = 0;
-            _textTranslateTransform.X = 0;
+            _readerService.ResetPosition((int)TextSlider.Value);
             UpdateDisplayedText();
         }
     }

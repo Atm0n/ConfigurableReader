@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using Avalonia.Controls;
 using Avalonia.Media;
 
 namespace ConfigurableReaderAvalonia;
@@ -78,7 +80,7 @@ public partial class MainWindow
                 record = new BookRecord { Name = bookName };
                 _bookRecords.Add(record);
             }
-            record.ScrollPosition = _currentPosition;
+            record.ScrollPosition = _readerService.CurrentPosition;
             _settings.BookPositionsJson = JsonSerializer.Serialize(_bookRecords);
         }
 
