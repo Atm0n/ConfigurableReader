@@ -1,0 +1,59 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ConfigurableReaderAvalonia.InfoDialog"
+        Title="About ConfigurableReader" Height="550" Width="400"
+        WindowStartupLocation="CenterOwner"
+        Background="#1E1E1E" Foreground="#F1F1F1">
+    
+    <Window.Styles>
+        <Style Selector="TextBlock">
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style Selector="TextBlock.HeaderStyle">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#007ACC"/>
+            <Setter Property="Margin" Value="0,15,0,5"/>
+        </Style>
+        <Style Selector="TextBlock.SubHeaderStyle">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,10,0,2"/>
+        </Style>
+    </Window.Styles>
+    
+    <Grid Margin="20" RowDefinitions="*,Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="ConfigurableReader (Avalonia)" Classes="HeaderStyle"/>
+                <TextBlock Text="Version 0.2.0" FontSize="11" Opacity="0.7" Margin="0,-5,0,0"/>
+                <TextBlock Text="Made by Nil Riera" FontSize="12" FontStyle="Italic" Opacity="0.9" Margin="0,2,0,10"/>
+                
+                <TextBlock Text="A highly customizable text reader migrated to Avalonia for cross-platform support." 
+                           TextWrapping="Wrap" Margin="0,5,0,10"/>
+
+                <TextBlock Text="Controls" Classes="HeaderStyle"/>
+                
+                <TextBlock Text="Keyboard" Classes="SubHeaderStyle"/>
+                <StackPanel Margin="10,0">
+                    <TextBlock Text="• Space: Play / Pause" />
+                    <TextBlock Text="• Left / Right: Forward / Backward" />
+                    <TextBlock Text="• Up / Down: Adjust Font Size" />
+                    <TextBlock Text="• R: Toggle Direction" />
+                    <TextBlock Text="• F: Toggle Edge Fade" />
+                    <TextBlock Text="• S: Toggle Settings" />
+                    <TextBlock Text="• I: Show Info" />
+                    <TextBlock Text="• +/-: Adjust Speed" />
+                </StackPanel>
+
+                <TextBlock Text="License" Classes="HeaderStyle"/>
+                <TextBlock Text="Licensed under the MIT License." Opacity="0.8"/>
+                <TextBlock Text="Uses Avalonia." FontSize="11" Opacity="0.6"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Button Grid.Row="1" Content="Close" Width="100" HorizontalAlignment="Right" Margin="0,10,0,0" 
+                Click="CloseButton_Click" Padding="10,5"/>
+    </Grid>
+</Window>
