@@ -4,15 +4,16 @@ using SharpDX.XInput;
 
 namespace ConfigurableReader;
 
-public partial class InfoDialog : Window
+public partial class MessageDialog : Window
 {
     private readonly Controller controller = new(UserIndex.One);
     private readonly DispatcherTimer inputTimer;
     private readonly DateTime _creationTime = DateTime.Now;
 
-    public InfoDialog()
+    public MessageDialog(string message)
     {
         InitializeComponent();
+        MessageText.Text = message;
 
         inputTimer = new DispatcherTimer
         {
@@ -31,15 +32,28 @@ public partial class InfoDialog : Window
             var state = controller.GetState();
             if ((state.Gamepad.Buttons & (GamepadButtonFlags.B | GamepadButtonFlags.Back | GamepadButtonFlags.A | GamepadButtonFlags.Start)) != 0)
             {
-                inputTimer.Stop();
-                this.Close();
+                CloseDialog();
             }
         }
     }
 
-    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    private void OkButton_Click(object sender, RoutedEventArgs e)
+    {
+        CloseDialog();
+    }
+
+    private void CloseDialog()
     {
         inputTimer.Stop();
         this.Close();
+    }
+
+    public static void Show(Window owner, string message)
+    {
+        var dialog = new MessageDialog(message)
+        {
+            Owner = owner
+        };
+        dialog.ShowDialog();
     }
 }

@@ -98,7 +98,9 @@ public partial class MainWindow : Window
                 {
                     _currentOffsetX = 0;
                     StartStop();
-                    Xceed.Wpf.Toolkit.MessageBox.Show("Start of the book reached");
+                    inputTimer.Stop();
+                    MessageDialog.Show(this, "Start of the book reached");
+                    inputTimer.Start();
                     break;
                 }
             }
@@ -112,7 +114,9 @@ public partial class MainWindow : Window
                 {
                     _currentOffsetX = 0;
                     StartStop();
-                    Xceed.Wpf.Toolkit.MessageBox.Show("End of the book reached");
+                    inputTimer.Stop();
+                    MessageDialog.Show(this, "End of the book reached");
+                    inputTimer.Start();
                     break;
                 }
 
@@ -687,10 +691,12 @@ public partial class MainWindow : Window
 
     private void InfoButton_Click(object sender, RoutedEventArgs e)
     {
+        inputTimer.Stop();
         InfoDialog infoDialog = new InfoDialog
         {
             Owner = this
         };
         infoDialog.ShowDialog();
+        inputTimer.Start();
     }
 }
