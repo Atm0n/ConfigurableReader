@@ -47,8 +47,14 @@ public partial class MainWindow : Window
 
         LoadBookPositionConfiguration();
 
+        PopulateFontList();
         LoadUserConfiguration();
 
+    }
+
+    private void PopulateFontList()
+    {
+        FontComboBox.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
     }
 
     private async void DelayInputProcessing()
@@ -83,6 +89,13 @@ public partial class MainWindow : Window
 
         var backgroundColor = Properties.Settings.Default.BackgroundColor;
         this.Background = new SolidColorBrush(Color.FromArgb(backgroundColor.A, backgroundColor.R, backgroundColor.G, backgroundColor.B));
+
+        if (!string.IsNullOrEmpty(Properties.Settings.Default.FontFamily))
+        {
+            var fontFamily = new FontFamily(Properties.Settings.Default.FontFamily);
+            TextBlock.FontFamily = fontFamily;
+            FontComboBox.SelectedItem = Fonts.SystemFontFamilies.FirstOrDefault(f => f.Source == fontFamily.Source);
+        }
     }
 
     private static Color CreateColorFromDrawingColor(System.Drawing.Color textColor)
@@ -124,6 +137,16 @@ public partial class MainWindow : Window
 
         TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
         TextSlider.Value = _currentPosition;
+        UpdatePercentage();
+    }
+
+    private void UpdatePercentage()
+    {
+        if (_fullText.Length > 0)
+        {
+            double percentage = (double)_currentPosition / _fullText.Length * 100;
+            PercentageText.Text = $"{percentage:F1}%";
+        }
     }
 
     private void ChangeFontSize(double value)
@@ -179,11 +202,24 @@ public partial class MainWindow : Window
 
         Properties.Settings.Default.ScrollSpeed = SpeedSlider.Value;
 
+        if (TextBlock.FontFamily != null)
+        {
+            Properties.Settings.Default.FontFamily = TextBlock.FontFamily.Source;
+        }
+
         Properties.Settings.Default.Save();
     }
 
     #endregion
     #region Events
+    private void FontComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (FontComboBox.SelectedItem is FontFamily fontFamily)
+        {
+            TextBlock.FontFamily = fontFamily;
+        }
+    }
+
     #region xboxController
     private void InputXboxTimer_Tick(object? sender, EventArgs e)
     {
@@ -248,6 +284,8 @@ public partial class MainWindow : Window
             TextBlock.Text = _fullText.Substring(_currentPosition, _fullText.Length - _currentPosition);
 
             TextSlider.Maximum = _fullText.Length;
+            BookNameText.Text = Path.GetFileName(_currentBookFileName);
+            UpdatePercentage();
 
             configuration.Save();
         }
@@ -327,6 +365,7 @@ public partial class MainWindow : Window
                 StartStopButton.Content = "Stop";
                 IsPaused = !IsPaused;
                 _textUpdateTimer.Start();
+                SettingsExpander.IsExpanded = false;
             }
             else
             {

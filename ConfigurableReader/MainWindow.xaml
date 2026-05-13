@@ -80,7 +80,7 @@
         </Grid.RowDefinitions>
 
         <!-- Collapsible Control Panel -->
-        <Expander Grid.Row="0" Header="Settings &amp; Controls" 
+        <Expander x:Name="SettingsExpander" Grid.Row="0" Header="Settings &amp; Controls" 
                   ExpandDirection="Down" IsExpanded="True"
                   Background="{StaticResource PrimaryBackground}" 
                   Foreground="{StaticResource TextForeground}"
@@ -108,14 +108,17 @@
                     <!-- Appearance Group -->
                     <Border Style="{StaticResource GroupBorder}">
                         <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Font:" Style="{StaticResource LabelStyle}"/>
+                            <ComboBox x:Name="FontComboBox" Width="120" SelectionChanged="FontComboBox_SelectionChanged" Focusable="False"/>
+
                             <TextBlock Text="Text:" Style="{StaticResource LabelStyle}"/>
                             <xctk:ColorPicker x:Name="ColorPicker" Width="45" SelectedColorChanged="ColorPicker_SelectedColorChanged" Focusable="False"/>
                         
                             <TextBlock Text="BG:" Style="{StaticResource LabelStyle}"/>
                             <xctk:ColorPicker x:Name="BackgroundColorPicker" Width="45" SelectedColorChanged="BackgroundColorPicker_SelectedColorChanged" Focusable="False"/>
                         
-                            <TextBlock Text="Font Size:" Style="{StaticResource LabelStyle}"/>
-                            <xctk:IntegerUpDown x:Name="FontSizeSlider" Width="70" Minimum="10" Maximum="800" 
+                            <TextBlock Text="Size:" Style="{StaticResource LabelStyle}"/>
+                            <xctk:IntegerUpDown x:Name="FontSizeSlider" Width="60" Minimum="10" Maximum="800" 
                                                 Value="{Binding ElementName=TextBlock, Path=FontSize, Mode=TwoWay}" Focusable="False"/>
                         </StackPanel>
                     </Border>
@@ -126,6 +129,14 @@
 
         <!-- Main Reading Area -->
         <Grid Grid.Row="1" VerticalAlignment="Center">
+            <Grid.OpacityMask>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                    <GradientStop Color="Transparent" Offset="0"/>
+                    <GradientStop Color="Black" Offset="0.1"/>
+                    <GradientStop Color="Black" Offset="0.9"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </LinearGradientBrush>
+            </Grid.OpacityMask>
             <TextBlock 
                 x:Name="TextBlock" 
                 Text="ConfigurableReader" 
@@ -138,7 +149,16 @@
 
         <!-- Progress Area -->
         <Border Grid.Row="2" Background="{StaticResource PrimaryBackground}" Padding="10" BorderThickness="0,1,0,0" BorderBrush="{StaticResource SecondaryBackground}">
-            <Slider x:Name="TextSlider" Minimum="0" Maximum="100" Interval="1" ValueChanged="TextSlider_ValueChanged" Focusable="False"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="BookNameText" Grid.Column="0" Text="No file opened" VerticalAlignment="Center" Foreground="{StaticResource TextForeground}" TextTrimming="CharacterEllipsis"/>
+                <Slider x:Name="TextSlider" Grid.Column="1" Minimum="0" Maximum="100" Interval="1" ValueChanged="TextSlider_ValueChanged" Focusable="False"/>
+                <TextBlock x:Name="PercentageText" Grid.Column="2" Text="0%" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextForeground}"/>
+            </Grid>
         </Border>
 
     </Grid>
