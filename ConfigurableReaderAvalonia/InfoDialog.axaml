@@ -33,9 +33,7 @@
                 <TextBlock Text="A highly customizable text reader migrated to Avalonia for cross-platform support." 
                            TextWrapping="Wrap" Margin="0,5,0,10"/>
 
-                <TextBlock Text="Controls" Classes="HeaderStyle"/>
-                
-                <TextBlock Text="Keyboard" Classes="SubHeaderStyle"/>
+                <TextBlock Text="Keyboard Controls" Classes="SubHeaderStyle"/>
                 <StackPanel Margin="10,0">
                     <TextBlock Text="• Space: Play / Pause" />
                     <TextBlock Text="• Left / Right: Forward / Backward" />
@@ -47,9 +45,26 @@
                     <TextBlock Text="• +/-: Adjust Speed" />
                 </StackPanel>
 
-                <TextBlock Text="License" Classes="HeaderStyle"/>
-                <TextBlock Text="Licensed under the MIT License." Opacity="0.8"/>
-                <TextBlock Text="Uses Avalonia." FontSize="11" Opacity="0.6"/>
+                <TextBlock Text="Gamepad Controls" Classes="SubHeaderStyle"/>
+                <StackPanel Margin="10,0">
+                    <TextBlock Text="• A / B: Play / Pause" />
+                    <TextBlock Text="• X / Y: Direction / Edge Fade" />
+                    <TextBlock Text="• LB / RB: Adjust Speed" />
+                    <TextBlock Text="• LT / RT: Rewind / Fast-Forward" />
+                    <TextBlock Text="• Double-tap Triggers: Speed Boost" />
+                    <TextBlock Text="• Look for ⌨️/🎮 icon for status" />
+                </StackPanel>
+
+                <TextBlock Text="Open Source Licenses" Classes="HeaderStyle"/>
+                <TextBlock Text="This project is licensed under the MIT License." Opacity="0.8" Margin="0,0,0,10"/>
+                
+                <TextBlock Text="Third-Party Libraries:" Classes="SubHeaderStyle"/>
+                <StackPanel Margin="10,0">
+                    <TextBlock Text="• Avalonia UI (MIT)" />
+                    <TextBlock Text="• HIDDevices by DevDecoder (Apache 2.0)" />
+                    <TextBlock Text="• HIDSharp (Apache 2.0)" />
+                    <TextBlock Text="• System.Reactive (MIT)" />
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
 

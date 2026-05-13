@@ -1,6 +1,6 @@
 # ConfigurableReader
 
-A highly customizable text reader for Windows (WPF) designed for a comfortable and hands-free reading experience. It supports auto-scrolling, visual customization, and even Xbox controller input.
+A highly customizable text reader designed for a comfortable and hands-free reading experience. This repository contains both the original Windows (WPF) version and the new cross-platform (Avalonia) version.
 
 ## Features
 
@@ -10,7 +10,8 @@ A highly customizable text reader for Windows (WPF) designed for a comfortable a
   - Customize text and background colors.
   - Edge fading for better focus.
 - **Progress Tracking:** Automatically saves your last position in each book you read.
-- **Xbox Controller Support:** Control your reading experience from the comfort of your couch.
+- **Gamepad Support:** Control your reading experience from the comfort of your couch using any standard HID Gamepad (Xbox, PlayStation, etc.).
+- **Visual Indicators:** New connection indicator shows whether you are in Keyboard (⌨️) or Gamepad (🎮) mode.
 - **Keyboard Shortcuts:** Full control with your keyboard.
 
 ## Controls
@@ -25,20 +26,18 @@ A highly customizable text reader for Windows (WPF) designed for a comfortable a
 - **I:** Show Info / About
 - **+/- (Numpad or Main):** Adjust Scroll Speed
 
-### Xbox Controller
+### Gamepad (Avalonia Version)
 - **A / B Buttons:** Play / Pause
-- **DPad Left / Right:** Set Direction (Forward/Backward)
-- **DPad Up / Down:** Adjust Font Size
+- **DPad:** (Coming Soon)
 - **X Button:** Toggle Direction
 - **Y Button:** Toggle Edge Fade
 - **LB / RB (Bumpers):** Adjust Scroll Speed
-- **LT / RT (Triggers):** Rewind / Fast-Forward (Double-tap for Turbo)
-- **Start Button:** Toggle Settings Panel
-- **Back Button:** Show Info / About
+- **LT / RT (Triggers):** Rewind / Fast-Forward (Hold to scroll, double-tap for Boost)
+- **Input Indicator:** Check the bottom-right corner for ⌨️/🎮 icon.
 
 ## Getting Started
 
-1. Launch the application.
+1. Launch the application (`ConfigurableReader` for WPF, `ConfigurableReaderAvalonia` for Avalonia).
 2. Click **Open File** to select a `.txt` book.
 3. Use the **Speed Slider** (or controller bumpers) to adjust how fast the text scrolls.
 4. Click **Start** (or press Space / A / B) to begin reading.
@@ -47,8 +46,17 @@ A highly customizable text reader for Windows (WPF) designed for a comfortable a
 
 This project uses the following third-party libraries:
 
+### Common
+- [Avalonia](https://github.com/AvaloniaUI/Avalonia) (MIT License)
+
+### WPF Version
 - [Extended.Wpf.Toolkit](https://github.com/xceedsoftware/wpftoolkit) (Xceed Community License - Free for non-commercial use)
 - [SharpDX.XInput](https://github.com/sharpdx/SharpDX) (MIT License)
+
+### Avalonia Version
+- [HIDDevices](https://github.com/DevDecoder/HIDDevices) (Apache License 2.0)
+- [HIDDevices.Usages](https://github.com/DevDecoder/HIDDevices) (Apache License 2.0)
+- [HIDSharp](https://github.com/zerog_dog/HIDSharp) (Apache License 2.0)
 
 ## License
 

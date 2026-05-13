@@ -124,10 +124,11 @@
 
         <!-- Progress Area -->
         <Border Grid.Row="2" Background="#2D2D30" Padding="10" BorderThickness="0,1,0,0" BorderBrush="#3E3E42">
-            <Grid ColumnDefinitions="200,*,100">
+            <Grid ColumnDefinitions="200,*,100,Auto">
                 <TextBlock Name="BookNameText" Grid.Column="0" Text="No file opened" VerticalAlignment="Center" Foreground="#F1F1F1" TextTrimming="CharacterEllipsis"/>
                 <Slider Name="TextSlider" Grid.Column="1" Minimum="0" Maximum="100" ValueChanged="TextSlider_ValueChanged" Focusable="False"/>
                 <TextBlock Name="PercentageText" Grid.Column="2" Text="0%" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#F1F1F1"/>
+                <TextBlock Name="InputModeText" Grid.Column="3" Text="⌨️" FontSize="20" VerticalAlignment="Center" Margin="10,0" ToolTip.Tip="Keyboard Mode"/>
             </Grid>
         </Border>
 
