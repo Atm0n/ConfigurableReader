@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -73,7 +74,7 @@ public partial class MainWindow : Window
         };
         _timer.Tick += (s, e) =>
         {
-            OnRendering();
+            _ = OnRenderingAsync();
         };
 
         _settings = AppSettings.Load();
@@ -249,7 +250,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void OnRendering()
+    private async Task OnRenderingAsync()
     {
         try
         {
@@ -466,7 +467,9 @@ public partial class MainWindow : Window
         ClearCharWidthCache();
     }
 
-    private async void OpenFileButton_Click(object? sender, RoutedEventArgs e)
+    private void OpenFileButton_Click(object? sender, RoutedEventArgs e) => _ = OpenFileAsync();
+
+    private async Task OpenFileAsync()
     {
         try
         {
@@ -517,7 +520,7 @@ public partial class MainWindow : Window
 
     private void StartStopButton_Click(object? sender, RoutedEventArgs e) => ToggleStartStop();
     private void ReverseButton_Click(object? sender, RoutedEventArgs e) => isReversing = !isReversing;
-    private void InfoButton_Click(object? sender, RoutedEventArgs e) => ShowInfo();
+    private void InfoButton_Click(object? sender, RoutedEventArgs e) => _ = ShowInfoAsync();
 
     private void ToggleStartStop()
     {
@@ -542,7 +545,7 @@ public partial class MainWindow : Window
         IsPaused = true;
     }
 
-    private async void ShowInfo()
+    private async Task ShowInfoAsync()
     {
         try
         {
@@ -575,7 +578,7 @@ public partial class MainWindow : Window
             case Key.R: isReversing = !isReversing; break;
             case Key.F: FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked; break;
             case Key.S: SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded; break;
-            case Key.I: ShowInfo(); break;
+            case Key.I: _ = ShowInfoAsync(); break;
             case Key.OemPlus: case Key.Add: SpeedSlider.Value += 50; break;
             case Key.OemMinus: case Key.Subtract: SpeedSlider.Value -= 50; break;
         }
