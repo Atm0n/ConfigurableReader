@@ -1,13 +1,13 @@
 <Window x:Class="ConfigurableReader.InfoDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="About ConfigurableReader" Height="450" Width="400"
+        Title="About ConfigurableReader" Height="550" Width="400"
         WindowStyle="ToolWindow" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
         Background="#1E1E1E" Foreground="#F1F1F1">
     <Window.Resources>
         <Style TargetType="TextBlock">
-            <Setter Property="Margin" Value="0,5"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="FontSize" Value="12"/>
         </Style>
         <Style x:Key="HeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="18"/>
@@ -31,41 +31,37 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <TextBlock Text="ConfigurableReader" Style="{StaticResource HeaderStyle}"/>
-                <TextBlock Text="Version 0.1.0" FontSize="11" Opacity="0.7" Margin="0,-5,0,0"/>
+                <TextBlock Text="Version 0.1.1" FontSize="11" Opacity="0.7" Margin="0,-5,0,0"/>
                 <TextBlock Text="Made by Nil Riera" FontSize="12" FontStyle="Italic" Opacity="0.9" Margin="0,2,0,10"/>
                 
                 <TextBlock Text="A highly customizable text reader for Windows designed for a comfortable and hands-free reading experience." 
-                           TextWrapping="Wrap" Margin="0,5,0,15"/>
+                           TextWrapping="Wrap" Margin="0,5,0,10"/>
 
                 <TextBlock Text="Controls" Style="{StaticResource HeaderStyle}"/>
                 
                 <TextBlock Text="Keyboard" Style="{StaticResource SubHeaderStyle}"/>
-                <BulletDecorator Margin="10,0">
-                    <BulletDecorator.Bullet>
-                        <TextBlock Text="•" Margin="0,0,5,0"/>
-                    </BulletDecorator.Bullet>
-                    <TextBlock Text="Space: Play / Pause" />
-                </BulletDecorator>
-                <BulletDecorator Margin="10,0">
-                    <BulletDecorator.Bullet>
-                        <TextBlock Text="•" Margin="0,0,5,0"/>
-                    </BulletDecorator.Bullet>
-                    <TextBlock Text="Left / Right Arrows: Change Direction" />
-                </BulletDecorator>
-                <BulletDecorator Margin="10,0">
-                    <BulletDecorator.Bullet>
-                        <TextBlock Text="•" Margin="0,0,5,0"/>
-                    </BulletDecorator.Bullet>
-                    <TextBlock Text="Up / Down Arrows: Adjust Font Size" />
-                </BulletDecorator>
+                <StackPanel Margin="10,0">
+                    <TextBlock Text="• Space: Play / Pause" />
+                    <TextBlock Text="• Left / Right: Forward / Backward" />
+                    <TextBlock Text="• Up / Down: Adjust Font Size" />
+                    <TextBlock Text="• R: Toggle Direction" />
+                    <TextBlock Text="• F: Toggle Edge Fade" />
+                    <TextBlock Text="• S: Toggle Settings" />
+                    <TextBlock Text="• I: Show Info" />
+                    <TextBlock Text="• +/-: Adjust Speed" />
+                </StackPanel>
 
                 <TextBlock Text="Xbox Controller" Style="{StaticResource SubHeaderStyle}"/>
-                <BulletDecorator Margin="10,0">
-                    <BulletDecorator.Bullet>
-                        <TextBlock Text="•" Margin="0,0,5,0"/>
-                    </BulletDecorator.Bullet>
-                    <TextBlock Text="A Button: Play / Pause" />
-                </BulletDecorator>
+                <StackPanel Margin="10,0">
+                    <TextBlock Text="• A / B Button: Play / Pause" />
+                    <TextBlock Text="• DPad Left / Right: Forward / Backward" />
+                    <TextBlock Text="• DPad Up / Down: Adjust Font Size" />
+                    <TextBlock Text="• X Button: Toggle Direction" />
+                    <TextBlock Text="• Y Button: Toggle Edge Fade" />
+                    <TextBlock Text="• LB / RB (Bumpers): Adjust Speed" />
+                    <TextBlock Text="• Start: Toggle Settings" />
+                    <TextBlock Text="• Back: Show Info" />
+                </StackPanel>
 
                 <TextBlock Text="License" Style="{StaticResource HeaderStyle}"/>
                 <TextBlock Text="Licensed under the MIT License." Opacity="0.8"/>

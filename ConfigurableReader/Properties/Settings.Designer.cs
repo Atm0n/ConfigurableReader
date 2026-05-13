@@ -94,5 +94,17 @@ namespace ConfigurableReader.Properties {
                 this["EnableEdgeFading"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string BookPositionsJson {
+            get {
+                return ((string)(this["BookPositionsJson"]));
+            }
+            set {
+                this["BookPositionsJson"] = value;
+            }
+        }
     }
 }
