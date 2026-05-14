@@ -63,6 +63,7 @@ public partial class MainWindow : Window
         _documentRegistry.RegisterParser(new EpubBookParser());
         _documentRegistry.RegisterParser(new ConfigurableReader.Parsers.Pdf.PdfBookParser());
         _documentRegistry.RegisterParser(new ConfigurableReader.Parsers.Docx.DocxBookParser());
+        _documentRegistry.RegisterParser(new ConfigurableReader.Parsers.Markdown.MarkdownBookParser());
     }
 
     private async Task OnStartOfBookReachedAsync()
