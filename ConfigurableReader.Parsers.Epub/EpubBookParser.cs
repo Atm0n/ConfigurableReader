@@ -1,5 +1,7 @@
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using ConfigurableReader.Core;
 using VersOne.Epub;
 
@@ -8,10 +10,13 @@ namespace ConfigurableReader.Parsers.Epub;
 public partial class EpubBookParser : IBookParser
 {
     public string FormatName => "EPUB Books";
-    public string[] SupportedExtensions => new[] { ".epub" };
+    public string[] SupportedExtensions => [".epub"];
 
     [GeneratedRegex("<[^>]*>")]
     private static partial Regex HtmlTagRegex();
+
+    [GeneratedRegex(@"<(style|script|head)[^>]*>.*?</\1>", RegexOptions.Singleline | RegexOptions.IgnoreCase)]
+    private static partial Regex ContentBlockRegex();
 
     [GeneratedRegex(@"\s+")]
     private static partial Regex WhitespaceRegex();
@@ -24,37 +29,39 @@ public partial class EpubBookParser : IBookParser
         foreach (var textContentFile in book.ReadingOrder)
         {
             string plainText = StripHtml(textContentFile.Content);
-            sb.Append(plainText);
-            sb.Append(" ");
+            if (!string.IsNullOrWhiteSpace(plainText))
+            {
+                sb.Append(plainText);
+                sb.Append(' ');
+            }
         }
 
         return NormalizeWhitespace(sb.ToString());
     }
 
-    private string StripHtml(string html)
+    private static string StripHtml(string html)
     {
         if (string.IsNullOrEmpty(html)) return string.Empty;
 
-        // Use source-generated regex for HTML tag stripping
-        string step1 = HtmlTagRegex().Replace(html, " ");
+        // 1. Remove blocks that shouldn't be treated as text (style, script, head)
+        string step1 = ContentBlockRegex().Replace(html, " ");
 
-        // Decode common entities (very basic)
-        string step2 = step1.Replace("&nbsp;", " ")
-                            .Replace("&lt;", "<")
-                            .Replace("&gt;", ">")
-                            .Replace("&amp;", "&")
-                            .Replace("&quot;", "\"")
-                            .Replace("&apos;", "'");
+        // 2. Strip all remaining HTML tags
+        string step2 = HtmlTagRegex().Replace(step1, " ");
 
-        return step2;
+        // 3. Decode HTML entities properly using WebUtility
+        return WebUtility.HtmlDecode(step2);
     }
 
-    private string NormalizeWhitespace(string text)
+    private static string NormalizeWhitespace(string text)
     {
         if (string.IsNullOrEmpty(text)) return string.Empty;
 
-        // Replace newlines and tabs with spaces
-        string step1 = text.Replace("\r", " ").Replace("\n", " ").Replace("\t", " ");
+        // Replace newlines, tabs, and non-breaking spaces with standard spaces
+        string step1 = text.Replace("\r", " ")
+                           .Replace("\n", " ")
+                           .Replace("\t", " ")
+                           .Replace("\u00A0", " ");
 
         // Use source-generated regex to collapse multiple spaces into one
         return WhitespaceRegex().Replace(step1, " ").Trim();
