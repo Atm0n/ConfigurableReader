@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Parsers/">
     <Project Path="ConfigurableReader.Parsers.Epub/ConfigurableReader.Parsers.Epub.csproj" />
+    <Project Path="ConfigurableReader.Parsers.Pdf/ConfigurableReader.Parsers.Pdf.csproj" />
     <Project Path="ConfigurableReader.Parsers.Txt/ConfigurableReader.Parsers.Txt.csproj" />
   </Folder>
   <Project Path="ConfigurableReader.Core/ConfigurableReader.Core.csproj" />

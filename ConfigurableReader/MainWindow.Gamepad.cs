@@ -60,6 +60,8 @@ public partial class MainWindow
             }
             _readerService.ResetPosition(newPos, GetCharacterWidth);
             UpdateDisplayedText();
+            UpdateRenderTransform();
+            UpdatePercentage();
         };
 
         _gamepadService.Start();

@@ -61,6 +61,7 @@ public partial class MainWindow : Window
     {
         _documentRegistry.RegisterParser(new TxtBookParser());
         _documentRegistry.RegisterParser(new EpubBookParser());
+        _documentRegistry.RegisterParser(new ConfigurableReader.Parsers.Pdf.PdfBookParser());
     }
 
     private async Task OnStartOfBookReachedAsync()
@@ -275,10 +276,12 @@ public partial class MainWindow : Window
 
     private void TextSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
-        if (_readerService.IsPaused && !_isUpdatingFromCode)
+        if (!_isUpdatingFromCode)
         {
             _readerService.ResetPosition((int)TextSlider.Value, GetCharacterWidth);
             UpdateDisplayedText();
+            UpdateRenderTransform();
+            UpdatePercentage();
         }
     }
 
