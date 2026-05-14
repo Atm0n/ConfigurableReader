@@ -1,0 +1,39 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System">
+    <!-- Main Window -->
+    <sys:String x:Key="SettingsHeader">Configuración y Controles</sys:String>
+    <sys:String x:Key="OpenFile">Abrir Archivo</sys:String>
+    <sys:String x:Key="Start">Iniciar</sys:String>
+    <sys:String x:Key="Stop">Detener</sys:String>
+    <sys:String x:Key="Reverse">Invertir</sys:String>
+    <sys:String x:Key="Speed">Velocidad:</sys:String>
+    <sys:String x:Key="Font">Fuente:</sys:String>
+    <sys:String x:Key="EdgeFade">Desvanecimiento</sys:String>
+    <sys:String x:Key="TextColor">Texto:</sys:String>
+    <sys:String x:Key="BackgroundColor">Fondo:</sys:String>
+    <sys:String x:Key="FontSize">Tamaño:</sys:String>
+    <sys:String x:Key="Info">Info</sys:String>
+    <sys:String x:Key="NoFileOpened">Ningún archivo abierto</sys:String>
+    <sys:String x:Key="KeyboardMode">Modo Teclado</sys:String>
+    <sys:String x:Key="GamepadMode">Modo Mando</sys:String>
+    <sys:String x:Key="AllSupportedBooks">Todos los libros compatibles</sys:String>
+    <sys:String x:Key="OpenFileTitle">Abrir Libro</sys:String>
+
+    <!-- Dialogs -->
+    <sys:String x:Key="AboutTitle">Acerca de ConfigurableReader</sys:String>
+    <sys:String x:Key="AppDescription">Un lector de texto altamente personalizable y multiplataforma, diseñado para una lectura cómoda y sin manos.</sys:String>
+    <sys:String x:Key="SupportedFormatsHeader">Formatos Compatibles</sys:String>
+    <sys:String x:Key="KeyboardControlsHeader">Controles de Teclado</sys:String>
+    <sys:String x:Key="GamepadControlsHeader">Controles de Mando</sys:String>
+    <sys:String x:Key="LicensesHeader">Licencias de Código Abierto</sys:String>
+    <sys:String x:Key="ThirdPartyHeader">Bibliotecas de Terceros:</sys:String>
+    <sys:String x:Key="Close">Cerrar</sys:String>
+    <sys:String x:Key="Ok">Aceptar</sys:String>
+
+    <!-- Messages -->
+    <sys:String x:Key="StartReached">Inicio del libro alcanzado</sys:String>
+    <sys:String x:Key="EndReached">Fin del libro alcanzado</sys:String>
+    <sys:String x:Key="NoReadableText">El libro seleccionado no contiene texto legible.</sys:String>
+    <sys:String x:Key="ErrorOpeningBook">Error al abrir el libro:</sys:String>
+</ResourceDictionary>

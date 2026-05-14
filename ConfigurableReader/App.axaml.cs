@@ -2,6 +2,8 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
+using ConfigurableReader.Views;
+
 namespace ConfigurableReader;
 
 public partial class App : Application

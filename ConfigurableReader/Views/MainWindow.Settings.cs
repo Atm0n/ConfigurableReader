@@ -2,9 +2,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using Avalonia.Controls;
 using Avalonia.Media;
+using ConfigurableReader.Services;
 
-namespace ConfigurableReader;
+namespace ConfigurableReader.Views;
+
+using ConfigurableReader.Models;
 
 public partial class MainWindow
 {
@@ -37,6 +41,16 @@ public partial class MainWindow
         FadeCheckBox.IsChecked = _settings.EnableEdgeFading;
         UpdateEdgeFading(_settings.EnableEdgeFading);
 
+        // Language
+        _isUpdatingFromCode = true;
+        var langItem = LanguageComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Tag?.ToString() == _settings.Language);
+        if (langItem != null)
+        {
+            LanguageComboBox.SelectedItem = langItem;
+            LocalizationService.SetLanguage(_settings.Language);
+        }
+        _isUpdatingFromCode = false;
+
         this.Background = new SolidColorBrush(BackgroundColorPicker.Color);
         MainTextBlock.Foreground = new SolidColorBrush(TextColorPicker.Color);
     }
@@ -63,6 +77,11 @@ public partial class MainWindow
         _settings.BackgroundColor = BackgroundColorPicker.Color.ToString();
         _settings.ScrollSpeed = SpeedSlider.Value;
         _settings.EnableEdgeFading = FadeCheckBox.IsChecked ?? true;
+
+        if (LanguageComboBox.SelectedItem is ComboBoxItem langItem && langItem.Tag != null)
+        {
+            _settings.Language = langItem.Tag.ToString() ?? "en-US";
+        }
 
         if (FontComboBox.SelectedItem is FontFamily fontFamily)
         {

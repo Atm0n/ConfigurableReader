@@ -1,7 +1,9 @@
 using System;
 using Avalonia.Controls;
 
-namespace ConfigurableReader;
+namespace ConfigurableReader.Views;
+
+using ConfigurableReader.Services;
 
 public partial class MainWindow
 {
@@ -12,7 +14,7 @@ public partial class MainWindow
             if (InputModeText != null)
             {
                 InputModeText.Text = isGamepad ? "🎮" : "⌨️";
-                ToolTip.SetTip(InputModeText, isGamepad ? "Gamepad Mode" : "Keyboard Mode");
+                ToolTip.SetTip(InputModeText, isGamepad ? LocalizationService.GetString("GamepadMode") : LocalizationService.GetString("KeyboardMode"));
             }
         };
 

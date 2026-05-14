@@ -1,0 +1,39 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System">
+    <!-- Main Window -->
+    <sys:String x:Key="SettingsHeader">Settings &amp; Controls</sys:String>
+    <sys:String x:Key="OpenFile">Open File</sys:String>
+    <sys:String x:Key="Start">Start</sys:String>
+    <sys:String x:Key="Stop">Stop</sys:String>
+    <sys:String x:Key="Reverse">Reverse</sys:String>
+    <sys:String x:Key="Speed">Speed:</sys:String>
+    <sys:String x:Key="Font">Font:</sys:String>
+    <sys:String x:Key="EdgeFade">Edge Fade</sys:String>
+    <sys:String x:Key="TextColor">Text:</sys:String>
+    <sys:String x:Key="BackgroundColor">BG:</sys:String>
+    <sys:String x:Key="FontSize">Size:</sys:String>
+    <sys:String x:Key="Info">Info</sys:String>
+    <sys:String x:Key="NoFileOpened">No file opened</sys:String>
+    <sys:String x:Key="KeyboardMode">Keyboard Mode</sys:String>
+    <sys:String x:Key="GamepadMode">Gamepad Mode</sys:String>
+    <sys:String x:Key="AllSupportedBooks">All Supported Books</sys:String>
+    <sys:String x:Key="OpenFileTitle">Open Book</sys:String>
+
+    <!-- Dialogs -->
+    <sys:String x:Key="AboutTitle">About ConfigurableReader</sys:String>
+    <sys:String x:Key="AppDescription">A highly customizable, cross-platform text reader designed for a comfortable and hands-free reading experience.</sys:String>
+    <sys:String x:Key="SupportedFormatsHeader">Supported Formats</sys:String>
+    <sys:String x:Key="KeyboardControlsHeader">Keyboard Controls</sys:String>
+    <sys:String x:Key="GamepadControlsHeader">Gamepad Controls</sys:String>
+    <sys:String x:Key="LicensesHeader">Open Source Licenses</sys:String>
+    <sys:String x:Key="ThirdPartyHeader">Third-Party Libraries:</sys:String>
+    <sys:String x:Key="Close">Close</sys:String>
+    <sys:String x:Key="Ok">OK</sys:String>
+
+    <!-- Messages -->
+    <sys:String x:Key="StartReached">Start of the book reached</sys:String>
+    <sys:String x:Key="EndReached">End of the book reached</sys:String>
+    <sys:String x:Key="NoReadableText">The selected book contains no readable text.</sys:String>
+    <sys:String x:Key="ErrorOpeningBook">Error opening book:</sys:String>
+</ResourceDictionary>
