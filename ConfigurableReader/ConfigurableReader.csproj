@@ -25,5 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ConfigurableReader.Core\ConfigurableReader.Core.csproj" />
     <ProjectReference Include="..\ConfigurableReader.Parsers.Txt\ConfigurableReader.Parsers.Txt.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Epub\ConfigurableReader.Parsers.Epub.csproj" />
   </ItemGroup>
 </Project>

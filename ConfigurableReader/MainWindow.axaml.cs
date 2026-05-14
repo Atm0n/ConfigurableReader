@@ -11,6 +11,7 @@ using Avalonia.Controls.Primitives;
 using ConfigurableReader.Services;
 using ConfigurableReader.Core;
 using ConfigurableReader.Parsers.Txt;
+using ConfigurableReader.Parsers.Epub;
 using System.Collections.Generic;
 
 namespace ConfigurableReader;
@@ -59,6 +60,7 @@ public partial class MainWindow : Window
     private void InitializeParsers()
     {
         _documentRegistry.RegisterParser(new TxtBookParser());
+        _documentRegistry.RegisterParser(new EpubBookParser());
     }
 
     private async Task OnStartOfBookReachedAsync()
