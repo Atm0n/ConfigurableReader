@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
@@ -7,18 +8,18 @@ using Avalonia.Threading;
 using DevDecoder.HIDDevices;
 using DevDecoder.HIDDevices.Controllers;
 
-namespace ConfigurableReaderAvalonia;
+namespace ConfigurableReader;
 
-public partial class InfoDialog : Window
+public partial class MessageDialog : Window
 {
     private readonly Devices _devices = new();
     private IDisposable? _gamepadSubscription;
     private readonly DateTime _creationTime = DateTime.Now;
 
-    public InfoDialog()
+    public MessageDialog()
     {
         InitializeComponent();
-
+        
         _gamepadSubscription = _devices.Controllers<Gamepad>().Subscribe(gamepad =>
         {
             gamepad.Connect();
@@ -34,7 +35,14 @@ public partial class InfoDialog : Window
         });
     }
 
-    private void CloseButton_Click(object? sender, RoutedEventArgs e)
+    public static async Task ShowAsync(Window owner, string message)
+    {
+        var dialog = new MessageDialog();
+        dialog.FindControl<TextBlock>("MessageText")!.Text = message;
+        await dialog.ShowDialog(owner);
+    }
+
+    private void OkButton_Click(object? sender, RoutedEventArgs e)
     {
         Close();
     }

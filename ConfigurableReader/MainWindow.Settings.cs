@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using Avalonia.Controls;
 using Avalonia.Media;
 
-namespace ConfigurableReaderAvalonia;
+namespace ConfigurableReader;
 
 public partial class MainWindow
 {

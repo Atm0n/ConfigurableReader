@@ -1,6 +1,6 @@
 using System;
 
-namespace ConfigurableReaderAvalonia.Services;
+namespace ConfigurableReader.Services;
 
 public class ReaderService
 {

@@ -5,7 +5,7 @@ using DevDecoder.HIDDevices;
 using DevDecoder.HIDDevices.Controllers;
 using DevDecoder.HIDDevices.Converters;
 
-namespace ConfigurableReaderAvalonia.Services;
+namespace ConfigurableReader.Services;
 
 public class GamepadService : IDisposable
 {

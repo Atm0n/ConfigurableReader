@@ -8,9 +8,9 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Controls.Primitives;
-using ConfigurableReaderAvalonia.Services;
+using ConfigurableReader.Services;
 
-namespace ConfigurableReaderAvalonia;
+namespace ConfigurableReader;
 
 public partial class MainWindow : Window
 {

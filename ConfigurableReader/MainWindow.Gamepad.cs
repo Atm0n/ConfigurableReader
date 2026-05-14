@@ -1,7 +1,7 @@
 using System;
 using Avalonia.Controls;
 
-namespace ConfigurableReaderAvalonia;
+namespace ConfigurableReader;
 
 public partial class MainWindow
 {

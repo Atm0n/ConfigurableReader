@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace ConfigurableReaderAvalonia
+namespace ConfigurableReader
 {
     internal class Program
     {

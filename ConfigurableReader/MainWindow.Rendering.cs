@@ -6,7 +6,7 @@ using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
 using Avalonia.Threading;
 
-namespace ConfigurableReaderAvalonia;
+namespace ConfigurableReader;
 
 public partial class MainWindow
 {
