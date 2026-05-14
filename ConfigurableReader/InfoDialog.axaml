@@ -30,13 +30,13 @@
                 <TextBlock Text="Version 1.1.0" FontSize="11" Opacity="0.7" Margin="0,-5,0,0"/>
                 <TextBlock Text="Made by Nil Riera" FontSize="12" FontStyle="Italic" Opacity="0.9" Margin="0,2,0,10"/>
                 
-                <TextBlock Text="A highly customizable, cross-platform text reader designed for a comfortable and hands-free reading experience." 
+                <TextBlock Text="{DynamicResource AppDescription}" 
                            TextWrapping="Wrap" Margin="0,5,0,10"/>
 
-                <TextBlock Text="Supported Formats" Classes="SubHeaderStyle"/>
+                <TextBlock Text="{DynamicResource SupportedFormatsHeader}" Classes="SubHeaderStyle"/>
                 <TextBlock Text="• TXT, EPUB, PDF, DOCX, Markdown (.md)" Margin="10,0" Opacity="0.9"/>
 
-                <TextBlock Text="Keyboard Controls" Classes="SubHeaderStyle"/>
+                <TextBlock Text="{DynamicResource KeyboardControlsHeader}" Classes="SubHeaderStyle"/>
                 <StackPanel Margin="10,0">
                     <TextBlock Text="• Space: Play / Pause" />
                     <TextBlock Text="• Left / Right: Forward / Backward" />
@@ -48,7 +48,7 @@
                     <TextBlock Text="• +/-: Adjust Speed" />
                 </StackPanel>
 
-                <TextBlock Text="Gamepad Controls" Classes="SubHeaderStyle"/>
+                <TextBlock Text="{DynamicResource GamepadControlsHeader}" Classes="SubHeaderStyle"/>
                 <StackPanel Margin="10,0">
                     <TextBlock Text="• A / B: Play / Pause" />
                     <TextBlock Text="• DPad Up / Down: Font Size" />
@@ -60,10 +60,10 @@
                     <TextBlock Text="• Look for ⌨️/🎮 icon for status" />
                 </StackPanel>
 
-                <TextBlock Text="Open Source Licenses" Classes="HeaderStyle"/>
+                <TextBlock Text="{DynamicResource LicensesHeader}" Classes="HeaderStyle"/>
                 <TextBlock Text="This project is licensed under the MIT License." Opacity="0.8" Margin="0,0,0,10"/>
                 
-                <TextBlock Text="Third-Party Libraries:" Classes="SubHeaderStyle"/>
+                <TextBlock Text="{DynamicResource ThirdPartyHeader}" Classes="SubHeaderStyle"/>
                 <StackPanel Margin="10,0">
                     <TextBlock Text="• Avalonia UI (MIT)" />
                     <TextBlock Text="• PdfPig (MIT)" />
@@ -75,7 +75,7 @@
             </StackPanel>
         </ScrollViewer>
 
-        <Button Grid.Row="1" Content="Close" Width="100" HorizontalAlignment="Right" Margin="0,10,0,0" 
+        <Button Grid.Row="1" Content="{DynamicResource Close}" Width="100" HorizontalAlignment="Right" Margin="0,10,0,0" 
                 Click="CloseButton_Click" Padding="10,5"/>
     </Grid>
 </Window>
