@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 
-namespace ConfigurableReader;
+namespace ConfigurableReader.Models;
 
 public class AppSettings
 {

@@ -8,13 +8,16 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Controls.Primitives;
-using ConfigurableReader.Services;
 using ConfigurableReader.Core;
 using ConfigurableReader.Parsers.Txt;
 using ConfigurableReader.Parsers.Epub;
 using System.Collections.Generic;
 
-namespace ConfigurableReader;
+namespace ConfigurableReader.Views;
+
+using ConfigurableReader.Models;
+using ConfigurableReader.Common;
+using ConfigurableReader.Services;
 
 public partial class MainWindow : Window
 {

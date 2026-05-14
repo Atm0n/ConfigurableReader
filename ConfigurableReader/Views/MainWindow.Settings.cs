@@ -6,7 +6,9 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using ConfigurableReader.Services;
 
-namespace ConfigurableReader;
+namespace ConfigurableReader.Views;
+
+using ConfigurableReader.Models;
 
 public partial class MainWindow
 {

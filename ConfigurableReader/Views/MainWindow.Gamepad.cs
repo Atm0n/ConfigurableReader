@@ -1,8 +1,9 @@
 using System;
 using Avalonia.Controls;
-using ConfigurableReader.Services;
 
-namespace ConfigurableReader;
+namespace ConfigurableReader.Views;
+
+using ConfigurableReader.Services;
 
 public partial class MainWindow
 {

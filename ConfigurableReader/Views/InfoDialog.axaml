@@ -1,6 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="ConfigurableReader.InfoDialog"
+        x:Class="ConfigurableReader.Views.InfoDialog"
         Title="About ConfigurableReader" Height="580" Width="420"
         WindowStartupLocation="CenterOwner"
         Background="#1E1E1E" Foreground="#F1F1F1">
