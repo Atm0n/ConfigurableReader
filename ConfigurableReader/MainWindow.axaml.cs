@@ -9,6 +9,9 @@ using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Controls.Primitives;
 using ConfigurableReader.Services;
+using ConfigurableReader.Core;
+using ConfigurableReader.Parsers.Txt;
+using System.Collections.Generic;
 
 namespace ConfigurableReader;
 
@@ -16,6 +19,7 @@ public partial class MainWindow : Window
 {
     private readonly GamepadService _gamepadService = new();
     private readonly ReaderService _readerService = new();
+    private readonly DocumentRegistry _documentRegistry = new();
     
     private string? _currentBookFileName;
     private bool _isUpdatingFromCode = false;
@@ -37,6 +41,7 @@ public partial class MainWindow : Window
         PopulateFontList();
         ApplySettings();
 
+        InitializeParsers();
         InitializeRendering();
         InitializeGamepad();
 
@@ -49,6 +54,11 @@ public partial class MainWindow : Window
         {
             Dispatcher.UIThread.Post(() => _ = OnEndOfBookReachedAsync());
         };
+    }
+
+    private void InitializeParsers()
+    {
+        _documentRegistry.RegisterParser(new TxtBookParser());
     }
 
     private async Task OnStartOfBookReachedAsync()
@@ -83,10 +93,19 @@ public partial class MainWindow : Window
     {
         try
         {
+            var filters = new List<Avalonia.Platform.Storage.FilePickerFileType>();
+            foreach (var parser in _documentRegistry.AvailableParsers)
+            {
+                filters.Add(new Avalonia.Platform.Storage.FilePickerFileType(parser.FormatName)
+                {
+                    Patterns = parser.SupportedExtensions.Select(e => $"*{e}").ToList()
+                });
+            }
+
             var options = new Avalonia.Platform.Storage.FilePickerOpenOptions
             {
-                Title = "Open Text File",
-                FileTypeFilter = [new Avalonia.Platform.Storage.FilePickerFileType("Text Files") { Patterns = ["*.txt"] }]
+                Title = "Open Book",
+                FileTypeFilter = filters
             };
 
             var result = await this.StorageProvider.OpenFilePickerAsync(options);
@@ -97,7 +116,7 @@ public partial class MainWindow : Window
                 _currentBookFileName = result[0].Path.LocalPath;
                 string bookName = Path.GetFileName(_currentBookFileName);
 
-                _readerService.FullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " ").Replace("  ", " ");
+                _readerService.FullText = await _documentRegistry.LoadBookAsync(_currentBookFileName);
 
                 var actualBook = _bookRecords.FirstOrDefault(r => r.Name == bookName);
                 if (actualBook is null)

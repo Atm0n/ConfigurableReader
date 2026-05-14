@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="ConfigurableReader.Core/ConfigurableReader.Core.csproj" />
+  <Project Path="ConfigurableReader.Parsers.Txt/ConfigurableReader.Parsers.Txt.csproj" />
   <Project Path="ConfigurableReader/ConfigurableReader.csproj" Id="36247950-0af4-47ae-850b-4024bf2bc536" />
 </Solution>
