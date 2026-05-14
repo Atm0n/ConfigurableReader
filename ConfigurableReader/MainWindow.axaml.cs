@@ -231,4 +231,27 @@ public partial class MainWindow : Window
             UpdateDisplayedText();
         }
     }
+
+    private void FontSizeNumeric_ValueChanged(object? sender, NumericUpDownValueChangedEventArgs e)
+    {
+        if (!_isUpdatingFromCode && e.NewValue.HasValue)
+        {
+            MainTextBlock.FontSize = (double)e.NewValue.Value;
+            ClearCharWidthCache();
+            UpdateDisplayedText();
+
+            // Force a re-center if paused
+            if (_readerService.IsPaused)
+            {
+                Dispatcher.UIThread.Post(() => 
+                {
+                    if (ReadingAreaCanvas.Bounds.Height > 0 && MainTextBlock.Bounds.Height > 0)
+                    {
+                        double top = (ReadingAreaCanvas.Bounds.Height - MainTextBlock.Bounds.Height) / 2;
+                        Canvas.SetTop(MainTextBlock, top);
+                    }
+                }, DispatcherPriority.Loaded);
+            }
+        }
+    }
 }

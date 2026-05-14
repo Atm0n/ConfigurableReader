@@ -115,7 +115,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Size:" Classes="LabelStyle"/>
                                 <NumericUpDown Name="FontSizeNumeric" Width="110" Minimum="10" Maximum="800" 
-                                               Value="48" Focusable="False"/>
+                                               Value="48" Focusable="False" ValueChanged="FontSizeNumeric_ValueChanged"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
