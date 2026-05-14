@@ -1,9 +1,8 @@
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using ConfigurableReader.Core;
 using VersOne.Epub;
+using HtmlAgilityPack;
 
 namespace ConfigurableReader.Parsers.Epub;
 
@@ -11,12 +10,6 @@ public partial class EpubBookParser : IBookParser
 {
     public string FormatName => "EPUB Books";
     public string[] SupportedExtensions => [".epub"];
-
-    [GeneratedRegex("<[^>]*>")]
-    private static partial Regex HtmlTagRegex();
-
-    [GeneratedRegex(@"<(style|script|head)[^>]*>.*?</\1>", RegexOptions.Singleline | RegexOptions.IgnoreCase)]
-    private static partial Regex ContentBlockRegex();
 
     [GeneratedRegex(@"\s+")]
     private static partial Regex WhitespaceRegex();
@@ -28,7 +21,7 @@ public partial class EpubBookParser : IBookParser
 
         foreach (var textContentFile in book.ReadingOrder)
         {
-            string plainText = StripHtml(textContentFile.Content);
+            string plainText = ExtractTextFromHtml(textContentFile.Content);
             if (!string.IsNullOrWhiteSpace(plainText))
             {
                 sb.Append(plainText);
@@ -39,18 +32,34 @@ public partial class EpubBookParser : IBookParser
         return NormalizeWhitespace(sb.ToString());
     }
 
-    private static string StripHtml(string html)
+    private static string ExtractTextFromHtml(string html)
     {
         if (string.IsNullOrEmpty(html)) return string.Empty;
 
-        // 1. Remove blocks that shouldn't be treated as text (style, script, head)
-        string step1 = ContentBlockRegex().Replace(html, " ");
+        var doc = new HtmlDocument();
+        doc.LoadHtml(html);
 
-        // 2. Strip all remaining HTML tags
-        string step2 = HtmlTagRegex().Replace(step1, " ");
+        // Remove style, script, head, and meta tags
+        var nodesToRemove = doc.DocumentNode.SelectNodes("//style|//script|//head|//meta|//link");
+        if (nodesToRemove != null)
+        {
+            foreach (var node in nodesToRemove)
+            {
+                node.Remove();
+            }
+        }
 
-        // 3. Decode HTML entities properly using WebUtility
-        return WebUtility.HtmlDecode(step2);
+        // Add spaces between elements that are usually block-level to prevent words merging
+        var blockNodes = doc.DocumentNode.SelectNodes("//p|//div|//h1|//h2|//h3|//h4|//h5|//h6|//li|//br");
+        if (blockNodes != null)
+        {
+            foreach (var node in blockNodes)
+            {
+                node.ParentNode.InsertAfter(doc.CreateTextNode(" "), node);
+            }
+        }
+
+        return doc.DocumentNode.InnerText;
     }
 
     private static string NormalizeWhitespace(string text)

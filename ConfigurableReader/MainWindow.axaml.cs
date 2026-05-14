@@ -134,7 +134,14 @@ public partial class MainWindow : Window
                 _currentBookFileName = result[0].Path.LocalPath;
                 string bookName = Path.GetFileName(_currentBookFileName);
 
-                _readerService.FullText = await _documentRegistry.LoadBookAsync(_currentBookFileName);
+                string extractedText = await _documentRegistry.LoadBookAsync(_currentBookFileName);
+                if (string.IsNullOrWhiteSpace(extractedText))
+                {
+                    await MessageDialog.ShowAsync(this, "The selected book contains no readable text.");
+                    return;
+                }
+
+                _readerService.FullText = extractedText;
 
                 var actualBook = _bookRecords.FirstOrDefault(r => r.Name == bookName);
                 if (actualBook is null)
@@ -144,7 +151,8 @@ public partial class MainWindow : Window
                 }
 
                 _isUpdatingFromCode = true;
-                _readerService.ResetPosition(actualBook.ScrollPosition);
+                _renderedBasePosition = -1; // Force re-render of the text buffer
+                _readerService.ResetPosition(actualBook.ScrollPosition, GetCharacterWidth);
 
                 TextSlider.Maximum = _readerService.FullText.Length;
                 TextSlider.Value = _readerService.CurrentPosition;
@@ -160,6 +168,7 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error opening file: {ex.Message}");
+            await MessageDialog.ShowAsync(this, $"Error opening book: {ex.Message}");
         }
     }
 
@@ -268,7 +277,7 @@ public partial class MainWindow : Window
     {
         if (_readerService.IsPaused && !_isUpdatingFromCode)
         {
-            _readerService.ResetPosition((int)TextSlider.Value);
+            _readerService.ResetPosition((int)TextSlider.Value, GetCharacterWidth);
             UpdateDisplayedText();
         }
     }

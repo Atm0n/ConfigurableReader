@@ -44,14 +44,19 @@ public partial class MainWindow
             UpdateDisplayedText();
 
             // 2. Additive Prefix Calculation:
-            // We sum the individual cached widths. This is 100% consistent with the ReaderService.
-            // Even if it differs from the real string width by a fraction of a pixel,
-            // the motion will be perfectly smooth because the error is constant.
+            // Calculate distance from CURRENT logical start of TextBlock (_renderedBasePosition)
+            // to the CURRENT scrolling start point (_readerService.CurrentPosition).
             double prefixWidth = 0;
-            for (int i = _renderedBasePosition; i < _readerService.CurrentPosition; i++)
+            int start = Math.Min(_renderedBasePosition, _readerService.CurrentPosition);
+            int end = Math.Max(_renderedBasePosition, _readerService.CurrentPosition);
+            
+            for (int i = start; i < end; i++)
             {
                 prefixWidth += GetCharacterWidth(_readerService.FullText[i]);
             }
+
+            if (_readerService.CurrentPosition < _renderedBasePosition)
+                prefixWidth = -prefixWidth;
 
             // 3. Apply the transform relative to the current buffer start.
             _textTranslateTransform.X = -(prefixWidth - _readerService.CurrentOffsetX);

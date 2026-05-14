@@ -4,28 +4,22 @@ namespace ConfigurableReader.Services;
 
 public class ReaderService
 {
-    private int _currentPosition = 0;
-    private double _currentOffsetX = 0;
+    private double _absoluteScrollPixels = 0;
     private string _fullText = string.Empty;
     private bool _isPaused = true;
     private bool _isReversing = false;
 
-    public int CurrentPosition 
-    { 
-        get => _currentPosition; 
-        set { _currentPosition = value; OnStateChanged(); }
-    }
+    // Derived states
+    private int _currentPosition = 0;
+    private double _subCharOffset = 0;
 
-    public double CurrentOffsetX 
-    { 
-        get => _currentOffsetX; 
-        set { _currentOffsetX = value; OnStateChanged(); }
-    }
+    public int CurrentPosition => _currentPosition;
+    public double CurrentOffsetX => -_subCharOffset;
 
     public string FullText 
     { 
         get => _fullText; 
-        set { _fullText = value; OnStateChanged(); }
+        set { _fullText = value; ResetPosition(0); OnStateChanged(); }
     }
 
     public bool IsPaused 
@@ -52,58 +46,89 @@ public class ReaderService
 
         if (_isReversing)
         {
-            _currentOffsetX += pixelsToMove;
-            while (_currentOffsetX > 0)
+            _absoluteScrollPixels -= pixelsToMove;
+            if (_absoluteScrollPixels < 0)
             {
-                if (_currentPosition > 0)
-                {
-                    _currentPosition--;
-                    _currentOffsetX -= getCharWidth(_fullText[_currentPosition]);
-                }
-                else
-                {
-                    _currentOffsetX = 0;
-                    _isPaused = true;
-                    StartOfBookReached?.Invoke();
-                    break;
-                }
+                _absoluteScrollPixels = 0;
+                _isPaused = true;
+                StartOfBookReached?.Invoke();
             }
         }
         else
         {
-            _currentOffsetX -= pixelsToMove;
-            while (true)
-            {
-                if (_currentPosition >= _fullText.Length)
-                {
-                    _currentOffsetX = 0;
-                    _isPaused = true;
-                    EndOfBookReached?.Invoke();
-                    break;
-                }
-
-                double charWidth = getCharWidth(_fullText[_currentPosition]);
-                if (_currentOffsetX <= -charWidth)
-                {
-                    _currentOffsetX += charWidth;
-                    _currentPosition++;
-                }
-                else
-                {
-                    break;
-                }
-            }
+            _absoluteScrollPixels += pixelsToMove;
         }
 
+        SyncDerivations(getCharWidth);
         OnStateChanged();
+    }
+
+    private void SyncDerivations(Func<char, double> getCharWidth)
+    {
+        if (string.IsNullOrEmpty(_fullText)) return;
+
+        // Optimization: For small changes, move incrementally
+        // For large jumps, recalculate from the beginning.
+        // This handles smooth scrolling deeply into the book without lag.
+        
+        // Start from current if within reasonable range, otherwise 0
+        double currentTotal = 0;
+        int searchStart = 0;
+
+        // For performance, we'll just always track incrementally from 0 during regular reading
+        // but this logic is called every frame, so it must be fast.
+        
+        // Let's keep a cached absolute position of the current character
+        // No, let's just use the absolute distance and find where it lands.
+        
+        double pixelsFound = 0;
+        int pos = 0;
+
+        while (pos < _fullText.Length)
+        {
+            double w = getCharWidth(_fullText[pos]);
+            if (pixelsFound + w > _absoluteScrollPixels)
+            {
+                break;
+            }
+            pixelsFound += w;
+            pos++;
+        }
+
+        if (pos >= _fullText.Length)
+        {
+            _currentPosition = _fullText.Length;
+            _subCharOffset = 0;
+            _absoluteScrollPixels = pixelsFound; // Cap at end
+            _isPaused = true;
+            EndOfBookReached?.Invoke();
+        }
+        else
+        {
+            _currentPosition = pos;
+            _subCharOffset = _absoluteScrollPixels - pixelsFound;
+        }
     }
 
     private void OnStateChanged() => StateChanged?.Invoke();
 
-    public void ResetPosition(int position = 0)
+    public void ResetPosition(int charPosition, Func<char, double> getCharWidth)
     {
-        _currentPosition = position;
-        _currentOffsetX = 0;
+        _currentPosition = Math.Clamp(charPosition, 0, _fullText.Length);
+        _absoluteScrollPixels = 0;
+        for (int i = 0; i < _currentPosition; i++)
+        {
+            _absoluteScrollPixels += getCharWidth(_fullText[i]);
+        }
+        _subCharOffset = 0;
+        OnStateChanged();
+    }
+
+    public void ResetPosition(int charPosition)
+    {
+        _currentPosition = Math.Clamp(charPosition, 0, _fullText.Length);
+        _absoluteScrollPixels = 0;
+        _subCharOffset = 0;
         OnStateChanged();
     }
 }

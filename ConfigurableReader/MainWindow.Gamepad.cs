@@ -58,7 +58,7 @@ public partial class MainWindow
             {
                 newPos = Math.Max(0, _readerService.CurrentPosition + delta);
             }
-            _readerService.ResetPosition(newPos);
+            _readerService.ResetPosition(newPos, GetCharacterWidth);
             UpdateDisplayedText();
         };
 
