@@ -21,4 +21,13 @@
     <PackageReference Include="HIDDevices" Version="4.1.2" />
     <PackageReference Include="HIDDevices.Usages" Version="4.1.2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConfigurableReader.Core\ConfigurableReader.Core.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Txt\ConfigurableReader.Parsers.Txt.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Epub\ConfigurableReader.Parsers.Epub.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Pdf\ConfigurableReader.Parsers.Pdf.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Docx\ConfigurableReader.Parsers.Docx.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Markdown\ConfigurableReader.Parsers.Markdown.csproj" />
+  </ItemGroup>
 </Project>

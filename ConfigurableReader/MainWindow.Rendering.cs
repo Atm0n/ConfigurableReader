@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
@@ -11,13 +13,12 @@ public partial class MainWindow
     private readonly DispatcherTimer _timer;
     private readonly TranslateTransform _textTranslateTransform = new();
     private DateTime _lastRenderTime;
-    private readonly double[] _charWidthCache = new double[65536];
     private int _renderedBasePosition = -1;
+    private TextLayout? _currentTextLayout;
 
     private void InitializeRendering()
     {
         _timer.Tick += OnRendering;
-        
         MainTextBlock.RenderTransform = _textTranslateTransform;
         _timer.Start();
     }
@@ -38,34 +39,11 @@ public partial class MainWindow
             double deltaTime = (now - _lastRenderTime).TotalSeconds;
             _lastRenderTime = now;
 
-            _readerService.Update(deltaTime, SpeedSlider.Value, GetCharacterWidth);
+            double pixelsToMove = SpeedSlider.Value * deltaTime;
 
-            // 1. Ensure the display buffer is current
             UpdateDisplayedText();
-
-            // 2. Additive Prefix Calculation:
-            // We sum the individual cached widths. This is 100% consistent with the ReaderService.
-            // Even if it differs from the real string width by a fraction of a pixel,
-            // the motion will be perfectly smooth because the error is constant.
-            double prefixWidth = 0;
-            for (int i = _renderedBasePosition; i < _readerService.CurrentPosition; i++)
-            {
-                prefixWidth += GetCharacterWidth(_readerService.FullText[i]);
-            }
-
-            // 3. Apply the transform relative to the current buffer start.
-            _textTranslateTransform.X = -(prefixWidth - _readerService.CurrentOffsetX);
-
-            // Stable centering logic
-            if (ReadingAreaCanvas.Bounds.Height > 0)
-            {
-                double stableHeight = MainTextBlock.FontSize * AppConstants.VerticalCenteringMultiplier;
-                if (MainTextBlock.Height != stableHeight) MainTextBlock.Height = stableHeight;
-                
-                double top = (ReadingAreaCanvas.Bounds.Height - stableHeight) / 2;
-                Canvas.SetTop(MainTextBlock, top);
-            }
-
+            _readerService.Advance(pixelsToMove, MapPixelsToPosition);
+            UpdateRenderTransform();
             UpdatePercentage();
         }
         catch (Exception ex)
@@ -74,27 +52,70 @@ public partial class MainWindow
         }
     }
 
+    private (int newPos, double newOffset, bool eof) MapPixelsToPosition(int currentPos, double targetOffset)
+    {
+        if (_currentTextLayout == null || MainTextBlock.Text == null) return (currentPos, 0, false);
+
+        int localIndex = Math.Clamp(currentPos - _renderedBasePosition, 0, MainTextBlock.Text.Length);
+        
+        var startRect = _currentTextLayout.HitTestTextPosition(localIndex);
+        double absoluteTargetX = startRect.Left + targetOffset;
+
+        var hit = _currentTextLayout.HitTestPoint(new Point(absoluteTargetX, 0));
+        int newGlobalPos = _renderedBasePosition + hit.TextPosition;
+        
+        if (newGlobalPos >= _readerService.FullText.Length) return (_readerService.FullText.Length, 0, true);
+        if (newGlobalPos < 0) return (0, 0, true);
+
+        var newRect = _currentTextLayout.HitTestTextPosition(hit.TextPosition);
+        double newSubOffset = absoluteTargetX - newRect.Left;
+
+        return (newGlobalPos, newSubOffset, false);
+    }
+
+    private void UpdateRenderTransform()
+    {
+        if (_currentTextLayout == null || string.IsNullOrEmpty(_readerService.FullText) || MainTextBlock.Text == null) return;
+
+        int localIndex = Math.Clamp(_readerService.CurrentPosition - _renderedBasePosition, 0, MainTextBlock.Text.Length);
+        var rect = _currentTextLayout.HitTestTextPosition(localIndex);
+        
+        _textTranslateTransform.X = -(rect.Left - _readerService.CurrentOffsetX);
+
+        if (ReadingAreaCanvas.Bounds.Height > 0)
+        {
+            double stableHeight = MainTextBlock.FontSize * AppConstants.VerticalCenteringMultiplier;
+            if (MainTextBlock.Height != stableHeight) MainTextBlock.Height = stableHeight;
+            double top = (ReadingAreaCanvas.Bounds.Height - stableHeight) / 2;
+            Canvas.SetTop(MainTextBlock, top);
+        }
+    }
+
     private void UpdateDisplayedText()
     {
         if (string.IsNullOrEmpty(_readerService.FullText)) return;
 
-        // Large buffer and infrequent updates for maximum stability.
+        const int safeZone = 2000;
         bool needsUpdate = _renderedBasePosition == -1 || 
-                           Math.Abs(_readerService.CurrentPosition - _renderedBasePosition) > AppConstants.BufferUpdateThreshold;
+                           _readerService.CurrentPosition < _renderedBasePosition ||
+                           _readerService.CurrentPosition > _renderedBasePosition + AppConstants.MaxBufferLength - safeZone;
 
         if (needsUpdate)
         {
-            // Mathematical Continuity:
-            // When we jump the base position, we don't need to do anything special
-            // because OnRendering recalculates X relative to the new _renderedBasePosition
-            // in the same frame.
-            _renderedBasePosition = _readerService.CurrentPosition;
+            _renderedBasePosition = Math.Max(0, _readerService.CurrentPosition - safeZone);
             int length = Math.Min(AppConstants.MaxBufferLength, _readerService.FullText.Length - _renderedBasePosition);
             string newText = _readerService.FullText.Substring(_renderedBasePosition, length);
 
             if (MainTextBlock.Text != newText)
             {
                 MainTextBlock.Text = newText;
+                
+                var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
+                _currentTextLayout = new TextLayout(
+                    newText,
+                    typeface,
+                    MainTextBlock.FontSize,
+                    MainTextBlock.Foreground);
             }
         }
 
@@ -105,26 +126,12 @@ public partial class MainWindow
 
     private double GetCharacterWidth(char c)
     {
-        // Use a fast array-based cache for O(1) lookups
-        if (_charWidthCache[c] > 0) return _charWidthCache[c];
-
         var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
-
-        var textLayout = new TextLayout(
-            c.ToString(),
-            typeface,
-            MainTextBlock.FontSize,
-            MainTextBlock.Foreground);
-
-        double width = textLayout.TextLines[0].Width;
-        _charWidthCache[c] = width;
-        return width;
+        var textLayout = new TextLayout(c.ToString(), typeface, MainTextBlock.FontSize, MainTextBlock.Foreground);
+        return textLayout.TextLines[0].Width;
     }
 
-    private void ClearCharWidthCache()
-    {
-        Array.Clear(_charWidthCache, 0, _charWidthCache.Length);
-    }
+    private void ClearCharWidthCache() { }
 
     private void UpdatePercentage()
     {
@@ -145,22 +152,9 @@ public partial class MainWindow
         double newSize = MainTextBlock.FontSize + delta;
         MainTextBlock.FontSize = Math.Clamp(newSize, AppConstants.MinFontSize, AppConstants.MaxFontSize);
         FontSizeNumeric.Value = (decimal)MainTextBlock.FontSize;
-        ClearCharWidthCache();
         
-        // Update UI immediately
+        _renderedBasePosition = -1; 
         UpdateDisplayedText();
-        
-        // Centering logic needs to be triggered manually if paused
-        if (_readerService.IsPaused)
-        {
-            Dispatcher.UIThread.Post(() => 
-            {
-                if (ReadingAreaCanvas.Bounds.Height > 0 && MainTextBlock.Bounds.Height > 0)
-                {
-                    double top = (ReadingAreaCanvas.Bounds.Height - MainTextBlock.Bounds.Height) / 2;
-                    Canvas.SetTop(MainTextBlock, top);
-                }
-            }, DispatcherPriority.Loaded);
-        }
+        UpdateRenderTransform();
     }
 }

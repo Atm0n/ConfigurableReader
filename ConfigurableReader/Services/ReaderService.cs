@@ -4,28 +4,21 @@ namespace ConfigurableReader.Services;
 
 public class ReaderService
 {
-    private int _currentPosition = 0;
-    private double _currentOffsetX = 0;
     private string _fullText = string.Empty;
     private bool _isPaused = true;
     private bool _isReversing = false;
 
-    public int CurrentPosition 
-    { 
-        get => _currentPosition; 
-        set { _currentPosition = value; OnStateChanged(); }
-    }
+    // Master state: Character-centric coordinates
+    private int _currentPosition = 0;
+    private double _subCharOffset = 0;
 
-    public double CurrentOffsetX 
-    { 
-        get => _currentOffsetX; 
-        set { _currentOffsetX = value; OnStateChanged(); }
-    }
+    public int CurrentPosition => _currentPosition;
+    public double CurrentOffsetX => -_subCharOffset;
 
     public string FullText 
     { 
         get => _fullText; 
-        set { _fullText = value; OnStateChanged(); }
+        set { _fullText = value; ResetPosition(0); OnStateChanged(); }
     }
 
     public bool IsPaused 
@@ -44,55 +37,22 @@ public class ReaderService
     public event Action? StartOfBookReached;
     public event Action? EndOfBookReached;
 
-    public void Update(double deltaTime, double speed, Func<char, double> getCharWidth)
+    // In the new layout-driven model, we don't pass getCharWidth to Update.
+    // Instead, the UI/Renderer tells us how much we progressed based on its layout.
+    public void Advance(double pixels, Func<int, double, (int newPos, double newOffset, bool eof)> mapPixelsToPosition)
     {
         if (_isPaused || string.IsNullOrEmpty(_fullText)) return;
 
-        double pixelsToMove = speed * deltaTime;
+        var result = mapPixelsToPosition(_currentPosition, _isReversing ? -pixels + _subCharOffset : pixels + _subCharOffset);
+        
+        _currentPosition = result.newPos;
+        _subCharOffset = result.newOffset;
 
-        if (_isReversing)
+        if (result.eof)
         {
-            _currentOffsetX += pixelsToMove;
-            while (_currentOffsetX > 0)
-            {
-                if (_currentPosition > 0)
-                {
-                    _currentPosition--;
-                    _currentOffsetX -= getCharWidth(_fullText[_currentPosition]);
-                }
-                else
-                {
-                    _currentOffsetX = 0;
-                    _isPaused = true;
-                    StartOfBookReached?.Invoke();
-                    break;
-                }
-            }
-        }
-        else
-        {
-            _currentOffsetX -= pixelsToMove;
-            while (true)
-            {
-                if (_currentPosition >= _fullText.Length)
-                {
-                    _currentOffsetX = 0;
-                    _isPaused = true;
-                    EndOfBookReached?.Invoke();
-                    break;
-                }
-
-                double charWidth = getCharWidth(_fullText[_currentPosition]);
-                if (_currentOffsetX <= -charWidth)
-                {
-                    _currentOffsetX += charWidth;
-                    _currentPosition++;
-                }
-                else
-                {
-                    break;
-                }
-            }
+            _isPaused = true;
+            if (_isReversing) StartOfBookReached?.Invoke();
+            else EndOfBookReached?.Invoke();
         }
 
         OnStateChanged();
@@ -100,10 +60,13 @@ public class ReaderService
 
     private void OnStateChanged() => StateChanged?.Invoke();
 
-    public void ResetPosition(int position = 0)
+    public void ResetPosition(int charPosition)
     {
-        _currentPosition = position;
-        _currentOffsetX = 0;
+        _currentPosition = Math.Clamp(charPosition, 0, _fullText.Length);
+        _subCharOffset = 0;
         OnStateChanged();
     }
+    
+    // Compatibility shim for existing calls while we refactor
+    public void ResetPosition(int charPosition, Func<char, double> unused) => ResetPosition(charPosition);
 }

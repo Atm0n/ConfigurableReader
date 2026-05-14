@@ -9,6 +9,10 @@ using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Controls.Primitives;
 using ConfigurableReader.Services;
+using ConfigurableReader.Core;
+using ConfigurableReader.Parsers.Txt;
+using ConfigurableReader.Parsers.Epub;
+using System.Collections.Generic;
 
 namespace ConfigurableReader;
 
@@ -16,6 +20,7 @@ public partial class MainWindow : Window
 {
     private readonly GamepadService _gamepadService = new();
     private readonly ReaderService _readerService = new();
+    private readonly DocumentRegistry _documentRegistry = new();
     
     private string? _currentBookFileName;
     private bool _isUpdatingFromCode = false;
@@ -37,6 +42,7 @@ public partial class MainWindow : Window
         PopulateFontList();
         ApplySettings();
 
+        InitializeParsers();
         InitializeRendering();
         InitializeGamepad();
 
@@ -49,6 +55,15 @@ public partial class MainWindow : Window
         {
             Dispatcher.UIThread.Post(() => _ = OnEndOfBookReachedAsync());
         };
+    }
+
+    private void InitializeParsers()
+    {
+        _documentRegistry.RegisterParser(new TxtBookParser());
+        _documentRegistry.RegisterParser(new EpubBookParser());
+        _documentRegistry.RegisterParser(new ConfigurableReader.Parsers.Pdf.PdfBookParser());
+        _documentRegistry.RegisterParser(new ConfigurableReader.Parsers.Docx.DocxBookParser());
+        _documentRegistry.RegisterParser(new ConfigurableReader.Parsers.Markdown.MarkdownBookParser());
     }
 
     private async Task OnStartOfBookReachedAsync()
@@ -83,10 +98,35 @@ public partial class MainWindow : Window
     {
         try
         {
+            var filters = new List<Avalonia.Platform.Storage.FilePickerFileType>();
+            
+            // Add "All Supported Books" combined filter
+            var allExtensions = _documentRegistry.AvailableParsers
+                .SelectMany(p => p.SupportedExtensions)
+                .Select(e => $"*{e}")
+                .ToList();
+            
+            if (allExtensions.Any())
+            {
+                filters.Add(new Avalonia.Platform.Storage.FilePickerFileType("All Supported Books")
+                {
+                    Patterns = allExtensions
+                });
+            }
+
+            // Add individual filters
+            foreach (var parser in _documentRegistry.AvailableParsers)
+            {
+                filters.Add(new Avalonia.Platform.Storage.FilePickerFileType(parser.FormatName)
+                {
+                    Patterns = parser.SupportedExtensions.Select(e => $"*{e}").ToList()
+                });
+            }
+
             var options = new Avalonia.Platform.Storage.FilePickerOpenOptions
             {
-                Title = "Open Text File",
-                FileTypeFilter = [new Avalonia.Platform.Storage.FilePickerFileType("Text Files") { Patterns = ["*.txt"] }]
+                Title = "Open Book",
+                FileTypeFilter = filters
             };
 
             var result = await this.StorageProvider.OpenFilePickerAsync(options);
@@ -97,7 +137,14 @@ public partial class MainWindow : Window
                 _currentBookFileName = result[0].Path.LocalPath;
                 string bookName = Path.GetFileName(_currentBookFileName);
 
-                _readerService.FullText = File.ReadAllText(_currentBookFileName).Replace("\r", " ").Replace("\n", " ").Replace("  ", " ");
+                string extractedText = await _documentRegistry.LoadBookAsync(_currentBookFileName);
+                if (string.IsNullOrWhiteSpace(extractedText))
+                {
+                    await MessageDialog.ShowAsync(this, "The selected book contains no readable text.");
+                    return;
+                }
+
+                _readerService.FullText = extractedText;
 
                 var actualBook = _bookRecords.FirstOrDefault(r => r.Name == bookName);
                 if (actualBook is null)
@@ -107,7 +154,8 @@ public partial class MainWindow : Window
                 }
 
                 _isUpdatingFromCode = true;
-                _readerService.ResetPosition(actualBook.ScrollPosition);
+                _renderedBasePosition = -1; // Force re-render of the text buffer
+                _readerService.ResetPosition(actualBook.ScrollPosition, GetCharacterWidth);
 
                 TextSlider.Maximum = _readerService.FullText.Length;
                 TextSlider.Value = _readerService.CurrentPosition;
@@ -123,6 +171,7 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error opening file: {ex.Message}");
+            await MessageDialog.ShowAsync(this, $"Error opening book: {ex.Message}");
         }
     }
 
@@ -229,10 +278,12 @@ public partial class MainWindow : Window
 
     private void TextSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
-        if (_readerService.IsPaused && !_isUpdatingFromCode)
+        if (!_isUpdatingFromCode)
         {
-            _readerService.ResetPosition((int)TextSlider.Value);
+            _readerService.ResetPosition((int)TextSlider.Value, GetCharacterWidth);
             UpdateDisplayedText();
+            UpdateRenderTransform();
+            UpdatePercentage();
         }
     }
 
