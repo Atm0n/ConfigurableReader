@@ -29,7 +29,7 @@ public partial class MainWindow : Window
 
         _timer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromMilliseconds(20),
+            Interval = TimeSpan.FromMilliseconds(AppConstants.TimerIntervalMs),
         };
 
         _settings = AppSettings.Load();
@@ -174,12 +174,16 @@ public partial class MainWindow : Window
             case Key.Right: _readerService.IsReversing = false; break;
             case Key.Space: ToggleStartStop(); break;
             case Key.Up:
-                int upStep = (DateTime.Now - _lastKeyUpTime).TotalMilliseconds < 400 ? 10 : 1;
+                int upStep = (DateTime.Now - _lastKeyUpTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs 
+                    ? AppConstants.LargeFontSizeStep 
+                    : AppConstants.SmallFontSizeStep;
                 _lastKeyUpTime = DateTime.Now;
                 AdjustFontSize(upStep);
                 break;
             case Key.Down:
-                int downStep = (DateTime.Now - _lastKeyDownTime).TotalMilliseconds < 400 ? -10 : -1;
+                int downStep = (DateTime.Now - _lastKeyDownTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs 
+                    ? -AppConstants.LargeFontSizeStep 
+                    : -AppConstants.SmallFontSizeStep;
                 _lastKeyDownTime = DateTime.Now;
                 AdjustFontSize(downStep);
                 break;
@@ -187,8 +191,8 @@ public partial class MainWindow : Window
             case Key.F: FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked; break;
             case Key.S: SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded; break;
             case Key.I: _ = ShowInfoAsync(); break;
-            case Key.OemPlus: case Key.Add: SpeedSlider.Value += 50; break;
-            case Key.OemMinus: case Key.Subtract: SpeedSlider.Value -= 50; break;
+            case Key.OemPlus: case Key.Add: SpeedSlider.Value += AppConstants.DefaultSpeedIncrement; break;
+            case Key.OemMinus: case Key.Subtract: SpeedSlider.Value -= AppConstants.DefaultSpeedIncrement; break;
         }
     }
 

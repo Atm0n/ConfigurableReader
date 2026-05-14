@@ -126,7 +126,9 @@ public class GamepadService : IDisposable
 
         if (upPressed && !_lastDPadUpState)
         {
-            int step = (DateTime.Now - _lastDPadUpTime).TotalMilliseconds < 400 ? 10 : 1;
+            int step = (DateTime.Now - _lastDPadUpTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs 
+                ? AppConstants.LargeFontSizeStep 
+                : AppConstants.SmallFontSizeStep;
             _lastDPadUpTime = DateTime.Now;
             FontSizeAdjustmentRequested?.Invoke(step);
         }
@@ -134,7 +136,9 @@ public class GamepadService : IDisposable
 
         if (downPressed && !_lastDPadDownState)
         {
-            int step = (DateTime.Now - _lastDPadDownTime).TotalMilliseconds < 400 ? -10 : -1;
+            int step = (DateTime.Now - _lastDPadDownTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs 
+                ? -AppConstants.LargeFontSizeStep 
+                : -AppConstants.SmallFontSizeStep;
             _lastDPadDownTime = DateTime.Now;
             FontSizeAdjustmentRequested?.Invoke(step);
         }
@@ -156,14 +160,14 @@ public class GamepadService : IDisposable
         bool lbPressed = gamepad.LeftBumper;
         if (lbPressed && !_lastLBState)
         {
-            SpeedAdjustmentRequested?.Invoke(-50);
+            SpeedAdjustmentRequested?.Invoke(-AppConstants.DefaultSpeedIncrement);
         }
         _lastLBState = lbPressed;
 
         bool rbPressed = gamepad.RightBumper;
         if (rbPressed && !_lastRBState)
         {
-            SpeedAdjustmentRequested?.Invoke(50);
+            SpeedAdjustmentRequested?.Invoke(AppConstants.DefaultSpeedIncrement);
         }
         _lastRBState = rbPressed;
 
@@ -171,10 +175,10 @@ public class GamepadService : IDisposable
         double lt = gamepad.LeftTrigger;
         double rt = gamepad.RightTrigger;
 
-        bool ltIsDown = lt > 0.1;
+        bool ltIsDown = lt > AppConstants.GamepadTriggerThreshold;
         if (ltIsDown && !_ltWasDown)
         {
-            if ((DateTime.Now - _lastLTPressTime).TotalMilliseconds < 400)
+            if ((DateTime.Now - _lastLTPressTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs)
                 _ltBoosted = true;
             else
                 _ltBoosted = false;
@@ -183,10 +187,10 @@ public class GamepadService : IDisposable
         if (!ltIsDown) _ltBoosted = false;
         _ltWasDown = ltIsDown;
 
-        bool rtIsDown = rt > 0.1;
+        bool rtIsDown = rt > AppConstants.GamepadTriggerThreshold;
         if (rtIsDown && !_rtWasDown)
         {
-            if ((DateTime.Now - _lastRTPressTime).TotalMilliseconds < 400)
+            if ((DateTime.Now - _lastRTPressTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs)
                 _rtBoosted = true;
             else
                 _rtBoosted = false;
@@ -197,8 +201,8 @@ public class GamepadService : IDisposable
 
         if (rtIsDown)
         {
-            int multiplier = _rtBoosted ? 4 : 1;
-            int moveAmount = (int)((rt - 0.1) * 100 * multiplier);
+            int multiplier = _rtBoosted ? AppConstants.GamepadBoostMultiplier : 1;
+            int moveAmount = (int)((rt - AppConstants.GamepadTriggerThreshold) * AppConstants.GamepadBaseMoveAmount * multiplier);
             if (moveAmount > 0)
             {
                 PositionAdjustmentRequested?.Invoke(moveAmount);
@@ -206,8 +210,8 @@ public class GamepadService : IDisposable
         }
         else if (ltIsDown)
         {
-            int multiplier = _ltBoosted ? 4 : 1;
-            int moveAmount = (int)((lt - 0.1) * 100 * multiplier);
+            int multiplier = _ltBoosted ? AppConstants.GamepadBoostMultiplier : 1;
+            int moveAmount = (int)((lt - AppConstants.GamepadTriggerThreshold) * AppConstants.GamepadBaseMoveAmount * multiplier);
             if (moveAmount > 0)
             {
                 PositionAdjustmentRequested?.Invoke(-moveAmount);

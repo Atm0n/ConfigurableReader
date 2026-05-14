@@ -132,7 +132,7 @@
         </Expander>
 
         <!-- Main Reading Area -->
-        <Canvas Name="ReadingAreaCanvas" Grid.Row="1" ClipToBounds="True" Background="Transparent">
+        <Canvas Name="ReadingAreaCanvas" Grid.Row="1" ClipToBounds="True" Background="Transparent" UseLayoutRounding="False">
             <TextBlock 
                 Name="MainTextBlock" 
                 Text="ConfigurableReader" 
@@ -141,6 +141,7 @@
                 VerticalAlignment="Center"
                 TextAlignment="Left" 
                 TextWrapping="NoWrap"
+                UseLayoutRounding="False"
                 Focusable="False">
             </TextBlock>
         </Canvas>
