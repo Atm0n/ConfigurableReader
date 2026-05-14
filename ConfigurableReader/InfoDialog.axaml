@@ -26,11 +26,11 @@
     <Grid Margin="20" RowDefinitions="*,Auto">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel>
-                <TextBlock Text="ConfigurableReader (Avalonia)" Classes="HeaderStyle"/>
-                <TextBlock Text="Version 0.2.0" FontSize="11" Opacity="0.7" Margin="0,-5,0,0"/>
+                <TextBlock Text="ConfigurableReader" Classes="HeaderStyle"/>
+                <TextBlock Text="Version 1.0.0" FontSize="11" Opacity="0.7" Margin="0,-5,0,0"/>
                 <TextBlock Text="Made by Nil Riera" FontSize="12" FontStyle="Italic" Opacity="0.9" Margin="0,2,0,10"/>
                 
-                <TextBlock Text="A highly customizable text reader migrated to Avalonia for cross-platform support." 
+                <TextBlock Text="A highly customizable, cross-platform text reader designed for a comfortable and hands-free reading experience." 
                            TextWrapping="Wrap" Margin="0,5,0,10"/>
 
                 <TextBlock Text="Keyboard Controls" Classes="SubHeaderStyle"/>

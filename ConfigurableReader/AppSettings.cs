@@ -16,7 +16,7 @@ public class AppSettings
 
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "ConfigurableReaderAvalonia",
+        "ConfigurableReader",
         "settings.json");
 
     public static AppSettings Load()

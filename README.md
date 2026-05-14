@@ -1,17 +1,17 @@
 # ConfigurableReader
 
-A highly customizable text reader designed for a comfortable and hands-free reading experience. This repository contains both the original Windows (WPF) version and the new cross-platform (Avalonia) version.
+A highly customizable, cross-platform text reader designed for a comfortable and hands-free reading experience. Built with [Avalonia UI](https://github.com/AvaloniaUI/Avalonia).
 
 ## Features
 
 - **Auto-Scrolling:** Adjust scroll speed to match your reading pace.
 - **Visual Customization:**
-  - Change font size.
+  - Change font size (supports massive fonts for accessibility).
   - Customize text and background colors.
   - Edge fading for better focus.
 - **Progress Tracking:** Automatically saves your last position in each book you read.
-- **Gamepad Support:** Control your reading experience from the comfort of your couch using any standard HID Gamepad (Xbox, PlayStation, etc.).
-- **Visual Indicators:** New connection indicator shows whether you are in Keyboard (⌨️) or Gamepad (🎮) mode.
+- **Gamepad Support:** Control your reading experience from the comfort of your couch using any standard HID Gamepad (Xbox, PlayStation, Switch, etc.).
+- **Visual Indicators:** Connection indicator shows whether you are in Keyboard (⌨️) or Gamepad (🎮) mode.
 - **Keyboard Shortcuts:** Full control with your keyboard.
 
 ## Controls
@@ -19,14 +19,14 @@ A highly customizable text reader designed for a comfortable and hands-free read
 ### Keyboard
 - **Space:** Play / Pause
 - **Left / Right Arrows:** Set Direction (Forward/Backward)
-- **Up / Down Arrows:** Adjust Font Size
+- **Up / Down Arrows:** Adjust Font Size (Tap for 1pt, double-tap for 10pt)
 - **R:** Toggle Direction
 - **F:** Toggle Edge Fade
 - **S:** Toggle Settings Panel
 - **I:** Show Info / About
 - **+/- (Numpad or Main):** Adjust Scroll Speed
 
-### Gamepad (Avalonia Version)
+### Gamepad
 - **A / B Buttons:** Play / Pause
 - **DPad Up / Down:** Adjust Font Size
 - **DPad Left / Right:** Set Direction (Forward/Backward)
@@ -38,7 +38,7 @@ A highly customizable text reader designed for a comfortable and hands-free read
 
 ## Getting Started
 
-1. Launch the application (`ConfigurableReader` for WPF, `ConfigurableReaderAvalonia` for Avalonia).
+1. Launch the application.
 2. Click **Open File** to select a `.txt` book.
 3. Use the **Speed Slider** (or controller bumpers) to adjust how fast the text scrolls.
 4. Click **Start** (or press Space / A / B) to begin reading.
@@ -47,14 +47,7 @@ A highly customizable text reader designed for a comfortable and hands-free read
 
 This project uses the following third-party libraries:
 
-### Common
 - [Avalonia](https://github.com/AvaloniaUI/Avalonia) (MIT License)
-
-### WPF Version
-- [Extended.Wpf.Toolkit](https://github.com/xceedsoftware/wpftoolkit) (Xceed Community License - Free for non-commercial use)
-- [SharpDX.XInput](https://github.com/sharpdx/SharpDX) (MIT License)
-
-### Avalonia Version
 - [HIDDevices](https://github.com/DevDecoder/HIDDevices) (Apache License 2.0)
 - [HIDDevices.Usages](https://github.com/DevDecoder/HIDDevices) (Apache License 2.0)
 - [HIDSharp](https://github.com/zerog_dog/HIDSharp) (Apache License 2.0)
