@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
-        x:Class="ConfigurableReader.MainWindow"
+        x:Class="ConfigurableReader.Views.MainWindow"
         Title="ConfigurableReader"
         WindowState="Maximized"
         Background="#1E1E1E"
@@ -66,7 +66,7 @@
 
     <Grid RowDefinitions="Auto,*,Auto">
         <!-- Collapsible Control Panel -->
-        <Expander Name="SettingsExpander" Grid.Row="0" Header="Settings &amp; Controls" 
+        <Expander Name="SettingsExpander" Grid.Row="0" Header="{DynamicResource SettingsHeader}" 
                   ExpandDirection="Down" IsExpanded="True"
                   Background="#2D2D30" 
                   Foreground="#F1F1F1"
@@ -77,16 +77,16 @@
                     <!-- File Group -->
                     <Border Classes="GroupBorder">
                         <StackPanel Orientation="Horizontal" Spacing="5">
-                            <Button Content="Open File" Click="OpenFileButton_Click" Focusable="False"/>
+                            <Button Content="{DynamicResource OpenFile}" Click="OpenFileButton_Click" Focusable="False"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Playback Group -->
                     <Border Classes="GroupBorder">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Name="StartStopButton" Content="Start" Click="StartStopButton_Click" Focusable="False" Width="70"/>
-                            <Button Name="ReverseButton" Content="Reverse" Click="ReverseButton_Click" Focusable="False"/>
-                            <TextBlock Text="Speed:" Classes="LabelStyle"/>
+                            <Button Name="StartStopButton" Content="{DynamicResource Start}" Click="StartStopButton_Click" Focusable="False" Width="70"/>
+                            <Button Name="ReverseButton" Content="{DynamicResource Reverse}" Click="ReverseButton_Click" Focusable="False"/>
+                            <TextBlock Text="{DynamicResource Speed}" Classes="LabelStyle"/>
                             <Slider Name="SpeedSlider" Minimum="0" Maximum="1000" Value="100" Width="150" Focusable="False" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -95,25 +95,34 @@
                     <Border Classes="GroupBorder">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Font:" Classes="LabelStyle"/>
+                                <TextBlock Text="{DynamicResource Font}" Classes="LabelStyle"/>
                                 <ComboBox Name="FontComboBox" Width="180" SelectionChanged="FontComboBox_SelectionChanged" Focusable="False"/>
                             </StackPanel>
 
-                            <CheckBox Name="FadeCheckBox" Content="Edge Fade" VerticalAlignment="Center" Margin="10,0" 
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Language:" Classes="LabelStyle"/>
+                                <ComboBox Name="LanguageComboBox" Width="100" SelectionChanged="LanguageComboBox_SelectionChanged" Focusable="False">
+                                    <ComboBoxItem Content="English" Tag="en-US"/>
+                                    <ComboBoxItem Content="Español" Tag="es-ES"/>
+                                    <ComboBoxItem Content="Català" Tag="ca-ES"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <CheckBox Name="FadeCheckBox" Content="{DynamicResource EdgeFade}" VerticalAlignment="Center" Margin="10,0" 
                                       IsCheckedChanged="FadeCheckBox_IsCheckedChanged" Focusable="False" Foreground="#F1F1F1"/>
 
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Text:" Classes="LabelStyle"/>
+                                <TextBlock Text="{DynamicResource TextColor}" Classes="LabelStyle"/>
                                 <ColorPicker Name="TextColorPicker" Width="60" ColorChanged="TextColorPicker_ColorChanged" Focusable="False"/>
                             </StackPanel>
                         
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="BG:" Classes="LabelStyle"/>
+                                <TextBlock Text="{DynamicResource BackgroundColor}" Classes="LabelStyle"/>
                                 <ColorPicker Name="BackgroundColorPicker" Width="60" ColorChanged="BackgroundColorPicker_ColorChanged" Focusable="False"/>
                             </StackPanel>
                         
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Size:" Classes="LabelStyle"/>
+                                <TextBlock Text="{DynamicResource FontSize}" Classes="LabelStyle"/>
                                 <NumericUpDown Name="FontSizeNumeric" Width="110" Minimum="10" Maximum="800" 
                                                Value="48" Focusable="False" ValueChanged="FontSizeNumeric_ValueChanged"/>
                             </StackPanel>
@@ -123,7 +132,7 @@
                     <!-- Info Group -->
                     <Border Classes="GroupBorder">
                         <StackPanel Orientation="Horizontal">
-                            <Button Content="Info" Click="InfoButton_Click" Focusable="False"/>
+                            <Button Content="{DynamicResource Info}" Click="InfoButton_Click" Focusable="False"/>
                         </StackPanel>
                     </Border>
 
@@ -149,10 +158,10 @@
         <!-- Progress Area -->
         <Border Grid.Row="2" Background="#2D2D30" Padding="10" BorderThickness="0,1,0,0" BorderBrush="#3E3E42">
             <Grid ColumnDefinitions="200,*,100,Auto">
-                <TextBlock Name="BookNameText" Grid.Column="0" Text="No file opened" VerticalAlignment="Center" Foreground="#F1F1F1" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Name="BookNameText" Grid.Column="0" Text="{DynamicResource NoFileOpened}" VerticalAlignment="Center" Foreground="#F1F1F1" TextTrimming="CharacterEllipsis"/>
                 <Slider Name="TextSlider" Grid.Column="1" Minimum="0" Maximum="100" ValueChanged="TextSlider_ValueChanged" Focusable="False"/>
                 <TextBlock Name="PercentageText" Grid.Column="2" Text="0%" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#F1F1F1"/>
-                <TextBlock Name="InputModeText" Grid.Column="3" Text="⌨️" FontSize="20" VerticalAlignment="Center" Margin="10,0" ToolTip.Tip="Keyboard Mode"/>
+                <TextBlock Name="InputModeText" Grid.Column="3" Text="⌨️" FontSize="20" VerticalAlignment="Center" Margin="10,0" ToolTip.Tip="{DynamicResource KeyboardMode}"/>
             </Grid>
         </Border>
 

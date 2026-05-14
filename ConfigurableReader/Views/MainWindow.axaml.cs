@@ -8,13 +8,16 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Controls.Primitives;
-using ConfigurableReader.Services;
 using ConfigurableReader.Core;
 using ConfigurableReader.Parsers.Txt;
 using ConfigurableReader.Parsers.Epub;
 using System.Collections.Generic;
 
-namespace ConfigurableReader;
+namespace ConfigurableReader.Views;
+
+using ConfigurableReader.Models;
+using ConfigurableReader.Common;
+using ConfigurableReader.Services;
 
 public partial class MainWindow : Window
 {
@@ -71,7 +74,7 @@ public partial class MainWindow : Window
         try
         {
             StopReading();
-            await MessageDialog.ShowAsync(this, "Start of the book reached");
+            await MessageDialog.ShowAsync(this, LocalizationService.GetString("StartReached"));
         }
         catch (Exception ex)
         {
@@ -84,7 +87,7 @@ public partial class MainWindow : Window
         try
         {
             StopReading();
-            await MessageDialog.ShowAsync(this, "End of the book reached");
+            await MessageDialog.ShowAsync(this, LocalizationService.GetString("EndReached"));
         }
         catch (Exception ex)
         {
@@ -108,7 +111,7 @@ public partial class MainWindow : Window
             
             if (allExtensions.Any())
             {
-                filters.Add(new Avalonia.Platform.Storage.FilePickerFileType("All Supported Books")
+                filters.Add(new Avalonia.Platform.Storage.FilePickerFileType(LocalizationService.GetString("AllSupportedBooks"))
                 {
                     Patterns = allExtensions
                 });
@@ -125,7 +128,7 @@ public partial class MainWindow : Window
 
             var options = new Avalonia.Platform.Storage.FilePickerOpenOptions
             {
-                Title = "Open Book",
+                Title = LocalizationService.GetString("OpenFileTitle"),
                 FileTypeFilter = filters
             };
 
@@ -140,7 +143,7 @@ public partial class MainWindow : Window
                 string extractedText = await _documentRegistry.LoadBookAsync(_currentBookFileName);
                 if (string.IsNullOrWhiteSpace(extractedText))
                 {
-                    await MessageDialog.ShowAsync(this, "The selected book contains no readable text.");
+                    await MessageDialog.ShowAsync(this, LocalizationService.GetString("NoReadableText"));
                     return;
                 }
 
@@ -171,7 +174,7 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error opening file: {ex.Message}");
-            await MessageDialog.ShowAsync(this, $"Error opening book: {ex.Message}");
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("ErrorOpeningBook")} {ex.Message}");
         }
     }
 
@@ -185,7 +188,7 @@ public partial class MainWindow : Window
 
         if (_readerService.IsPaused)
         {
-            StartStopButton.Content = "Stop";
+            StartStopButton.Content = LocalizationService.GetString("Stop");
             _readerService.IsPaused = false;
             _lastRenderTime = DateTime.MinValue;
             SettingsExpander.IsExpanded = false;
@@ -198,7 +201,7 @@ public partial class MainWindow : Window
 
     private void StopReading()
     {
-        StartStopButton.Content = "Start";
+        StartStopButton.Content = LocalizationService.GetString("Start");
         _readerService.IsPaused = true;
     }
 
@@ -257,6 +260,15 @@ public partial class MainWindow : Window
         {
             MainTextBlock.FontFamily = fontFamily;
             ClearCharWidthCache();
+        }
+    }
+
+    private void LanguageComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (!_isUpdatingFromCode && LanguageComboBox.SelectedItem is ComboBoxItem item && item.Tag != null)
+        {
+            string langCode = item.Tag.ToString() ?? "en-US";
+            LocalizationService.SetLanguage(langCode);
         }
     }
 

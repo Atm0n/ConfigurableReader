@@ -7,7 +7,7 @@ using Avalonia.Threading;
 using DevDecoder.HIDDevices;
 using DevDecoder.HIDDevices.Controllers;
 
-namespace ConfigurableReader;
+namespace ConfigurableReader.Views;
 
 public partial class InfoDialog : Window
 {

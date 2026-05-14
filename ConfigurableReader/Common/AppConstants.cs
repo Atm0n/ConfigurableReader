@@ -1,4 +1,4 @@
-namespace ConfigurableReader;
+namespace ConfigurableReader.Common;
 
 public static class AppConstants
 {

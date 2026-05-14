@@ -1,12 +1,13 @@
 using System;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
 using Avalonia.Threading;
 
-namespace ConfigurableReader;
+namespace ConfigurableReader.Views;
+
+using ConfigurableReader.Common;
 
 public partial class MainWindow
 {

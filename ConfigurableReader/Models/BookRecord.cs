@@ -1,4 +1,4 @@
-namespace ConfigurableReader;
+namespace ConfigurableReader.Models;
 
 public class BookRecord
 {

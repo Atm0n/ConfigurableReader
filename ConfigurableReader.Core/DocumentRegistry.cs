@@ -2,7 +2,7 @@ namespace ConfigurableReader.Core;
 
 public class DocumentRegistry
 {
-    private readonly List<IBookParser> _parsers = new();
+    private readonly List<IBookParser> _parsers = [];
 
     public void RegisterParser(IBookParser parser)
     {

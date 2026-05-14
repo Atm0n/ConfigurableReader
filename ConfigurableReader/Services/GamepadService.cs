@@ -5,6 +5,8 @@ using DevDecoder.HIDDevices;
 using DevDecoder.HIDDevices.Controllers;
 using DevDecoder.HIDDevices.Converters;
 
+using ConfigurableReader.Common;
+
 namespace ConfigurableReader.Services;
 
 public class GamepadService : IDisposable
