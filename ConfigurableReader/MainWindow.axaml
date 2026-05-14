@@ -99,6 +99,15 @@
                                 <ComboBox Name="FontComboBox" Width="180" SelectionChanged="FontComboBox_SelectionChanged" Focusable="False"/>
                             </StackPanel>
 
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Language:" Classes="LabelStyle"/>
+                                <ComboBox Name="LanguageComboBox" Width="100" SelectionChanged="LanguageComboBox_SelectionChanged" Focusable="False">
+                                    <ComboBoxItem Content="English" Tag="en-US"/>
+                                    <ComboBoxItem Content="Español" Tag="es-ES"/>
+                                    <ComboBoxItem Content="Català" Tag="ca-ES"/>
+                                </ComboBox>
+                            </StackPanel>
+
                             <CheckBox Name="FadeCheckBox" Content="{DynamicResource EdgeFade}" VerticalAlignment="Center" Margin="10,0" 
                                       IsCheckedChanged="FadeCheckBox_IsCheckedChanged" Focusable="False" Foreground="#F1F1F1"/>
 

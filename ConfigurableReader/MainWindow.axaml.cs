@@ -260,6 +260,15 @@ public partial class MainWindow : Window
         }
     }
 
+    private void LanguageComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (!_isUpdatingFromCode && LanguageComboBox.SelectedItem is ComboBoxItem item && item.Tag != null)
+        {
+            string langCode = item.Tag.ToString() ?? "en-US";
+            LocalizationService.SetLanguage(langCode);
+        }
+    }
+
     private void FadeCheckBox_IsCheckedChanged(object? sender, RoutedEventArgs e)
     {
         UpdateEdgeFading(FadeCheckBox.IsChecked ?? true);

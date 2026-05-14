@@ -9,6 +9,7 @@ public class AppSettings
     public int FontSize { get; set; } = 48;
     public string TextColor { get; set; } = "#F1F1F1";
     public string BackgroundColor { get; set; } = "#1E1E1E";
+    public string Language { get; set; } = "en-US";
     public double ScrollSpeed { get; set; } = 100;
     public string? FontFamily { get; set; }
     public bool EnableEdgeFading { get; set; } = true;
