@@ -71,6 +71,7 @@ Looking to contribute or wondering what's next? Here are some planned improvemen
   - Smooth animated transitions.
   - Modernized About and Settings dialogs.
 - **[ ] CI/CD:** Automated builds and releases via GitHub Actions.
+- [ ] Add speed reading mode with part of the word in bold.
 
 ## License
 
