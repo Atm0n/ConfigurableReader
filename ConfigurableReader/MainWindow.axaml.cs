@@ -96,6 +96,22 @@ public partial class MainWindow : Window
         try
         {
             var filters = new List<Avalonia.Platform.Storage.FilePickerFileType>();
+            
+            // Add "All Supported Books" combined filter
+            var allExtensions = _documentRegistry.AvailableParsers
+                .SelectMany(p => p.SupportedExtensions)
+                .Select(e => $"*{e}")
+                .ToList();
+            
+            if (allExtensions.Any())
+            {
+                filters.Add(new Avalonia.Platform.Storage.FilePickerFileType("All Supported Books")
+                {
+                    Patterns = allExtensions
+                });
+            }
+
+            // Add individual filters
             foreach (var parser in _documentRegistry.AvailableParsers)
             {
                 filters.Add(new Avalonia.Platform.Storage.FilePickerFileType(parser.FormatName)

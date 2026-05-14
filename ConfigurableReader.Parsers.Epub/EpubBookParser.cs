@@ -1,17 +1,20 @@
-using System;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using ConfigurableReader.Core;
 using VersOne.Epub;
 
 namespace ConfigurableReader.Parsers.Epub;
 
-public class EpubBookParser : IBookParser
+public partial class EpubBookParser : IBookParser
 {
     public string FormatName => "EPUB Books";
     public string[] SupportedExtensions => new[] { ".epub" };
+
+    [GeneratedRegex("<[^>]*>")]
+    private static partial Regex HtmlTagRegex();
+
+    [GeneratedRegex(@"\s+")]
+    private static partial Regex WhitespaceRegex();
 
     public async Task<string> ExtractTextAsync(string filePath)
     {
@@ -32,9 +35,9 @@ public class EpubBookParser : IBookParser
     {
         if (string.IsNullOrEmpty(html)) return string.Empty;
 
-        // Basic HTML tag stripping
-        string step1 = Regex.Replace(html, "<[^>]*>", " ");
-        
+        // Use source-generated regex for HTML tag stripping
+        string step1 = HtmlTagRegex().Replace(html, " ");
+
         // Decode common entities (very basic)
         string step2 = step1.Replace("&nbsp;", " ")
                             .Replace("&lt;", "<")
@@ -52,8 +55,8 @@ public class EpubBookParser : IBookParser
 
         // Replace newlines and tabs with spaces
         string step1 = text.Replace("\r", " ").Replace("\n", " ").Replace("\t", " ");
-        
-        // Collapse multiple spaces into one
-        return Regex.Replace(step1, @"\s+", " ").Trim();
+
+        // Use source-generated regex to collapse multiple spaces into one
+        return WhitespaceRegex().Replace(step1, " ").Trim();
     }
 }
