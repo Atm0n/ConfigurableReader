@@ -2,9 +2,11 @@
 
 A highly customizable, cross-platform text reader designed for a comfortable and hands-free reading experience. Built with [Avalonia UI](https://github.com/AvaloniaUI/Avalonia).
 
-## Features
+## Key Features
 
-- **Auto-Scrolling:** Adjust scroll speed to match your reading pace.
+- **Layout-Driven Precision:** Uses a high-performance rendering engine that accounts for font kerning and typographic details for perfectly smooth scrolling.
+- **Multi-Format Support:** Read books in **TXT, EPUB, PDF, DOCX, and Markdown**.
+- **Auto-Scrolling:** Adjust scroll speed to match your reading pace exactly.
 - **Visual Customization:**
   - Change font size (supports massive fonts for accessibility).
   - Customize text and background colors.
@@ -12,7 +14,6 @@ A highly customizable, cross-platform text reader designed for a comfortable and
 - **Progress Tracking:** Automatically saves your last position in each book you read.
 - **Gamepad Support:** Control your reading experience from the comfort of your couch using any standard HID Gamepad (Xbox, PlayStation, Switch, etc.).
 - **Visual Indicators:** Connection indicator shows whether you are in Keyboard (⌨️) or Gamepad (🎮) mode.
-- **Keyboard Shortcuts:** Full control with your keyboard.
 
 ## Controls
 
@@ -39,7 +40,7 @@ A highly customizable, cross-platform text reader designed for a comfortable and
 ## Getting Started
 
 1. Launch the application.
-2. Click **Open File** to select a `.txt` book.
+2. Click **Open File** to select a book (Supports `.txt`, `.epub`, `.pdf`, `.docx`, `.md`).
 3. Use the **Speed Slider** (or controller bumpers) to adjust how fast the text scrolls.
 4. Click **Start** (or press Space / A / B) to begin reading.
 
@@ -49,8 +50,10 @@ This project uses the following third-party libraries:
 
 - [Avalonia](https://github.com/AvaloniaUI/Avalonia) (MIT License)
 - [HIDDevices](https://github.com/DevDecoder/HIDDevices) (Apache License 2.0)
-- [HIDDevices.Usages](https://github.com/DevDecoder/HIDDevices) (Apache License 2.0)
-- [HIDSharp](https://github.com/zerog_dog/HIDSharp) (Apache License 2.0)
+- [PdfPig](https://github.com/UglyToad/PdfPig) (MIT License) - PDF Parsing
+- [Markdig](https://github.com/xoofx/markdig) (BSD-2-Clause) - Markdown Parsing
+- [OpenXML SDK](https://github.com/dotnet/Open-XML-SDK) (MIT License) - DOCX Parsing
+- [HtmlAgilityPack](https://github.com/zzzprojects/html-agility-pack) (MIT License) - EPUB/HTML Cleaning
 
 ## License
 
