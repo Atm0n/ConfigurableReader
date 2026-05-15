@@ -131,6 +131,15 @@
 
                     <!-- Info Group -->
                     <Border Classes="GroupBorder">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBox Name="SearchTextBox" Width="150" PlaceholderText="{DynamicResource SearchWatermark}" 
+                                     KeyDown="SearchTextBox_KeyDown" Focusable="True"/>
+                            <Button Name="SearchButton" Content="{DynamicResource SearchNext}" Click="SearchButton_Click" Focusable="False"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Info Group -->
+                    <Border Classes="GroupBorder">
                         <StackPanel Orientation="Horizontal">
                             <Button Content="{DynamicResource Info}" Click="InfoButton_Click" Focusable="False"/>
                         </StackPanel>

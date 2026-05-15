@@ -36,4 +36,9 @@
     <sys:String x:Key="EndReached">Fin del libro alcanzado</sys:String>
     <sys:String x:Key="NoReadableText">El libro seleccionado no contiene texto legible.</sys:String>
     <sys:String x:Key="ErrorOpeningBook">Error al abrir el libro:</sys:String>
+
+    <!-- Búsqueda -->
+    <sys:String x:Key="SearchWatermark">Buscar...</sys:String>
+    <sys:String x:Key="SearchNext">Siguiente</sys:String>
+    <sys:String x:Key="SearchNoResults">No se han encontrado resultados para: {0}</sys:String>
 </ResourceDictionary>

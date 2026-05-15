@@ -180,7 +180,51 @@ public partial class MainWindow : Window
 
     private void StartStopButton_Click(object? sender, RoutedEventArgs e) => ToggleStartStop();
     private void ReverseButton_Click(object? sender, RoutedEventArgs e) => _readerService.IsReversing = !_readerService.IsReversing;
+    private void SearchButton_Click(object? sender, RoutedEventArgs e) => PerformSearch();
     private void InfoButton_Click(object? sender, RoutedEventArgs e) => _ = ShowInfoAsync();
+
+    private void PerformSearch()
+    {
+        if (string.IsNullOrWhiteSpace(SearchTextBox.Text)) return;
+
+        string query = SearchTextBox.Text;
+        // Search starting from just after the current position
+        int foundIndex = _readerService.FindNext(query, _readerService.CurrentPosition + 1);
+
+        // If not found, wrap around to the beginning
+        if (foundIndex == -1)
+        {
+            foundIndex = _readerService.FindNext(query, 0);
+        }
+
+        if (foundIndex != -1)
+        {
+            StopReading();
+            _isUpdatingFromCode = true;
+            _renderedBasePosition = -1; // Force re-render
+            _readerService.ResetPosition(foundIndex);
+            
+            TextSlider.Value = _readerService.CurrentPosition;
+            UpdateDisplayedText();
+            UpdateRenderTransform();
+            UpdatePercentage();
+            _isUpdatingFromCode = false;
+        }
+        else
+        {
+            string message = string.Format(LocalizationService.GetString("SearchNoResults"), query);
+            _ = MessageDialog.ShowAsync(this, message);
+        }
+    }
+
+    private void SearchTextBox_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            PerformSearch();
+            e.Handled = true;
+        }
+    }
 
     private void ToggleStartStop()
     {
@@ -220,6 +264,12 @@ public partial class MainWindow : Window
 
     private void Window_KeyDown(object? sender, KeyEventArgs e)
     {
+        // Ignore global shortcuts if a text input has focus
+        if (FocusManager?.GetFocusedElement() is TextBox)
+        {
+            return;
+        }
+
         switch (e.Key)
         {
             case Key.Left: _readerService.IsReversing = true; break;
