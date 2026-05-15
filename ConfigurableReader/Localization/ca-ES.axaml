@@ -36,4 +36,9 @@
     <sys:String x:Key="EndReached">S'ha arribat al final del llibre</sys:String>
     <sys:String x:Key="NoReadableText">El fitxer seleccionat no conté text llegible.</sys:String>
     <sys:String x:Key="ErrorOpeningBook">Error en obrir el llibre:</sys:String>
+
+    <!-- Cerca -->
+    <sys:String x:Key="SearchWatermark">Cerca...</sys:String>
+    <sys:String x:Key="SearchNext">Següent</sys:String>
+    <sys:String x:Key="SearchNoResults">No s'han trobat resultats per a: {0}</sys:String>
 </ResourceDictionary>
