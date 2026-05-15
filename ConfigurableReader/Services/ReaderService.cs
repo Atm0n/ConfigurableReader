@@ -66,6 +66,29 @@ public class ReaderService
         _subCharOffset = 0;
         OnStateChanged();
     }
+
+    public int FindNext(string query, int startPosition)
+    {
+        if (string.IsNullOrEmpty(query) || string.IsNullOrEmpty(_fullText))
+            return -1;
+
+        if (startPosition >= _fullText.Length) return -1;
+
+        return _fullText.IndexOf(query, startPosition, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public int FindPrevious(string query, int startPosition)
+    {
+        if (string.IsNullOrEmpty(query) || string.IsNullOrEmpty(_fullText))
+            return -1;
+
+        if (startPosition <= 0) return -1;
+
+        // Ensure we don't start beyond the string length
+        int searchStart = Math.Min(startPosition, _fullText.Length - 1);
+        
+        return _fullText.LastIndexOf(query, searchStart, StringComparison.OrdinalIgnoreCase);
+    }
     
     // Compatibility shim for existing calls while we refactor
     public void ResetPosition(int charPosition, Func<char, double> unused) => ResetPosition(charPosition);
