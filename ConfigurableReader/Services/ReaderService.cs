@@ -150,8 +150,7 @@ public class ReaderService : IDisposable
         return found != -1 ? found + _bufferStartPosition : -1;
     }
     
-    // Compatibility shim for existing calls while we refactor
-    public void ResetPosition(int charPosition, Func<char, double> unused) => ResetPosition(charPosition);
+
 
     public void Dispose()
     {

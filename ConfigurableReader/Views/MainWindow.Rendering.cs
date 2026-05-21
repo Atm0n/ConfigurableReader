@@ -140,14 +140,6 @@ public partial class MainWindow
         _isUpdatingFromCode = false;
     }
 
-    private double GetCharacterWidth(char c)
-    {
-        var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
-        var textLayout = new TextLayout(c.ToString(), typeface, MainTextBlock.FontSize, MainTextBlock.Foreground);
-        return textLayout.TextLines[0].Width;
-    }
-
-    private void ClearCharWidthCache() { }
 
     private void UpdatePercentage()
     {

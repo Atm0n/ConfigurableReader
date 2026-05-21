@@ -60,7 +60,7 @@ public partial class MainWindow
             {
                 newPos = Math.Max(0, _readerService.CurrentPosition + delta);
             }
-            _readerService.ResetPosition(newPos, GetCharacterWidth);
+            _readerService.ResetPosition(newPos);
             UpdateDisplayedText();
             UpdateRenderTransform();
             UpdatePercentage();

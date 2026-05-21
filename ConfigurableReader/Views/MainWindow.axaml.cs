@@ -300,7 +300,6 @@ public partial class MainWindow : Window
         if (FontComboBox.SelectedItem is FontFamily fontFamily)
         {
             MainTextBlock.FontFamily = fontFamily;
-            ClearCharWidthCache();
         }
     }
 
@@ -321,7 +320,6 @@ public partial class MainWindow : Window
     private void TextColorPicker_ColorChanged(object? sender, ColorChangedEventArgs e)
     {
         MainTextBlock.Foreground = new SolidColorBrush(e.NewColor);
-        ClearCharWidthCache();
     }
 
     private void BackgroundColorPicker_ColorChanged(object? sender, ColorChangedEventArgs e)
@@ -333,7 +331,7 @@ public partial class MainWindow : Window
     {
         if (!_isUpdatingFromCode)
         {
-            _readerService.ResetPosition((int)TextSlider.Value, GetCharacterWidth);
+            _readerService.ResetPosition((int)TextSlider.Value);
             UpdateDisplayedText();
             UpdateRenderTransform();
             UpdatePercentage();
@@ -345,7 +343,6 @@ public partial class MainWindow : Window
         if (!_isUpdatingFromCode && e.NewValue.HasValue)
         {
             MainTextBlock.FontSize = (double)e.NewValue.Value;
-            ClearCharWidthCache();
             UpdateDisplayedText();
 
             // Force a re-center if paused
