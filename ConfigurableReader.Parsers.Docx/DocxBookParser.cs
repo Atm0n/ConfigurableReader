@@ -9,7 +9,7 @@ namespace ConfigurableReader.Parsers.Docx;
 public partial class DocxBookParser : IBookParser
 {
     public string FormatName => "Word Documents";
-    public string[] SupportedExtensions => new[] { ".docx" };
+    public string[] SupportedExtensions => [".docx"];
 
     [GeneratedRegex(@"\s+")]
     private static partial Regex WhitespaceRegex();

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ConfigurableReader.Common;
 
 public static class AppConstants
@@ -22,4 +24,17 @@ public static class AppConstants
     public const double MinFontSize = 10;
     public const double MaxFontSize = 800;
     public const double MaxScrollSpeed = 1000;
+
+    /// <summary>
+    /// The languages the app supports.
+    /// Code is the BCP-47 locale tag (matches the /Localization/*.axaml filename).
+    /// DisplayName is what appears in the UI combo box.
+    /// Adding a new translation only requires adding an entry here and the matching .axaml file.
+    /// </summary>
+    public static readonly IReadOnlyList<(string Code, string DisplayName)> SupportedLanguages =
+    [
+        ("en-US", "English"),
+        ("es-ES", "Español"),
+        ("ca-ES", "Català"),
+    ];
 }

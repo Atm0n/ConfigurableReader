@@ -4,17 +4,18 @@ using System.Globalization;
 using System.Linq;
 using Avalonia;
 using Avalonia.Markup.Xaml.Styling;
+using ConfigurableReader.Common;
 
 namespace ConfigurableReader.Services;
 
 public static class LocalizationService
 {
-    private static readonly Dictionary<string, string> SupportedLanguages = new()
-    {
-        { "en", "en-US" },
-        { "es", "es-ES" },
-        { "ca", "ca-ES" }
-    };
+    // Built from AppConstants so there is one source of truth for supported languages.
+    private static readonly Dictionary<string, string> TwoLetterToCode =
+        AppConstants.SupportedLanguages
+            .ToDictionary(
+                lang => new CultureInfo(lang.Code).TwoLetterISOLanguageName,
+                lang => lang.Code);
 
     public static string GetString(string key)
     {
@@ -53,11 +54,11 @@ public static class LocalizationService
         var uiCulture = CultureInfo.CurrentUICulture;
         
         // 1. Try exact match (e.g. "es-ES")
-        if (SupportedLanguages.ContainsValue(uiCulture.Name))
+        if (AppConstants.SupportedLanguages.Any(l => l.Code == uiCulture.Name))
             return uiCulture.Name;
 
         // 2. Try two-letter code match (e.g. "es-MX" -> "es" -> "es-ES")
-        if (SupportedLanguages.TryGetValue(uiCulture.TwoLetterISOLanguageName, out var mappedCode))
+        if (TwoLetterToCode.TryGetValue(uiCulture.TwoLetterISOLanguageName, out var mappedCode))
             return mappedCode;
 
         return "en-US";

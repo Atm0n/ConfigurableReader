@@ -101,11 +101,7 @@
 
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{DynamicResource Language}" Classes="LabelStyle"/>
-                                <ComboBox Name="LanguageComboBox" Width="100" SelectionChanged="LanguageComboBox_SelectionChanged" Focusable="False">
-                                    <ComboBoxItem Content="English" Tag="en-US"/>
-                                    <ComboBoxItem Content="Español" Tag="es-ES"/>
-                                    <ComboBoxItem Content="Català" Tag="ca-ES"/>
-                                </ComboBox>
+                                <ComboBox Name="LanguageComboBox" Width="100" SelectionChanged="LanguageComboBox_SelectionChanged" Focusable="False"/>
                             </StackPanel>
 
                             <CheckBox Name="FadeCheckBox" Content="{DynamicResource EdgeFade}" VerticalAlignment="Center" Margin="10,0" 

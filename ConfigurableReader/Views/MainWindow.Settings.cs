@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
+using ConfigurableReader.Common;
 using ConfigurableReader.Services;
 
 namespace ConfigurableReader.Views;
@@ -39,8 +40,14 @@ public partial class MainWindow
         FadeCheckBox.IsChecked = _settings.EnableEdgeFading;
         UpdateEdgeFading(_settings.EnableEdgeFading);
 
-        // Language
+        // Populate language combo from AppConstants — single source of truth
         _isUpdatingFromCode = true;
+        LanguageComboBox.Items.Clear();
+        foreach (var (code, displayName) in AppConstants.SupportedLanguages)
+        {
+            LanguageComboBox.Items.Add(new ComboBoxItem { Content = displayName, Tag = code });
+        }
+
         var langItem = LanguageComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Tag?.ToString() == _settings.Language);
         if (langItem != null)
         {
