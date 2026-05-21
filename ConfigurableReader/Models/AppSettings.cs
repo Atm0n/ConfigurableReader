@@ -13,7 +13,6 @@ public class AppSettings
     public double ScrollSpeed { get; set; } = 100;
     public string? FontFamily { get; set; }
     public bool EnableEdgeFading { get; set; } = true;
-    public string BookPositionsJson { get; set; } = "[]";
 
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

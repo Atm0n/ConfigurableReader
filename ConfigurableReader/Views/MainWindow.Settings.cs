@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
 using Avalonia.Controls;
 using Avalonia.Media;
 using ConfigurableReader.Services;
@@ -57,17 +55,7 @@ public partial class MainWindow
 
     private void LoadBookPositionConfiguration()
     {
-        try
-        {
-            if (!string.IsNullOrEmpty(_settings.BookPositionsJson))
-            {
-                _bookRecords = JsonSerializer.Deserialize<List<BookRecord>>(_settings.BookPositionsJson) ?? [];
-            }
-        }
-        catch
-        {
-            _bookRecords = [];
-        }
+        _bookRecords = BookRecordStore.Load();
     }
 
     private void SaveSettings()
@@ -97,7 +85,7 @@ public partial class MainWindow
                 _bookRecords.Add(record);
             }
             record.ScrollPosition = _readerService.CurrentPosition;
-            _settings.BookPositionsJson = JsonSerializer.Serialize(_bookRecords);
+            BookRecordStore.Save(_bookRecords);
         }
 
         _settings.Save();
