@@ -62,9 +62,9 @@ Looking to contribute or wondering what's next? Here are some planned improvemen
 - **[ ] Library View:** A central hub to manage your books, see recent reads, and view reading progress at a glance.
 - **[ ] Unit Testing:** Implementation of a robust test suite for parsers, rendering logic, and localization.
 - **[ ] Search & Navigation:**
-  - [X] Full-text search within the current book.
-  - [ ]Table of Contents support for EPUB and PDF.
-  - [ ]Custom Bookmarks.
+  - [x] Full-text search within the current book.
+  - [ ] Table of Contents support for EPUB and PDF.
+  - [ ] Custom Bookmarks.
 - **[ ] Advanced Performance:** Implement text chunking/virtualization for instantaneous loading of extremely large books.
 - **[ ] UI/UX Polish:**
   - Theme presets (Sepia, High Contrast, etc.).
