@@ -17,7 +17,7 @@ public partial class MarkdownBookParser : IBookParser
         return new MemoryBookSource(text);
     }
 
-    public async Task<string> ExtractTextAsync(string filePath)
+    private async Task<string> ExtractTextAsync(string filePath)
     {
         string markdown = await File.ReadAllTextAsync(filePath);
         
