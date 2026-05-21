@@ -4,7 +4,6 @@ public static class AppConstants
 {
     // Rendering & Scrolling
     public const int TimerIntervalMs = 20;
-    public const int BufferUpdateThreshold = 5000;
     public const int MaxBufferLength = 10000;
     public const double VerticalCenteringMultiplier = 1.5;
     
