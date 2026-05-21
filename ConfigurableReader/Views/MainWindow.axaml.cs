@@ -30,6 +30,13 @@ public partial class MainWindow : Window
     private DateTime _lastKeyUpTime = DateTime.MinValue;
     private DateTime _lastKeyDownTime = DateTime.MinValue;
 
+    /// <summary>
+    /// Parameterless constructor required by Avalonia XAML compiler and designer.
+    /// </summary>
+    public MainWindow() : this(new DocumentRegistry())
+    {
+    }
+
     public MainWindow(DocumentRegistry documentRegistry)
     {
         _documentRegistry = documentRegistry;
