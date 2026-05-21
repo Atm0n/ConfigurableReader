@@ -1,0 +1,30 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ developer, master ]
+  pull_request:
+    branches: [ developer, master ]
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore ConfigurableReader.slnx
+
+    - name: Build
+      run: dotnet build ConfigurableReader.slnx --configuration Release --no-restore
