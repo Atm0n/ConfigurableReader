@@ -90,11 +90,10 @@ public partial class MainWindow
 
         if (_currentBookFileName != null)
         {
-            string bookName = Path.GetFileName(_currentBookFileName);
-            var record = _bookRecords.FirstOrDefault(r => r.Name == bookName);
+            var record = _bookRecords.FirstOrDefault(r => r.FilePath == _currentBookFileName);
             if (record == null)
             {
-                record = new BookRecord { Name = bookName };
+                record = new BookRecord { FilePath = _currentBookFileName };
                 _bookRecords.Add(record);
             }
             record.ScrollPosition = _readerService.CurrentPosition;

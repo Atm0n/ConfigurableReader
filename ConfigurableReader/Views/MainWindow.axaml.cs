@@ -130,10 +130,10 @@ public partial class MainWindow : Window
 
                 var source = await _documentRegistry.CreateSourceAsync(_currentBookFileName);
                 
-                var actualBook = _bookRecords.FirstOrDefault(r => r.Name == bookName);
+                var actualBook = _bookRecords.FirstOrDefault(r => r.FilePath == _currentBookFileName);
                 if (actualBook is null)
                 {
-                    actualBook = new BookRecord { Name = bookName };
+                    actualBook = new BookRecord { FilePath = _currentBookFileName };
                     _bookRecords.Add(actualBook);
                 }
 
