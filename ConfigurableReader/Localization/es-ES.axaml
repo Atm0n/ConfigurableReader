@@ -9,6 +9,7 @@
     <sys:String x:Key="Reverse">Invertir</sys:String>
     <sys:String x:Key="Speed">Velocidad:</sys:String>
     <sys:String x:Key="Font">Fuente:</sys:String>
+    <sys:String x:Key="Language">Idioma:</sys:String>
     <sys:String x:Key="EdgeFade">Desvanecimiento</sys:String>
     <sys:String x:Key="TextColor">Texto:</sys:String>
     <sys:String x:Key="BackgroundColor">Fondo:</sys:String>
