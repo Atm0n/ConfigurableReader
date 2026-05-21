@@ -135,9 +135,10 @@ public partial class MainWindow
             }
         }
 
-        _isUpdatingFromCode = true;
-        TextSlider.Value = _readerService.CurrentPosition;
-        _isUpdatingFromCode = false;
+        using (_controller.SuppressCodeUpdates())
+        {
+            TextSlider.Value = _readerService.CurrentPosition;
+        }
     }
 
 

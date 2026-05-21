@@ -20,14 +20,14 @@ public partial class DocxBookParser : IBookParser
         return new MemoryBookSource(text);
     }
 
-    public async Task<string> ExtractTextAsync(string filePath)
+    private async Task<string> ExtractTextAsync(string filePath)
     {
         return await Task.Run(() =>
         {
             StringBuilder sb = new();
             using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(filePath, false))
             {
-                var body = wordDoc.MainDocumentPart?.Document.Body;
+                var body = wordDoc.MainDocumentPart?.Document?.Body;
                 if (body != null)
                 {
                     foreach (var paragraph in body.Descendants<Paragraph>())

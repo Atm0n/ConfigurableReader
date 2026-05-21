@@ -15,7 +15,34 @@ public class ReaderController
     private List<BookRecord> _bookRecords = [];
 
     public string? CurrentBookFilePath { get; private set; }
-    public bool IsUpdatingFromCode { get; set; }
+    private int _suppressCodeUpdatesCount;
+    public bool IsUpdatingFromCode => _suppressCodeUpdatesCount > 0;
+
+    public IDisposable SuppressCodeUpdates()
+    {
+        return new UpdateGuard(this);
+    }
+
+    private class UpdateGuard : IDisposable
+    {
+        private readonly ReaderController _controller;
+        private bool _disposed;
+
+        public UpdateGuard(ReaderController controller)
+        {
+            _controller = controller;
+            System.Threading.Interlocked.Increment(ref _controller._suppressCodeUpdatesCount);
+        }
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                System.Threading.Interlocked.Decrement(ref _controller._suppressCodeUpdatesCount);
+                _disposed = true;
+            }
+        }
+    }
 
     public ReaderController(DocumentRegistry documentRegistry, ReaderService readerService)
     {
@@ -58,14 +85,9 @@ public class ReaderController
         var source = await _documentRegistry.CreateSourceAsync(filePath);
         var record = GetOrCreateRecord(filePath);
         
-        IsUpdatingFromCode = true;
-        try
+        using (SuppressCodeUpdates())
         {
             await _readerService.SetSourceAsync(source, record.ScrollPosition);
-        }
-        finally
-        {
-            IsUpdatingFromCode = false;
         }
 
         return Path.GetFileName(filePath);

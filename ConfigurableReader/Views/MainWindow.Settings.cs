@@ -40,20 +40,21 @@ public partial class MainWindow
         UpdateEdgeFading(_settings.EnableEdgeFading);
 
         // Populate language combo from AppConstants — single source of truth
-        _isUpdatingFromCode = true;
-        LanguageComboBox.Items.Clear();
-        foreach (var (code, displayName) in AppConstants.SupportedLanguages)
+        using (_controller.SuppressCodeUpdates())
         {
-            LanguageComboBox.Items.Add(new ComboBoxItem { Content = displayName, Tag = code });
-        }
+            LanguageComboBox.Items.Clear();
+            foreach (var (code, displayName) in AppConstants.SupportedLanguages)
+            {
+                LanguageComboBox.Items.Add(new ComboBoxItem { Content = displayName, Tag = code });
+            }
 
-        var langItem = LanguageComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Tag?.ToString() == _settings.Language);
-        if (langItem != null)
-        {
-            LanguageComboBox.SelectedItem = langItem;
-            LocalizationService.SetLanguage(_settings.Language);
+            var langItem = LanguageComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Tag?.ToString() == _settings.Language);
+            if (langItem != null)
+            {
+                LanguageComboBox.SelectedItem = langItem;
+                LocalizationService.SetLanguage(_settings.Language);
+            }
         }
-        _isUpdatingFromCode = false;
 
         this.Background = new SolidColorBrush(BackgroundColorPicker.Color);
         MainTextBlock.Foreground = new SolidColorBrush(TextColorPicker.Color);

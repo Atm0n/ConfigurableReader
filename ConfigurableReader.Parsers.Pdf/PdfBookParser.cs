@@ -19,7 +19,7 @@ public partial class PdfBookParser : IBookParser
         return new MemoryBookSource(text);
     }
 
-    public async Task<string> ExtractTextAsync(string filePath)
+    private async Task<string> ExtractTextAsync(string filePath)
     {
         return await Task.Run(() =>
         {

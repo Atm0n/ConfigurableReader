@@ -22,7 +22,7 @@ public partial class EpubBookParser : IBookParser
         return new MemoryBookSource(text);
     }
 
-    public async Task<string> ExtractTextAsync(string filePath)
+    private async Task<string> ExtractTextAsync(string filePath)
     {
         EpubBook book = await EpubReader.ReadBookAsync(filePath);
         StringBuilder sb = new();
