@@ -25,11 +25,7 @@ public partial class MainWindow : Window
     private readonly ReaderController _controller;
     
     private string? _currentBookFileName => _controller.CurrentBookFilePath;
-    private bool _isUpdatingFromCode
-    {
-        get => _controller.IsUpdatingFromCode;
-        set => _controller.IsUpdatingFromCode = value;
-    }
+    private bool _isUpdatingFromCode => _controller.IsUpdatingFromCode;
 
     private DateTime _lastKeyUpTime = DateTime.MinValue;
     private DateTime _lastKeyDownTime = DateTime.MinValue;
@@ -133,18 +129,19 @@ public partial class MainWindow : Window
             {
                 var filePath = result[0].Path.LocalPath;
 
-                _isUpdatingFromCode = true;
-                _renderedBasePosition = -1; // Force re-render of the text buffer
-                
-                string bookName = await _controller.OpenBookAsync(filePath);
+                using (_controller.SuppressCodeUpdates())
+                {
+                    _renderedBasePosition = -1; // Force re-render of the text buffer
+                    
+                    string bookName = await _controller.OpenBookAsync(filePath);
 
-                TextSlider.Maximum = _readerService.TotalLength;
-                TextSlider.Value = _readerService.CurrentPosition;
-                BookNameText.Text = bookName;
+                    TextSlider.Maximum = _readerService.TotalLength;
+                    TextSlider.Value = _readerService.CurrentPosition;
+                    BookNameText.Text = bookName;
 
-                UpdateDisplayedText();
-                UpdatePercentage();
-                _isUpdatingFromCode = false;
+                    UpdateDisplayedText();
+                    UpdatePercentage();
+                }
 
                 SaveSettings();
             }
@@ -180,15 +177,16 @@ public partial class MainWindow : Window
             if (foundIndex != -1)
             {
                 StopReading();
-                _isUpdatingFromCode = true;
-                _renderedBasePosition = -1; // Force re-render
-                _readerService.ResetPosition(foundIndex);
-                
-                TextSlider.Value = _readerService.CurrentPosition;
-                UpdateDisplayedText();
-                UpdateRenderTransform();
-                UpdatePercentage();
-                _isUpdatingFromCode = false;
+                using (_controller.SuppressCodeUpdates())
+                {
+                    _renderedBasePosition = -1; // Force re-render
+                    _readerService.ResetPosition(foundIndex);
+                    
+                    TextSlider.Value = _readerService.CurrentPosition;
+                    UpdateDisplayedText();
+                    UpdateRenderTransform();
+                    UpdatePercentage();
+                }
             }
             else
             {
