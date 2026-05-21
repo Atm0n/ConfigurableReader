@@ -292,6 +292,7 @@ public partial class MainWindow : Window
     private void Window_Closing(object? sender, WindowClosingEventArgs e)
     {
         SaveSettings();
+        _readerService.Dispose();
         _gamepadService.Dispose();
     }
 
