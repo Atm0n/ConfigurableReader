@@ -129,7 +129,7 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Info Group -->
+                    <!-- Search Group -->
                     <Border Classes="GroupBorder">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <TextBox Name="SearchTextBox" Width="150" PlaceholderText="{DynamicResource SearchWatermark}" 
