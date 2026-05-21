@@ -54,7 +54,7 @@ public partial class MainWindow
             int newPos;
             if (delta > 0)
             {
-                newPos = Math.Min(_readerService.FullText.Length, _readerService.CurrentPosition + delta);
+                newPos = Math.Min(_readerService.TotalLength, _readerService.CurrentPosition + delta);
             }
             else
             {
