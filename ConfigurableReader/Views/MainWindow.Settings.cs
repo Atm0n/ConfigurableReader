@@ -72,7 +72,7 @@ public partial class MainWindow
 
     private void SaveSettings()
     {
-        _settings.FontSize = (int)(FontSizeNumeric.Value ?? 48);
+        _settings.FontSize = (double)(FontSizeNumeric.Value ?? 48);
         _settings.TextColor = TextColorPicker.Color.ToString();
         _settings.BackgroundColor = BackgroundColorPicker.Color.ToString();
         _settings.ScrollSpeed = SpeedSlider.Value;

@@ -6,7 +6,7 @@ namespace ConfigurableReader.Models;
 
 public class AppSettings
 {
-    public int FontSize { get; set; } = 48;
+    public double FontSize { get; set; } = 48;
     public string TextColor { get; set; } = "#F1F1F1";
     public string BackgroundColor { get; set; } = "#1E1E1E";
     public string Language { get; set; } = Services.LocalizationService.GetSystemLanguage();
