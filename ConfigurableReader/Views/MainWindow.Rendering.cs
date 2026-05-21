@@ -28,7 +28,7 @@ public partial class MainWindow
     {
         try
         {
-            if (_readerService.IsPaused || string.IsNullOrEmpty(_readerService.FullText)) return;
+            if (_readerService.IsPaused || string.IsNullOrEmpty(_readerService.BufferText)) return;
 
             DateTime now = DateTime.Now;
             if (_lastRenderTime == DateTime.MinValue)
@@ -76,7 +76,7 @@ public partial class MainWindow
 
     private void UpdateRenderTransform()
     {
-        if (_currentTextLayout == null || string.IsNullOrEmpty(_readerService.FullText) || MainTextBlock.Text == null) return;
+        if (_currentTextLayout == null || string.IsNullOrEmpty(_readerService.BufferText) || MainTextBlock.Text == null) return;
 
         int localIndex = Math.Clamp(_readerService.CurrentPosition - _renderedBasePosition, 0, MainTextBlock.Text.Length);
         var rect = _currentTextLayout.HitTestTextPosition(localIndex);
@@ -94,11 +94,11 @@ public partial class MainWindow
 
     private void UpdateDisplayedText()
     {
-        if (string.IsNullOrEmpty(_readerService.FullText)) return;
+        if (string.IsNullOrEmpty(_readerService.BufferText)) return;
 
         // Ensure current position is within the buffer before attempting to render
         if (_readerService.CurrentPosition < _readerService.BufferStartPosition || 
-            _readerService.CurrentPosition >= _readerService.BufferStartPosition + _readerService.FullText.Length)
+            _readerService.CurrentPosition >= _readerService.BufferStartPosition + _readerService.BufferText.Length)
         {
             return;
         }
@@ -115,11 +115,11 @@ public partial class MainWindow
             _renderedBasePosition = Math.Max(_readerService.BufferStartPosition, _readerService.CurrentPosition - safeZone);
             
             int relativeBase = _renderedBasePosition - _readerService.BufferStartPosition;
-            int length = Math.Min(AppConstants.MaxBufferLength, _readerService.FullText.Length - relativeBase);
+            int length = Math.Min(AppConstants.MaxBufferLength, _readerService.BufferText.Length - relativeBase);
             
             if (length > 0)
             {
-                string newText = _readerService.FullText.Substring(relativeBase, length);
+                string newText = _readerService.BufferText.Substring(relativeBase, length);
 
                 if (MainTextBlock.Text != newText)
                 {

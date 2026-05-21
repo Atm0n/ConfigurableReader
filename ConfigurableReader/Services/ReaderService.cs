@@ -24,7 +24,7 @@ public class ReaderService : IDisposable
     public double CurrentOffsetX => -_subCharOffset;
     public int TotalLength => _source?.TotalLength ?? 0;
 
-    public string FullText 
+    public string BufferText
     { 
         get => _buffer; 
     }
