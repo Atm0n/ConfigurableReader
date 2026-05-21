@@ -29,7 +29,10 @@ public class AppSettings
                 return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error loading settings: {ex.Message}");
+        }
         return new AppSettings();
     }
 
@@ -42,6 +45,9 @@ public class AppSettings
             string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(SettingsPath, json);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error saving settings: {ex.Message}");
+        }
     }
 }

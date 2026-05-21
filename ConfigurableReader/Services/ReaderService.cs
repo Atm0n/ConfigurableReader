@@ -12,6 +12,7 @@ public class ReaderService : IDisposable
     public int BufferStartPosition => _bufferStartPosition;
     private const int BufferSize = 50000; // 50k chars buffer
     private const int BufferThreshold = 10000; // Reload when 10k from edge
+    private long _latestLoadId = 0;
 
     private bool _isPaused = true;
     private bool _isReversing = false;
@@ -59,9 +60,16 @@ public class ReaderService : IDisposable
     {
         if (_source == null) return;
 
-        // Center the buffer around the position
-        _bufferStartPosition = Math.Max(0, position - (BufferSize / 2));
-        _buffer = await _source.GetTextAsync(_bufferStartPosition, BufferSize);
+        long loadId = ++_latestLoadId;
+        int newStartPosition = Math.Max(0, position - (BufferSize / 2));
+        
+        string newBuffer = await _source.GetTextAsync(newStartPosition, BufferSize);
+        
+        if (loadId == _latestLoadId)
+        {
+            _bufferStartPosition = newStartPosition;
+            _buffer = newBuffer;
+        }
     }
 
     /// <summary>
