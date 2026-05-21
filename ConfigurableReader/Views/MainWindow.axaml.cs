@@ -135,8 +135,6 @@ public partial class MainWindow : Window
             var result = await this.StorageProvider.OpenFilePickerAsync(options);
             if (result.Count > 0)
             {
-                SaveSettings();
-
                 _currentBookFileName = result[0].Path.LocalPath;
                 string bookName = Path.GetFileName(_currentBookFileName);
 
