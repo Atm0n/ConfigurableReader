@@ -9,8 +9,6 @@ using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Controls.Primitives;
 using ConfigurableReader.Core;
-using ConfigurableReader.Parsers.Txt;
-using ConfigurableReader.Parsers.Epub;
 using System.Collections.Generic;
 
 namespace ConfigurableReader.Views;
@@ -23,7 +21,7 @@ public partial class MainWindow : Window
 {
     private readonly GamepadService _gamepadService = new();
     private readonly ReaderService _readerService = new();
-    private readonly DocumentRegistry _documentRegistry = new();
+    private readonly DocumentRegistry _documentRegistry;
     
     private string? _currentBookFileName;
     private bool _isUpdatingFromCode = false;
@@ -31,8 +29,10 @@ public partial class MainWindow : Window
     private DateTime _lastKeyUpTime = DateTime.MinValue;
     private DateTime _lastKeyDownTime = DateTime.MinValue;
 
-    public MainWindow()
+    public MainWindow(DocumentRegistry documentRegistry)
     {
+        _documentRegistry = documentRegistry;
+
         InitializeComponent();
 
         _timer = new DispatcherTimer
@@ -45,7 +45,6 @@ public partial class MainWindow : Window
         PopulateFontList();
         ApplySettings();
 
-        InitializeParsers();
         InitializeRendering();
         InitializeGamepad();
 
@@ -58,15 +57,6 @@ public partial class MainWindow : Window
         {
             Dispatcher.UIThread.Post(() => _ = OnEndOfBookReachedAsync());
         };
-    }
-
-    private void InitializeParsers()
-    {
-        _documentRegistry.RegisterParser(new TxtBookParser());
-        _documentRegistry.RegisterParser(new EpubBookParser());
-        _documentRegistry.RegisterParser(new ConfigurableReader.Parsers.Pdf.PdfBookParser());
-        _documentRegistry.RegisterParser(new ConfigurableReader.Parsers.Docx.DocxBookParser());
-        _documentRegistry.RegisterParser(new ConfigurableReader.Parsers.Markdown.MarkdownBookParser());
     }
 
     private async Task OnStartOfBookReachedAsync()
