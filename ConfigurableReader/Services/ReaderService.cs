@@ -155,11 +155,11 @@ public class ReaderService : IDisposable
                 return currentStart + foundIndex;
             }
 
-            currentStart += chunk.Length - overlap;
             if (chunk.Length <= overlap)
             {
-                currentStart += 1;
+                break;
             }
+            currentStart += chunk.Length - overlap;
         }
 
         return -1;
@@ -194,11 +194,11 @@ public class ReaderService : IDisposable
                 return currentStart + foundIndex;
             }
 
-            currentEnd = currentStart + overlap;
             if (readCount <= overlap)
             {
-                currentEnd -= 1;
+                break;
             }
+            currentEnd = currentStart + overlap;
         }
 
         return -1;
