@@ -158,40 +158,48 @@ public partial class MainWindow : Window
 
     private void StartStopButton_Click(object? sender, RoutedEventArgs e) => ToggleStartStop();
     private void ReverseButton_Click(object? sender, RoutedEventArgs e) => _readerService.IsReversing = !_readerService.IsReversing;
-    private void SearchButton_Click(object? sender, RoutedEventArgs e) => PerformSearch();
+    private void SearchButton_Click(object? sender, RoutedEventArgs e) => _ = PerformSearchAsync();
     private void InfoButton_Click(object? sender, RoutedEventArgs e) => _ = ShowInfoAsync();
 
-    private void PerformSearch()
+    private async Task PerformSearchAsync()
     {
         if (string.IsNullOrWhiteSpace(SearchTextBox.Text)) return;
 
-        string query = SearchTextBox.Text;
-        // Search starting from just after the current position
-        int foundIndex = _readerService.FindNext(query, _readerService.CurrentPosition + 1);
+        try
+        {
+            string query = SearchTextBox.Text;
+            // Search starting from just after the current position
+            int foundIndex = await _readerService.FindNextAsync(query, _readerService.CurrentPosition + 1);
 
-        // If not found, wrap around to the beginning
-        if (foundIndex == -1)
-        {
-            foundIndex = _readerService.FindNext(query, 0);
-        }
+            // If not found, wrap around to the beginning
+            if (foundIndex == -1)
+            {
+                foundIndex = await _readerService.FindNextAsync(query, 0);
+            }
 
-        if (foundIndex != -1)
-        {
-            StopReading();
-            _isUpdatingFromCode = true;
-            _renderedBasePosition = -1; // Force re-render
-            _readerService.ResetPosition(foundIndex);
-            
-            TextSlider.Value = _readerService.CurrentPosition;
-            UpdateDisplayedText();
-            UpdateRenderTransform();
-            UpdatePercentage();
-            _isUpdatingFromCode = false;
+            if (foundIndex != -1)
+            {
+                StopReading();
+                _isUpdatingFromCode = true;
+                _renderedBasePosition = -1; // Force re-render
+                _readerService.ResetPosition(foundIndex);
+                
+                TextSlider.Value = _readerService.CurrentPosition;
+                UpdateDisplayedText();
+                UpdateRenderTransform();
+                UpdatePercentage();
+                _isUpdatingFromCode = false;
+            }
+            else
+            {
+                string message = string.Format(LocalizationService.GetString("SearchNoResults"), query);
+                await MessageDialog.ShowAsync(this, message);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            string message = string.Format(LocalizationService.GetString("SearchNoResults"), query);
-            _ = MessageDialog.ShowAsync(this, message);
+            System.Diagnostics.Debug.WriteLine($"Error during search: {ex.Message}");
+            await MessageDialog.ShowAsync(this, $"Error: {ex.Message}");
         }
     }
 
@@ -199,7 +207,7 @@ public partial class MainWindow : Window
     {
         if (e.Key == Key.Enter)
         {
-            PerformSearch();
+            _ = PerformSearchAsync();
             e.Handled = true;
         }
     }

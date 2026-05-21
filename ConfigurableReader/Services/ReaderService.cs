@@ -122,32 +122,78 @@ public class ReaderService : IDisposable
         OnStateChanged();
     }
 
-    public int FindNext(string query, int startPosition)
+    public async Task<int> FindNextAsync(string query, int startPosition)
     {
-        // For search, we still have a problem: we only search in the buffer.
-        // A truly virtualized search would need to be implemented in the Source.
-        if (string.IsNullOrEmpty(query) || string.IsNullOrEmpty(_buffer))
+        if (string.IsNullOrEmpty(query) || _source == null)
             return -1;
 
-        int relativeStart = startPosition - _bufferStartPosition;
-        if (relativeStart < 0) relativeStart = 0;
-        if (relativeStart >= _buffer.Length) return -1;
+        int totalLength = _source.TotalLength;
+        if (startPosition < 0) startPosition = 0;
+        if (startPosition >= totalLength) return -1;
 
-        int found = _buffer.IndexOf(query, relativeStart, StringComparison.OrdinalIgnoreCase);
-        return found != -1 ? found + _bufferStartPosition : -1;
+        int chunkSize = 100000;
+        int overlap = query.Length - 1;
+        int currentStart = startPosition;
+
+        while (currentStart < totalLength)
+        {
+            string chunk = await _source.GetTextAsync(currentStart, chunkSize);
+            if (string.IsNullOrEmpty(chunk))
+                break;
+
+            int foundIndex = chunk.IndexOf(query, StringComparison.OrdinalIgnoreCase);
+            if (foundIndex != -1)
+            {
+                return currentStart + foundIndex;
+            }
+
+            currentStart += chunk.Length - overlap;
+            if (chunk.Length <= overlap)
+            {
+                currentStart += 1;
+            }
+        }
+
+        return -1;
     }
 
-    public int FindPrevious(string query, int startPosition)
+    public async Task<int> FindPreviousAsync(string query, int startPosition)
     {
-        if (string.IsNullOrEmpty(query) || string.IsNullOrEmpty(_buffer))
+        if (string.IsNullOrEmpty(query) || _source == null)
             return -1;
 
-        int relativeStart = startPosition - _bufferStartPosition;
-        if (relativeStart < 0) return -1;
-        int searchStart = Math.Min(relativeStart, _buffer.Length - 1);
+        int totalLength = _source.TotalLength;
+        if (startPosition < 0) return -1;
         
-        int found = _buffer.LastIndexOf(query, searchStart, StringComparison.OrdinalIgnoreCase);
-        return found != -1 ? found + _bufferStartPosition : -1;
+        int startPos = Math.Min(startPosition, totalLength - 1);
+        int chunkSize = 100000;
+        int overlap = query.Length - 1;
+        
+        int currentEnd = startPos + 1;
+
+        while (currentEnd > 0)
+        {
+            int currentStart = Math.Max(0, currentEnd - chunkSize);
+            int readCount = currentEnd - currentStart;
+            
+            string chunk = await _source.GetTextAsync(currentStart, readCount);
+            if (string.IsNullOrEmpty(chunk))
+                break;
+
+            int foundIndex = chunk.LastIndexOf(query, StringComparison.OrdinalIgnoreCase);
+            if (foundIndex != -1)
+            {
+                return currentStart + foundIndex;
+            }
+
+            currentEnd = currentStart + overlap;
+            if (readCount <= overlap)
+            {
+                currentEnd -= 1;
+            }
+        }
+
+        return -1;
     }
     
 
