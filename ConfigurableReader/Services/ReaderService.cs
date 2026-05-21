@@ -64,16 +64,16 @@ public class ReaderService : IDisposable
         _buffer = await _source.GetTextAsync(_bufferStartPosition, BufferSize);
     }
 
-    // In the new layout-driven model, we don't pass getCharWidth to Update.
-    // Instead, the UI/Renderer tells us how much we progressed based on its layout.
+    /// <summary>
+    /// Advances the reading position by the given number of pixels.
+    /// The caller supplies a <paramref name="mapPixelsToPosition"/> delegate that translates a
+    /// pixel offset (relative to the current character) into a new absolute character position,
+    /// using the rendered text layout for accurate kerning-aware mapping.
+    /// </summary>
     public void Advance(double pixels, Func<int, double, (int newPos, double newOffset, bool eof)> mapPixelsToPosition)
     {
         if (_isPaused || _source == null || string.IsNullOrEmpty(_buffer)) return;
 
-        // mapPixelsToPosition expects positions relative to the buffer or absolute?
-        // Existing code used _currentPosition directly into _fullText.
-        // We'll keep _currentPosition as absolute and map it.
-        
         var result = mapPixelsToPosition(_currentPosition, _isReversing ? -pixels + _subCharOffset : pixels + _subCharOffset);
         
         _currentPosition = result.newPos;
