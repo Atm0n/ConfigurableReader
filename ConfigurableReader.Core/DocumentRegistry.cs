@@ -17,7 +17,7 @@ public class DocumentRegistry
 
     public IEnumerable<IBookParser> AvailableParsers => _parsers;
 
-    public async Task<string> LoadBookAsync(string filePath)
+    public async Task<IBookSource> CreateSourceAsync(string filePath)
     {
         var parser = GetParserForFile(filePath);
         if (parser == null)
@@ -25,6 +25,6 @@ public class DocumentRegistry
             throw new NotSupportedException($"No parser found for file extension: {Path.GetExtension(filePath)}");
         }
 
-        return await parser.ExtractTextAsync(filePath);
+        return await parser.CreateSourceAsync(filePath);
     }
 }

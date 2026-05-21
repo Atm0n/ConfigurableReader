@@ -65,7 +65,7 @@ public partial class MainWindow
         var hit = _currentTextLayout.HitTestPoint(new Point(absoluteTargetX, 0));
         int newGlobalPos = _renderedBasePosition + hit.TextPosition;
         
-        if (newGlobalPos >= _readerService.FullText.Length) return (_readerService.FullText.Length, 0, true);
+        if (newGlobalPos >= _readerService.TotalLength) return (_readerService.TotalLength, 0, true);
         if (newGlobalPos < 0) return (0, 0, true);
 
         var newRect = _currentTextLayout.HitTestTextPosition(hit.TextPosition);
@@ -96,6 +96,13 @@ public partial class MainWindow
     {
         if (string.IsNullOrEmpty(_readerService.FullText)) return;
 
+        // Ensure current position is within the buffer before attempting to render
+        if (_readerService.CurrentPosition < _readerService.BufferStartPosition || 
+            _readerService.CurrentPosition >= _readerService.BufferStartPosition + _readerService.FullText.Length)
+        {
+            return;
+        }
+
         const int safeZone = 2000;
         bool needsUpdate = _renderedBasePosition == -1 || 
                            _readerService.CurrentPosition < _renderedBasePosition ||
@@ -103,20 +110,28 @@ public partial class MainWindow
 
         if (needsUpdate)
         {
-            _renderedBasePosition = Math.Max(0, _readerService.CurrentPosition - safeZone);
-            int length = Math.Min(AppConstants.MaxBufferLength, _readerService.FullText.Length - _renderedBasePosition);
-            string newText = _readerService.FullText.Substring(_renderedBasePosition, length);
-
-            if (MainTextBlock.Text != newText)
+            // _renderedBasePosition must be relative to the buffer for substring to work,
+            // OR we map absolute to relative. Let's keep _renderedBasePosition as absolute.
+            _renderedBasePosition = Math.Max(_readerService.BufferStartPosition, _readerService.CurrentPosition - safeZone);
+            
+            int relativeBase = _renderedBasePosition - _readerService.BufferStartPosition;
+            int length = Math.Min(AppConstants.MaxBufferLength, _readerService.FullText.Length - relativeBase);
+            
+            if (length > 0)
             {
-                MainTextBlock.Text = newText;
-                
-                var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
-                _currentTextLayout = new TextLayout(
-                    newText,
-                    typeface,
-                    MainTextBlock.FontSize,
-                    MainTextBlock.Foreground);
+                string newText = _readerService.FullText.Substring(relativeBase, length);
+
+                if (MainTextBlock.Text != newText)
+                {
+                    MainTextBlock.Text = newText;
+                    
+                    var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
+                    _currentTextLayout = new TextLayout(
+                        newText,
+                        typeface,
+                        MainTextBlock.FontSize,
+                        MainTextBlock.Foreground);
+                }
             }
         }
 
@@ -136,9 +151,9 @@ public partial class MainWindow
 
     private void UpdatePercentage()
     {
-        if (_readerService.FullText.Length > 0)
+        if (_readerService.TotalLength > 0)
         {
-            double percentage = (double)_readerService.CurrentPosition / _readerService.FullText.Length * 100;
+            double percentage = (double)_readerService.CurrentPosition / _readerService.TotalLength * 100;
             PercentageText.Text = $"{percentage:F1}%";
         }
     }

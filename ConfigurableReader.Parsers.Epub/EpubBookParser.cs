@@ -14,6 +14,14 @@ public partial class EpubBookParser : IBookParser
     [GeneratedRegex(@"\s+")]
     private static partial Regex WhitespaceRegex();
 
+    public async Task<IBookSource> CreateSourceAsync(string filePath)
+    {
+        // For now, EPUB still extracts full text, but wraps it in a source.
+        // We can optimize this later to load chapters on demand.
+        string text = await ExtractTextAsync(filePath);
+        return new MemoryBookSource(text);
+    }
+
     public async Task<string> ExtractTextAsync(string filePath)
     {
         EpubBook book = await EpubReader.ReadBookAsync(filePath);

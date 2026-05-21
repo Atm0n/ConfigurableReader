@@ -15,6 +15,11 @@ public partial class TxtBookParser : IBookParser
     [GeneratedRegex(@"\s+")]
     private static partial Regex WhitespaceRegex();
 
+    public async Task<IBookSource> CreateSourceAsync(string filePath)
+    {
+        return await Task.FromResult(new TxtBookSource(filePath));
+    }
+
     public async Task<string> ExtractTextAsync(string filePath)
     {
         using var reader = new StreamReader(filePath, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);

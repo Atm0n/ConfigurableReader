@@ -13,6 +13,12 @@ public partial class PdfBookParser : IBookParser
     [GeneratedRegex(@"\s+")]
     private static partial Regex WhitespaceRegex();
 
+    public async Task<IBookSource> CreateSourceAsync(string filePath)
+    {
+        string text = await ExtractTextAsync(filePath);
+        return new MemoryBookSource(text);
+    }
+
     public async Task<string> ExtractTextAsync(string filePath)
     {
         return await Task.Run(() =>

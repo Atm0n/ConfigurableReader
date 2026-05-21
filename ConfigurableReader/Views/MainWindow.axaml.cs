@@ -140,15 +140,8 @@ public partial class MainWindow : Window
                 _currentBookFileName = result[0].Path.LocalPath;
                 string bookName = Path.GetFileName(_currentBookFileName);
 
-                string extractedText = await _documentRegistry.LoadBookAsync(_currentBookFileName);
-                if (string.IsNullOrWhiteSpace(extractedText))
-                {
-                    await MessageDialog.ShowAsync(this, LocalizationService.GetString("NoReadableText"));
-                    return;
-                }
-
-                _readerService.FullText = extractedText;
-
+                var source = await _documentRegistry.CreateSourceAsync(_currentBookFileName);
+                
                 var actualBook = _bookRecords.FirstOrDefault(r => r.Name == bookName);
                 if (actualBook is null)
                 {
@@ -158,9 +151,9 @@ public partial class MainWindow : Window
 
                 _isUpdatingFromCode = true;
                 _renderedBasePosition = -1; // Force re-render of the text buffer
-                _readerService.ResetPosition(actualBook.ScrollPosition, GetCharacterWidth);
+                await _readerService.SetSourceAsync(source, actualBook.ScrollPosition);
 
-                TextSlider.Maximum = _readerService.FullText.Length;
+                TextSlider.Maximum = _readerService.TotalLength;
                 TextSlider.Value = _readerService.CurrentPosition;
                 BookNameText.Text = bookName;
 
