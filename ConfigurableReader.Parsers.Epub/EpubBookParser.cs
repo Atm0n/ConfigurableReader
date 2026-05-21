@@ -16,31 +16,11 @@ public partial class EpubBookParser : IBookParser
 
     public async Task<IBookSource> CreateSourceAsync(string filePath)
     {
-        // For now, EPUB still extracts full text, but wraps it in a source.
-        // We can optimize this later to load chapters on demand.
-        string text = await ExtractTextAsync(filePath);
-        return new MemoryBookSource(text);
-    }
-
-    private async Task<string> ExtractTextAsync(string filePath)
-    {
         EpubBook book = await EpubReader.ReadBookAsync(filePath);
-        StringBuilder sb = new();
-
-        foreach (var textContentFile in book.ReadingOrder)
-        {
-            string plainText = ExtractTextFromHtml(textContentFile.Content);
-            if (!string.IsNullOrWhiteSpace(plainText))
-            {
-                sb.Append(plainText);
-                sb.Append(' ');
-            }
-        }
-
-        return NormalizeWhitespace(sb.ToString());
+        return new EpubBookSource(book);
     }
 
-    private static string ExtractTextFromHtml(string html)
+    internal static string ExtractTextFromHtml(string html)
     {
         if (string.IsNullOrEmpty(html)) return string.Empty;
 
@@ -70,7 +50,7 @@ public partial class EpubBookParser : IBookParser
         return doc.DocumentNode.InnerText;
     }
 
-    private static string NormalizeWhitespace(string text)
+    internal static string NormalizeWhitespace(string text)
     {
         if (string.IsNullOrEmpty(text)) return string.Empty;
 
