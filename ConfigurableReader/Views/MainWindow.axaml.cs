@@ -22,9 +22,14 @@ public partial class MainWindow : Window
     private readonly GamepadService _gamepadService = new();
     private readonly ReaderService _readerService = new();
     private readonly DocumentRegistry _documentRegistry;
+    private readonly ReaderController _controller;
     
-    private string? _currentBookFileName;
-    private bool _isUpdatingFromCode = false;
+    private string? _currentBookFileName => _controller.CurrentBookFilePath;
+    private bool _isUpdatingFromCode
+    {
+        get => _controller.IsUpdatingFromCode;
+        set => _controller.IsUpdatingFromCode = value;
+    }
 
     private DateTime _lastKeyUpTime = DateTime.MinValue;
     private DateTime _lastKeyDownTime = DateTime.MinValue;
@@ -32,6 +37,7 @@ public partial class MainWindow : Window
     public MainWindow(DocumentRegistry documentRegistry)
     {
         _documentRegistry = documentRegistry;
+        _controller = new ReaderController(documentRegistry, _readerService);
 
         InitializeComponent();
 
@@ -125,21 +131,12 @@ public partial class MainWindow : Window
             var result = await this.StorageProvider.OpenFilePickerAsync(options);
             if (result.Count > 0)
             {
-                _currentBookFileName = result[0].Path.LocalPath;
-                string bookName = Path.GetFileName(_currentBookFileName);
-
-                var source = await _documentRegistry.CreateSourceAsync(_currentBookFileName);
-                
-                var actualBook = _bookRecords.FirstOrDefault(r => r.FilePath == _currentBookFileName);
-                if (actualBook is null)
-                {
-                    actualBook = new BookRecord { FilePath = _currentBookFileName };
-                    _bookRecords.Add(actualBook);
-                }
+                var filePath = result[0].Path.LocalPath;
 
                 _isUpdatingFromCode = true;
                 _renderedBasePosition = -1; // Force re-render of the text buffer
-                await _readerService.SetSourceAsync(source, actualBook.ScrollPosition);
+                
+                string bookName = await _controller.OpenBookAsync(filePath);
 
                 TextSlider.Maximum = _readerService.TotalLength;
                 TextSlider.Value = _readerService.CurrentPosition;

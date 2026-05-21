@@ -11,7 +11,6 @@ using ConfigurableReader.Models;
 
 public partial class MainWindow
 {
-    private List<BookRecord> _bookRecords = [];
     private AppSettings _settings = new();
 
     private void PopulateFontList()
@@ -62,7 +61,7 @@ public partial class MainWindow
 
     private void LoadBookPositionConfiguration()
     {
-        _bookRecords = BookRecordStore.Load();
+        _controller.LoadBookRecords();
     }
 
     private void SaveSettings()
@@ -83,17 +82,7 @@ public partial class MainWindow
             _settings.FontFamily = fontFamily.Name;
         }
 
-        if (_currentBookFileName != null)
-        {
-            var record = _bookRecords.FirstOrDefault(r => r.FilePath == _currentBookFileName);
-            if (record == null)
-            {
-                record = new BookRecord { FilePath = _currentBookFileName };
-                _bookRecords.Add(record);
-            }
-            record.ScrollPosition = _readerService.CurrentPosition;
-            BookRecordStore.Save(_bookRecords);
-        }
+        _controller.SaveCurrentPosition();
 
         _settings.Save();
     }
