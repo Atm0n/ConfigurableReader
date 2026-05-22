@@ -262,35 +262,44 @@
 
                 <!-- TOC and Bookmarks Panel -->
                 <Border Name="TocBookmarksPanel" Width="300" HorizontalAlignment="Left" Background="#E61E1E1E" IsVisible="False" BorderBrush="#3E3E42" BorderThickness="0,0,1,0">
-                    <TabControl>
-                        <TabItem Header="Table of Contents">
-                            <TreeView Name="TocTreeView" Background="Transparent" SelectionChanged="TocTreeView_SelectionChanged">
+                    <Grid RowDefinitions="*,5,*">
+                        <!-- Table of Contents Section -->
+                        <Grid Grid.Row="0" RowDefinitions="Auto,*">
+                            <Border Background="#2D2D30" Padding="10,5" BorderBrush="#3E3E42" BorderThickness="0,0,0,1">
+                                <TextBlock Text="Table of Contents" FontWeight="Bold" Foreground="#AAAAAA" />
+                            </Border>
+                            <TreeView Name="TocTreeView" Grid.Row="1" Background="Transparent" SelectionChanged="TocTreeView_SelectionChanged" Margin="0,5,0,0">
                                 <TreeView.ItemTemplate>
                                     <TreeDataTemplate DataType="core:BookmarkItem" ItemsSource="{Binding SubItems}">
                                         <TextBlock Text="{Binding Title}" />
                                     </TreeDataTemplate>
                                 </TreeView.ItemTemplate>
                             </TreeView>
-                        </TabItem>
-                        <TabItem Header="{DynamicResource Bookmarks}">
-                            <Grid RowDefinitions="Auto,*" Margin="5">
-                                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,5">
-                                    <TextBox Name="BookmarkNameTextBox" Grid.Column="0" PlaceholderText="{DynamicResource NameYourBookmark}" VerticalAlignment="Center" Margin="0,0,5,0" />
-                                    <Button Grid.Column="1" Content="{DynamicResource AddBookmark}" Click="AddBookmarkButton_Click" VerticalAlignment="Center" />
-                                </Grid>
-                                <ListBox Name="BookmarksListBox" Grid.Row="1" Background="Transparent" SelectionChanged="BookmarksListBox_SelectionChanged">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate DataType="core:BookmarkItem">
-                                            <Grid ColumnDefinitions="*,Auto">
-                                                <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
-                                                <Button Grid.Column="1" Content="X" CommandParameter="{Binding}" Click="DeleteBookmarkButton_Click" Background="Transparent" Padding="5,0"/>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
+                        </Grid>
+
+                        <GridSplitter Grid.Row="1" Background="#3E3E42" ResizeDirection="Rows" />
+
+                        <!-- Bookmarks Section -->
+                        <Grid Grid.Row="2" RowDefinitions="Auto,Auto,*">
+                            <Border Grid.Row="0" Background="#2D2D30" Padding="10,5" BorderBrush="#3E3E42" BorderThickness="0,0,0,1">
+                                <TextBlock Text="{DynamicResource Bookmarks}" FontWeight="Bold" Foreground="#AAAAAA" />
+                            </Border>
+                            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="5">
+                                <TextBox Name="BookmarkNameTextBox" Grid.Column="0" PlaceholderText="{DynamicResource NameYourBookmark}" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                <Button Grid.Column="1" Content="{DynamicResource AddBookmark}" Click="AddBookmarkButton_Click" VerticalAlignment="Center" />
                             </Grid>
-                        </TabItem>
-                    </TabControl>
+                            <ListBox Name="BookmarksListBox" Grid.Row="2" Background="Transparent" SelectionChanged="BookmarksListBox_SelectionChanged" Margin="5,0,5,5">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="core:BookmarkItem">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
+                                            <Button Grid.Column="1" Content="X" CommandParameter="{Binding}" Click="DeleteBookmarkButton_Click" Background="Transparent" Padding="5,0"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Grid>
                 </Border>
             </Grid>
 
