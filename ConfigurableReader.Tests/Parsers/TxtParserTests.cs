@@ -1,9 +1,5 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using ConfigurableReader.Parsers.Txt;
 using FluentAssertions;
-using Xunit;
 
 namespace ConfigurableReader.Tests.Parsers;
 

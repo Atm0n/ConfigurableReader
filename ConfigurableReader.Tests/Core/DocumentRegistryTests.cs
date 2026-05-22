@@ -1,10 +1,6 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using ConfigurableReader.Core;
 using FluentAssertions;
 using Moq;
-using Xunit;
 
 namespace ConfigurableReader.Tests.Core;
 
