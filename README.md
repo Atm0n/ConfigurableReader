@@ -65,7 +65,7 @@ This project uses the following third-party libraries:
 Looking to contribute or wondering what's next? Here are some planned improvements:
 
 - **[X] Library View:** A central hub to manage your books, see recent reads, and view reading progress at a glance.
-- **[ ] Unit Testing:** Implementation of a robust test suite for parsers, rendering logic, and localization.
+- **[x] Unit Testing:** Implementation of a robust test suite for parsers, rendering logic, and localization.
 - **[x] Search & Navigation:**
   - [x] Full-text search within the current book.
   - [x] Table of Contents support for EPUB and PDF.
@@ -76,7 +76,7 @@ Looking to contribute or wondering what's next? Here are some planned improvemen
   - Smooth animated transitions.
   - Modernized About and Settings dialogs.
 - **[x] CI/CD:** Automated builds and releases via GitHub Actions.
-- [ ] Add speed reading mode with part of the word in bold.
+- [x] Add speed reading mode with part of the word in bold.
 
 ## License
 

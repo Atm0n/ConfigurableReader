@@ -204,20 +204,32 @@ public partial class MainWindow : Window
         ShowLibrary();
     }
 
-    private async void LibraryBook_Click(object? sender, RoutedEventArgs e)
+    private void LibraryBook_Click(object? sender, RoutedEventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is BookRecord record)
+        _ = LibraryBook_ClickAsync(sender, e);
+    }
+
+    private async Task LibraryBook_ClickAsync(object? sender, RoutedEventArgs e)
+    {
+        try
         {
-            if (System.IO.File.Exists(record.FilePath))
+            if (sender is Button button && button.CommandParameter is BookRecord record)
             {
-                await LoadBookAsync(record.FilePath);
+                if (System.IO.File.Exists(record.FilePath))
+                {
+                    await LoadBookAsync(record.FilePath);
+                }
+                else
+                {
+                    await MessageDialog.ShowAsync(this, LocalizationService.GetString("FileNotFound"));
+                    _controller.RemoveBookRecord(record);
+                    ShowLibrary();
+                }
             }
-            else
-            {
-                await MessageDialog.ShowAsync(this, LocalizationService.GetString("FileNotFound"));
-                _controller.RemoveBookRecord(record);
-                ShowLibrary();
-            }
+        }
+        catch (Exception ex)
+        {
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("Error")}: {ex.Message}");
         }
     }
 
@@ -401,6 +413,7 @@ public partial class MainWindow : Window
         
         // Force a layout refresh for the current text
         _renderedBasePosition = -1; // Reset to force complete text refresh
+        UpdateDisplayedText();
     }
 
     private void SpeedReadingBoldSlider_ValueChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
@@ -414,6 +427,7 @@ public partial class MainWindow : Window
         _settings.Save();
         
         _renderedBasePosition = -1; // Reset to force complete text refresh
+        UpdateDisplayedText();
     }
 
     private void TextColorPicker_ColorChanged(object? sender, ColorChangedEventArgs e)
@@ -426,15 +440,27 @@ public partial class MainWindow : Window
         this.Background = new SolidColorBrush(e.NewColor);
     }
 
-    private async void TextSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
+    private void TextSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
-        if (!_isUpdatingFromCode)
+        _ = TextSlider_ValueChangedAsync(sender, e);
+    }
+
+    private async Task TextSlider_ValueChangedAsync(object? sender, RangeBaseValueChangedEventArgs e)
+    {
+        try
         {
-            await _readerService.ResetPositionAsync((int)TextSlider.Value);
-            _renderedBasePosition = -1;
-            UpdateDisplayedText();
-            UpdateRenderTransform();
-            UpdatePercentage();
+            if (!_isUpdatingFromCode)
+            {
+                await _readerService.ResetPositionAsync((int)TextSlider.Value);
+                _renderedBasePosition = -1;
+                UpdateDisplayedText();
+                UpdateRenderTransform();
+                UpdatePercentage();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error updating text from slider: {ex.Message}");
         }
     }
 
@@ -469,7 +495,7 @@ public partial class MainWindow : Window
     {
         if (TocTreeView.SelectedItem is BookmarkItem item)
         {
-            JumpToBookmark(item.Position);
+            _ = JumpToBookmarkAsync(item.Position);
             TocTreeView.SelectedItem = null;
         }
     }
@@ -478,12 +504,12 @@ public partial class MainWindow : Window
     {
         if (BookmarksListBox.SelectedItem is BookmarkItem item)
         {
-            JumpToBookmark(item.Position);
+            _ = JumpToBookmarkAsync(item.Position);
             BookmarksListBox.SelectedItem = null;
         }
     }
 
-    private async void JumpToBookmark(int position)
+    private async Task JumpToBookmarkAsync(int position)
     {
         using (_controller.SuppressCodeUpdates())
         {

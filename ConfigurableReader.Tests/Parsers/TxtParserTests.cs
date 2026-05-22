@@ -38,7 +38,7 @@ public class TxtParserTests : IDisposable
     public async Task CreateSourceAsync_WithValidFile_ReturnsTxtBookSource()
     {
         // Arrange
-        await File.WriteAllTextAsync(_tempFilePath, "Hello World");
+        await File.WriteAllTextAsync(_tempFilePath, "Hello World", TestContext.Current.CancellationToken);
         var parser = new TxtBookParser();
 
         // Act
@@ -54,7 +54,7 @@ public class TxtParserTests : IDisposable
     {
         // Arrange
         var content = "This is a test document.";
-        await File.WriteAllTextAsync(_tempFilePath, content);
+        await File.WriteAllTextAsync(_tempFilePath, content, TestContext.Current.CancellationToken);
         var parser = new TxtBookParser();
         using var source = await parser.CreateSourceAsync(_tempFilePath);
 
@@ -70,7 +70,7 @@ public class TxtParserTests : IDisposable
     {
         // Arrange
         var content = "Line 1\r\nLine 2\tTabbed";
-        await File.WriteAllTextAsync(_tempFilePath, content);
+        await File.WriteAllTextAsync(_tempFilePath, content, TestContext.Current.CancellationToken);
         var parser = new TxtBookParser();
         using var source = await parser.CreateSourceAsync(_tempFilePath);
 
@@ -86,7 +86,7 @@ public class TxtParserTests : IDisposable
     {
         // Arrange
         var content = "Short";
-        await File.WriteAllTextAsync(_tempFilePath, content);
+        await File.WriteAllTextAsync(_tempFilePath, content, TestContext.Current.CancellationToken);
         var parser = new TxtBookParser();
         using var source = await parser.CreateSourceAsync(_tempFilePath);
 
