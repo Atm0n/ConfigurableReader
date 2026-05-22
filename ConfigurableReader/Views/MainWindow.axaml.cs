@@ -44,6 +44,8 @@ public partial class MainWindow : Window
 
         InitializeComponent();
 
+        ShowLibrary();
+
         _timer = new DispatcherTimer
         {
             Interval = TimeSpan.FromMilliseconds(AppConstants.TimerIntervalMs),
@@ -135,36 +137,96 @@ public partial class MainWindow : Window
             if (result.Count > 0)
             {
                 var filePath = result[0].Path.LocalPath;
-
-                using (_controller.SuppressCodeUpdates())
-                {
-                    _renderedBasePosition = -1; // Force re-render of the text buffer
-                    
-                    string bookName = await _controller.OpenBookAsync(filePath);
-
-                    TextSlider.Maximum = _readerService.TotalLength;
-                    TextSlider.Value = _readerService.CurrentPosition;
-                    BookNameText.Text = bookName;
-
-                    // Bind TOC and Bookmarks
-                    TocTreeView.ItemsSource = _readerService.CurrentSource?.TableOfContents;
-                    if (_controller.CurrentRecord != null)
-                    {
-                        BookmarksListBox.ItemsSource = null;
-                        BookmarksListBox.ItemsSource = _controller.CurrentRecord.CustomBookmarks;
-                    }
-
-                    UpdateDisplayedText();
-                    UpdatePercentage();
-                }
-
-                SaveSettings();
+                await LoadBookAsync(filePath);
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error opening file: {ex.Message}");
-            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("ErrorOpeningBook")} {ex.Message}");
+            await MessageDialog.ShowAsync(this, $"Could not open file: {ex.Message}");
+        }
+    }
+
+    private async Task LoadBookAsync(string filePath)
+    {
+        try
+        {
+            using (_controller.SuppressCodeUpdates())
+            {
+                _renderedBasePosition = -1; // Force re-render of the text buffer
+                
+                string bookName = await _controller.OpenBookAsync(filePath);
+
+                TextSlider.Maximum = _readerService.TotalLength;
+                TextSlider.Value = _readerService.CurrentPosition;
+                BookNameText.Text = bookName;
+
+                // Bind TOC and Bookmarks
+                TocTreeView.ItemsSource = _readerService.CurrentSource?.TableOfContents;
+                if (_controller.CurrentRecord != null)
+                {
+                    BookmarksListBox.ItemsSource = null;
+                    BookmarksListBox.ItemsSource = _controller.CurrentRecord.CustomBookmarks;
+                }
+
+                UpdateDisplayedText();
+                UpdatePercentage();
+                
+                ShowReader();
+            }
+        }
+        catch (Exception ex)
+        {
+            await MessageDialog.ShowAsync(this, $"Failed to load book:\n{ex.Message}");
+            ShowLibrary();
+        }
+    }
+
+    private void ShowLibrary()
+    {
+        StopReading();
+        LibraryViewContainer.IsVisible = true;
+        ReaderViewContainer.IsVisible = false;
+        
+        // Refresh library view items
+        LibraryItemsControl.ItemsSource = null;
+        LibraryItemsControl.ItemsSource = _controller.BookRecords.OrderByDescending(b => b.LastReadDate).ToList();
+    }
+
+    private void ShowReader()
+    {
+        LibraryViewContainer.IsVisible = false;
+        ReaderViewContainer.IsVisible = true;
+    }
+
+    private void BackToLibraryButton_Click(object? sender, RoutedEventArgs e)
+    {
+        _controller.SaveCurrentPosition();
+        ShowLibrary();
+    }
+
+    private async void LibraryBook_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.CommandParameter is BookRecord record)
+        {
+            if (System.IO.File.Exists(record.FilePath))
+            {
+                await LoadBookAsync(record.FilePath);
+            }
+            else
+            {
+                await MessageDialog.ShowAsync(this, "File not found. It may have been moved or deleted.");
+                _controller.RemoveBookRecord(record);
+                ShowLibrary();
+            }
+        }
+    }
+
+    private void RemoveBookFromLibrary_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.CommandParameter is BookRecord record)
+        {
+            _controller.RemoveBookRecord(record);
+            ShowLibrary();
         }
     }
 
