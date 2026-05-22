@@ -95,17 +95,40 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="models:BookRecord">
-                                <Border Background="#333337" CornerRadius="8" Margin="10" Width="200" Height="280" BoxShadow="0 4 8 0 #40000000" Padding="15">
-                                    <Grid RowDefinitions="*,Auto,Auto,Auto">
-                                        <Button Grid.Row="0" Background="#4A4A4C" CornerRadius="4" Margin="0,0,0,15" CommandParameter="{Binding}" Click="LibraryBook_Click" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="Hand">
-                                            <TextBlock Text="📖" FontSize="64" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#808080"/>
-                                        </Button>
-                                        <TextBlock Grid.Row="1" Text="{Binding DisplayTitle}" FontWeight="SemiBold" FontSize="16" Foreground="#F1F1F1" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" Margin="0,0,0,10"/>
-                                        <TextBlock Grid.Row="2" Text="{Binding LastReadDate, StringFormat='Last read: {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#AAAAAA" Margin="0,0,0,10"/>
-                                        <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
-                                            <ProgressBar Grid.Column="0" Minimum="0" Maximum="100" Value="{Binding ProgressPercentage}" Height="6" VerticalAlignment="Center" Foreground="#007ACC" Background="#1E1E1E"/>
-                                            <Button Grid.Column="1" Content="X" CommandParameter="{Binding}" Click="RemoveBookFromLibrary_Click" Background="Transparent" Foreground="#FF4444" Margin="10,0,0,0" Padding="5,0"/>
+                                <Border Background="#333337" CornerRadius="8" Margin="10" Width="200" Height="280" BoxShadow="0 4 8 0 #40000000">
+                                    <Grid>
+                                        <!-- The main content of the card -->
+                                        <Grid RowDefinitions="*,Auto,Auto" Margin="15">
+                                            <!-- Book Cover with Progress Bar enclosed -->
+                                            <Button Grid.Row="0" Background="#4A4A4C" CornerRadius="4" Margin="0,0,0,15" CommandParameter="{Binding}" Click="LibraryBook_Click" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="Hand" Padding="0">
+                                                <Grid>
+                                                    <TextBlock Text="📖" FontSize="64" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#808080"/>
+                                                    <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressPercentage}" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Foreground="#007ACC" Background="#1E1E1E" CornerRadius="0,0,4,4"/>
+                                                </Grid>
+                                            </Button>
+                                            
+                                            <!-- Details -->
+                                            <TextBlock Grid.Row="1" Text="{Binding DisplayTitle}" FontWeight="SemiBold" FontSize="16" Foreground="#F1F1F1" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" Margin="0,0,0,5"/>
+                                            <TextBlock Grid.Row="2" Text="{Binding LastReadDate, StringFormat='Last read: {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#AAAAAA"/>
                                         </Grid>
+                                        
+                                        <!-- Top Right Delete Button -->
+                                        <Button Content="✕" CommandParameter="{Binding}" Click="RemoveBookFromLibrary_Click" 
+                                                Background="#99000000" Foreground="#F1F1F1" 
+                                                CornerRadius="0,8,0,8" 
+                                                Width="28" Height="28" 
+                                                Padding="0" 
+                                                HorizontalAlignment="Right" VerticalAlignment="Top" 
+                                                Margin="0" 
+                                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                                Cursor="Hand"
+                                                ToolTip.Tip="Remove from Library">
+                                            <Button.Styles>
+                                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                    <Setter Property="Background" Value="#FF4444"/>
+                                                </Style>
+                                            </Button.Styles>
+                                        </Button>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
