@@ -11,6 +11,7 @@ public class TxtBookSource : IBookSource
     private readonly Encoding _encoding;
 
     public int TotalLength => _totalLength;
+    public IReadOnlyList<BookmarkItem> TableOfContents { get; } = new List<BookmarkItem>();
 
     public TxtBookSource(string filePath)
     {

@@ -42,4 +42,18 @@
     <sys:String x:Key="SearchWatermark">Search...</sys:String>
     <sys:String x:Key="SearchNext">Next</sys:String>
     <sys:String x:Key="SearchNoResults">No results found for: {0}</sys:String>
+
+    <!-- Library View & Bookmarks -->
+    <sys:String x:Key="MyLibrary">My Library</sys:String>
+    <sys:String x:Key="OpenNewBook">Open New Book...</sys:String>
+    <sys:String x:Key="LastReadPrefix">Last read:</sys:String>
+    <sys:String x:Key="BackToLibrary">⬅ Library</sys:String>
+    <sys:String x:Key="RemoveFromLibrary">Remove from Library</sys:String>
+    <sys:String x:Key="TOCAndBookmarks">TOC &amp; Bookmarks</sys:String>
+    <sys:String x:Key="ThemeLabel">Theme:</sys:String>
+    <sys:String x:Key="AddBookmark">Add</sys:String>
+    <sys:String x:Key="NameYourBookmark">Name your bookmark...</sys:String>
+    <sys:String x:Key="FileNotFound">File not found. It may have been moved or deleted.</sys:String>
+    <sys:String x:Key="CouldNotOpenFile">Could not open file:</sys:String>
+    <sys:String x:Key="FailedToLoadBook">Failed to load book:</sys:String>
 </ResourceDictionary>

@@ -15,6 +15,8 @@ public class ReaderController
     private List<BookRecord> _bookRecords = [];
 
     public string? CurrentBookFilePath { get; private set; }
+    public BookRecord? CurrentRecord => CurrentBookFilePath != null ? GetOrCreateRecord(CurrentBookFilePath) : null;
+
     private int _suppressCodeUpdatesCount;
     public bool IsUpdatingFromCode => _suppressCodeUpdatesCount > 0;
 
@@ -75,6 +77,7 @@ public class ReaderController
         {
             var record = GetOrCreateRecord(CurrentBookFilePath);
             record.ScrollPosition = _readerService.CurrentPosition;
+            record.LastReadDate = DateTime.Now;
             BookRecordStore.Save(_bookRecords);
         }
     }
@@ -85,11 +88,30 @@ public class ReaderController
         var source = await _documentRegistry.CreateSourceAsync(filePath);
         var record = GetOrCreateRecord(filePath);
         
+        record.LastReadDate = DateTime.Now;
+        record.TotalLength = source.TotalLength;
+        // Optionally extract title if supported by the parser in the future, for now fallback to filename
+        if (string.IsNullOrEmpty(record.Title))
+        {
+            record.Title = Path.GetFileNameWithoutExtension(filePath);
+        }
+
         using (SuppressCodeUpdates())
         {
             await _readerService.SetSourceAsync(source, record.ScrollPosition);
         }
 
-        return Path.GetFileName(filePath);
+        BookRecordStore.Save(_bookRecords);
+        return record.Title;
+    }
+
+    public void RemoveBookRecord(BookRecord record)
+    {
+        _bookRecords.Remove(record);
+        BookRecordStore.Save(_bookRecords);
+        if (CurrentBookFilePath == record.FilePath)
+        {
+            CurrentBookFilePath = null;
+        }
     }
 }

@@ -39,7 +39,21 @@
     <sys:String x:Key="ErrorOpeningBook">Error en obrir el llibre:</sys:String>
 
     <!-- Cerca -->
-    <sys:String x:Key="SearchWatermark">Cerca...</sys:String>
+    <sys:String x:Key="SearchWatermark">Cercar...</sys:String>
     <sys:String x:Key="SearchNext">Següent</sys:String>
     <sys:String x:Key="SearchNoResults">No s'han trobat resultats per a: {0}</sys:String>
+
+    <!-- Library View & Bookmarks -->
+    <sys:String x:Key="MyLibrary">La Meva Biblioteca</sys:String>
+    <sys:String x:Key="OpenNewBook">Obrir Nou Llibre...</sys:String>
+    <sys:String x:Key="LastReadPrefix">Última lectura:</sys:String>
+    <sys:String x:Key="BackToLibrary">⬅ Biblioteca</sys:String>
+    <sys:String x:Key="RemoveFromLibrary">Eliminar de la Biblioteca</sys:String>
+    <sys:String x:Key="TOCAndBookmarks">Índex i Marcadors</sys:String>
+    <sys:String x:Key="ThemeLabel">Tema:</sys:String>
+    <sys:String x:Key="AddBookmark">Afegir</sys:String>
+    <sys:String x:Key="NameYourBookmark">Nom del marcador...</sys:String>
+    <sys:String x:Key="FileNotFound">Fitxer no trobat. Pot ser que hagi estat mogut o eliminat.</sys:String>
+    <sys:String x:Key="CouldNotOpenFile">No s'ha pogut obrir el fitxer:</sys:String>
+    <sys:String x:Key="FailedToLoadBook">Error en carregar el llibre:</sys:String>
 </ResourceDictionary>

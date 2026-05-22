@@ -41,5 +41,19 @@
     <!-- Búsqueda -->
     <sys:String x:Key="SearchWatermark">Buscar...</sys:String>
     <sys:String x:Key="SearchNext">Siguiente</sys:String>
-    <sys:String x:Key="SearchNoResults">No se han encontrado resultados para: {0}</sys:String>
+    <sys:String x:Key="SearchNoResults">No se encontraron resultados para: {0}</sys:String>
+
+    <!-- Library View & Bookmarks -->
+    <sys:String x:Key="MyLibrary">Mi Biblioteca</sys:String>
+    <sys:String x:Key="OpenNewBook">Abrir Nuevo Libro...</sys:String>
+    <sys:String x:Key="LastReadPrefix">Última lectura:</sys:String>
+    <sys:String x:Key="BackToLibrary">⬅ Biblioteca</sys:String>
+    <sys:String x:Key="RemoveFromLibrary">Eliminar de la Biblioteca</sys:String>
+    <sys:String x:Key="TOCAndBookmarks">Índice y Marcadores</sys:String>
+    <sys:String x:Key="ThemeLabel">Tema:</sys:String>
+    <sys:String x:Key="AddBookmark">Añadir</sys:String>
+    <sys:String x:Key="NameYourBookmark">Nombre del marcador...</sys:String>
+    <sys:String x:Key="FileNotFound">Archivo no encontrado. Puede que haya sido movido o eliminado.</sys:String>
+    <sys:String x:Key="CouldNotOpenFile">No se pudo abrir el archivo:</sys:String>
+    <sys:String x:Key="FailedToLoadBook">Error al cargar el libro:</sys:String>
 </ResourceDictionary>

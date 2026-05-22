@@ -44,6 +44,8 @@ public partial class MainWindow : Window
 
         InitializeComponent();
 
+        ShowLibrary();
+
         _timer = new DispatcherTimer
         {
             Interval = TimeSpan.FromMilliseconds(AppConstants.TimerIntervalMs),
@@ -135,28 +137,96 @@ public partial class MainWindow : Window
             if (result.Count > 0)
             {
                 var filePath = result[0].Path.LocalPath;
-
-                using (_controller.SuppressCodeUpdates())
-                {
-                    _renderedBasePosition = -1; // Force re-render of the text buffer
-                    
-                    string bookName = await _controller.OpenBookAsync(filePath);
-
-                    TextSlider.Maximum = _readerService.TotalLength;
-                    TextSlider.Value = _readerService.CurrentPosition;
-                    BookNameText.Text = bookName;
-
-                    UpdateDisplayedText();
-                    UpdatePercentage();
-                }
-
-                SaveSettings();
+                await LoadBookAsync(filePath);
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error opening file: {ex.Message}");
-            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("ErrorOpeningBook")} {ex.Message}");
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("CouldNotOpenFile")} {ex.Message}");
+        }
+    }
+
+    private async Task LoadBookAsync(string filePath)
+    {
+        try
+        {
+            using (_controller.SuppressCodeUpdates())
+            {
+                _renderedBasePosition = -1; // Force re-render of the text buffer
+                
+                string bookName = await _controller.OpenBookAsync(filePath);
+
+                TextSlider.Maximum = _readerService.TotalLength;
+                TextSlider.Value = _readerService.CurrentPosition;
+                BookNameText.Text = bookName;
+
+                // Bind TOC and Bookmarks
+                TocTreeView.ItemsSource = _readerService.CurrentSource?.TableOfContents;
+                if (_controller.CurrentRecord != null)
+                {
+                    BookmarksListBox.ItemsSource = null;
+                    BookmarksListBox.ItemsSource = _controller.CurrentRecord.CustomBookmarks;
+                }
+
+                UpdateDisplayedText();
+                UpdatePercentage();
+                
+                ShowReader();
+            }
+        }
+        catch (Exception ex)
+        {
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("FailedToLoadBook")}\n{ex.Message}");
+            ShowLibrary();
+        }
+    }
+
+    private void ShowLibrary()
+    {
+        StopReading();
+        LibraryViewContainer.IsVisible = true;
+        ReaderViewContainer.IsVisible = false;
+        
+        // Refresh library view items
+        LibraryItemsControl.ItemsSource = null;
+        LibraryItemsControl.ItemsSource = _controller.BookRecords.OrderByDescending(b => b.LastReadDate).ToList();
+    }
+
+    private void ShowReader()
+    {
+        LibraryViewContainer.IsVisible = false;
+        ReaderViewContainer.IsVisible = true;
+    }
+
+    private void BackToLibraryButton_Click(object? sender, RoutedEventArgs e)
+    {
+        _controller.SaveCurrentPosition();
+        ShowLibrary();
+    }
+
+    private async void LibraryBook_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.CommandParameter is BookRecord record)
+        {
+            if (System.IO.File.Exists(record.FilePath))
+            {
+                await LoadBookAsync(record.FilePath);
+            }
+            else
+            {
+                await MessageDialog.ShowAsync(this, LocalizationService.GetString("FileNotFound"));
+                _controller.RemoveBookRecord(record);
+                ShowLibrary();
+            }
+        }
+    }
+
+    private void RemoveBookFromLibrary_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.CommandParameter is BookRecord record)
+        {
+            _controller.RemoveBookRecord(record);
+            ShowLibrary();
         }
     }
 
@@ -186,8 +256,8 @@ public partial class MainWindow : Window
                 StopReading();
                 using (_controller.SuppressCodeUpdates())
                 {
+                    await _readerService.ResetPositionAsync(foundIndex);
                     _renderedBasePosition = -1; // Force re-render
-                    _readerService.ResetPosition(foundIndex);
                     
                     TextSlider.Value = _readerService.CurrentPosition;
                     UpdateDisplayedText();
@@ -328,11 +398,12 @@ public partial class MainWindow : Window
         this.Background = new SolidColorBrush(e.NewColor);
     }
 
-    private void TextSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
+    private async void TextSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
         if (!_isUpdatingFromCode)
         {
-            _readerService.ResetPosition((int)TextSlider.Value);
+            await _readerService.ResetPositionAsync((int)TextSlider.Value);
+            _renderedBasePosition = -1;
             UpdateDisplayedText();
             UpdateRenderTransform();
             UpdatePercentage();
@@ -358,6 +429,75 @@ public partial class MainWindow : Window
                     }
                 }, DispatcherPriority.Loaded);
             }
+        }
+    }
+
+    private void TocButton_Click(object? sender, RoutedEventArgs e)
+    {
+        TocBookmarksPanel.IsVisible = !TocBookmarksPanel.IsVisible;
+    }
+
+    private void TocTreeView_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (TocTreeView.SelectedItem is BookmarkItem item)
+        {
+            JumpToBookmark(item.Position);
+            TocTreeView.SelectedItem = null;
+        }
+    }
+
+    private void BookmarksListBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (BookmarksListBox.SelectedItem is BookmarkItem item)
+        {
+            JumpToBookmark(item.Position);
+            BookmarksListBox.SelectedItem = null;
+        }
+    }
+
+    private async void JumpToBookmark(int position)
+    {
+        using (_controller.SuppressCodeUpdates())
+        {
+            await _readerService.ResetPositionAsync(position);
+            _renderedBasePosition = -1; // Force re-render
+            
+            TextSlider.Value = _readerService.CurrentPosition;
+            UpdateDisplayedText();
+            UpdateRenderTransform();
+            UpdatePercentage();
+        }
+    }
+
+    private void AddBookmarkButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_controller.CurrentRecord == null) return;
+        
+        string name = string.IsNullOrWhiteSpace(BookmarkNameTextBox.Text) 
+            ? $"Bookmark at {_readerService.CurrentPosition}" 
+            : BookmarkNameTextBox.Text;
+
+        var bookmark = new BookmarkItem 
+        { 
+            Title = name, 
+            Position = _readerService.CurrentPosition 
+        };
+        
+        _controller.CurrentRecord.CustomBookmarks.Add(bookmark);
+        
+        if (BookmarksListBox.ItemsSource == null)
+            BookmarksListBox.ItemsSource = _controller.CurrentRecord.CustomBookmarks;
+        
+        _controller.SaveCurrentPosition(); // Saves bookmarks too
+        BookmarkNameTextBox.Text = string.Empty;
+    }
+
+    private void DeleteBookmarkButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.CommandParameter is BookmarkItem item && _controller.CurrentRecord != null)
+        {
+            _controller.CurrentRecord.CustomBookmarks.Remove(item);
+            _controller.SaveCurrentPosition();
         }
     }
 }
