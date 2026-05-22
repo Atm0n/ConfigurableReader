@@ -80,8 +80,8 @@
                 <!-- Header -->
                 <Border Background="#2D2D30" Padding="20" BorderBrush="#3E3E42" BorderThickness="0,0,0,1">
                     <Grid ColumnDefinitions="*,Auto">
-                        <TextBlock Text="My Library" FontSize="32" FontWeight="Bold" Foreground="#F1F1F1" VerticalAlignment="Center"/>
-                        <Button Grid.Column="1" Content="Open New Book..." Click="OpenFileButton_Click" Background="#007ACC" Foreground="White" Padding="20,10" FontSize="16" CornerRadius="8" Cursor="Hand"/>
+                        <TextBlock Text="{DynamicResource MyLibrary}" FontSize="32" FontWeight="Bold" Foreground="#F1F1F1" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Content="{DynamicResource OpenNewBook}" Click="OpenFileButton_Click" Background="#007ACC" Foreground="White" Padding="20,10" FontSize="16" CornerRadius="8" Cursor="Hand"/>
                     </Grid>
                 </Border>
                 
@@ -109,7 +109,10 @@
                                             
                                             <!-- Details -->
                                             <TextBlock Grid.Row="1" Text="{Binding DisplayTitle}" FontWeight="SemiBold" FontSize="16" Foreground="#F1F1F1" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" Margin="0,0,0,5"/>
-                                            <TextBlock Grid.Row="2" Text="{Binding LastReadDate, StringFormat='Last read: {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#AAAAAA"/>
+                                            <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                                <TextBlock Text="{DynamicResource LastReadPrefix}" FontSize="12" Foreground="#AAAAAA" Margin="0,0,4,0"/>
+                                                <TextBlock Text="{Binding LastReadDate, StringFormat=' {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#AAAAAA"/>
+                                            </StackPanel>
                                         </Grid>
                                         
                                         <!-- Top Right Delete Button -->
@@ -122,7 +125,7 @@
                                                 Margin="0" 
                                                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                                                 Cursor="Hand"
-                                                ToolTip.Tip="Remove from Library">
+                                                ToolTip.Tip="{DynamicResource RemoveFromLibrary}">
                                             <Button.Styles>
                                                 <Style Selector="Button:pointerover /template/ ContentPresenter">
                                                     <Setter Property="Background" Value="#FF4444"/>
@@ -155,9 +158,9 @@
                         <!-- File Group -->
                         <Border Classes="GroupBorder">
                             <StackPanel Orientation="Horizontal" Spacing="5">
-                                <Button Content="⬅ Library" Click="BackToLibraryButton_Click" Focusable="False"/>
+                                <Button Content="{DynamicResource BackToLibrary}" Click="BackToLibraryButton_Click" Focusable="False"/>
                                 <Button Content="{DynamicResource OpenFile}" Click="OpenFileButton_Click" Focusable="False"/>
-                                <Button Name="TocButton" Content="TOC &amp; Bookmarks" Click="TocButton_Click" Focusable="False"/>
+                                <Button Name="TocButton" Content="{DynamicResource TOCAndBookmarks}" Click="TocButton_Click" Focusable="False"/>
                             </StackPanel>
                         </Border>
 
@@ -188,7 +191,7 @@
                                           IsCheckedChanged="FadeCheckBox_IsCheckedChanged" Focusable="False" Foreground="#F1F1F1"/>
 
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Theme" Classes="LabelStyle"/>
+                                    <TextBlock Text="{DynamicResource ThemeLabel}" Classes="LabelStyle"/>
                                     <ComboBox Name="ThemeComboBox" Width="130" SelectionChanged="ThemeComboBox_SelectionChanged" Focusable="False">
                                         <ComboBoxItem Content="System Default" Tag="System Default" />
                                         <ComboBoxItem Content="Dark" Tag="Dark" />
@@ -269,11 +272,11 @@
                                 </TreeView.ItemTemplate>
                             </TreeView>
                         </TabItem>
-                        <TabItem Header="Bookmarks">
+                        <TabItem Header="{DynamicResource Bookmarks}">
                             <Grid RowDefinitions="Auto,*" Margin="5">
                                 <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,5">
-                                    <TextBox Name="BookmarkNameTextBox" Watermark="Bookmark name..." VerticalAlignment="Center" Margin="0,0,5,0" />
-                                    <Button Grid.Column="1" Content="Add" Click="AddBookmarkButton_Click" VerticalAlignment="Center" />
+                                    <TextBox Name="BookmarkNameTextBox" Grid.Column="0" PlaceholderText="{DynamicResource NameYourBookmark}" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                    <Button Grid.Column="1" Content="{DynamicResource AddBookmark}" Click="AddBookmarkButton_Click" VerticalAlignment="Center" />
                                 </Grid>
                                 <ListBox Name="BookmarksListBox" Grid.Row="1" Background="Transparent" SelectionChanged="BookmarksListBox_SelectionChanged">
                                     <ListBox.ItemTemplate>

@@ -142,7 +142,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            await MessageDialog.ShowAsync(this, $"Could not open file: {ex.Message}");
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("CouldNotOpenFile")} {ex.Message}");
         }
     }
 
@@ -176,7 +176,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            await MessageDialog.ShowAsync(this, $"Failed to load book:\n{ex.Message}");
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("FailedToLoadBook")}\n{ex.Message}");
             ShowLibrary();
         }
     }
@@ -214,7 +214,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                await MessageDialog.ShowAsync(this, "File not found. It may have been moved or deleted.");
+                await MessageDialog.ShowAsync(this, LocalizationService.GetString("FileNotFound"));
                 _controller.RemoveBookRecord(record);
                 ShowLibrary();
             }
