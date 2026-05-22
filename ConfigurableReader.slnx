@@ -7,7 +7,12 @@
     <Project Path="ConfigurableReader.Parsers.Txt/ConfigurableReader.Parsers.Txt.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
+    <File Path=".github/dependabot.yml" />
     <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/release.yml" />
+    <File Path="Directory.Packages.props" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
   </Folder>
   <Project Path="ConfigurableReader.Core/ConfigurableReader.Core.csproj" />
   <Project Path="ConfigurableReader/ConfigurableReader.csproj" Id="36247950-0af4-47ae-850b-4024bf2bc536" />
