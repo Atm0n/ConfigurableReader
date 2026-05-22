@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Moq" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConfigurableReader.Core\ConfigurableReader.Core.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Docx\ConfigurableReader.Parsers.Docx.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Epub\ConfigurableReader.Parsers.Epub.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Markdown\ConfigurableReader.Parsers.Markdown.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Pdf\ConfigurableReader.Parsers.Pdf.csproj" />
+    <ProjectReference Include="..\ConfigurableReader.Parsers.Txt\ConfigurableReader.Parsers.Txt.csproj" />
+    <ProjectReference Include="..\ConfigurableReader\ConfigurableReader.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

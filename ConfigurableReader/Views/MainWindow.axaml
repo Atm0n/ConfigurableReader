@@ -1,0 +1,327 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:core="using:ConfigurableReader.Core"
+        xmlns:models="using:ConfigurableReader.Models"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+        x:Class="ConfigurableReader.Views.MainWindow"
+        Title="ConfigurableReader"
+        WindowState="Maximized"
+        Background="#1E1E1E"
+        Foreground="#F1F1F1"
+        KeyDown="Window_KeyDown"
+        Closing="Window_Closing">
+
+    <Window.Transitions>
+        <Transitions>
+            <BrushTransition Property="Background" Duration="0:0:0.4"/>
+            <BrushTransition Property="Foreground" Duration="0:0:0.4"/>
+        </Transitions>
+    </Window.Transitions>
+
+    <Window.Resources>
+        <LinearGradientBrush x:Key="EdgeFadeMask" StartPoint="0%,50%" EndPoint="100%,50%">
+            <GradientStop Color="Transparent" Offset="0"/>
+            <GradientStop Color="Black" Offset="0.01"/>
+            <GradientStop Color="Black" Offset="0.99"/>
+            <GradientStop Color="Transparent" Offset="1"/>
+        </LinearGradientBrush>
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="Button">
+            <Setter Property="Background" Value="#3E3E42"/>
+            <Setter Property="Foreground" Value="#F1F1F1"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="8,4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#505050"/>
+        </Style>
+
+        <Style Selector="TextBlock.LabelStyle">
+            <Setter Property="Foreground" Value="#F1F1F1"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="10,0,5,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style Selector="Border.GroupBorder">
+            <Setter Property="BorderBrush" Value="#4A4A4C"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Background" Value="#333337"/>
+        </Style>
+
+        <Style Selector="Slider">
+            <Setter Property="Margin" Value="10,0"/>
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="Margin" Value="5,0"/>
+        </Style>
+        <Style Selector="NumericUpDown">
+            <Setter Property="Margin" Value="5,0"/>
+        </Style>
+        <Style Selector="ColorPicker">
+            <Setter Property="Margin" Value="5,0"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid>
+        <!-- Library View -->
+        <Grid Name="LibraryViewContainer" IsVisible="True">
+            <Grid RowDefinitions="Auto,*">
+                <!-- Header -->
+                <Border Background="#2D2D30" Padding="20" BorderBrush="#3E3E42" BorderThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="{DynamicResource MyLibrary}" FontSize="32" FontWeight="Bold" Foreground="#F1F1F1" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Content="{DynamicResource OpenNewBook}" Click="OpenFileButton_Click" Background="#007ACC" Foreground="White" Padding="20,10" FontSize="16" CornerRadius="8" Cursor="Hand"/>
+                    </Grid>
+                </Border>
+                
+                <!-- Book Grid -->
+                <ScrollViewer Grid.Row="1" Padding="20">
+                    <ItemsControl Name="LibraryItemsControl">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="models:BookRecord">
+                                <Border Background="#333337" CornerRadius="8" Margin="10" Width="200" Height="280" BoxShadow="0 4 8 0 #40000000">
+                                    <Grid>
+                                        <!-- The main content of the card -->
+                                        <Grid RowDefinitions="*,Auto,Auto" Margin="15">
+                                            <!-- Book Cover with Progress Bar enclosed -->
+                                            <Button Grid.Row="0" Background="#4A4A4C" CornerRadius="4" Margin="0,0,0,15" CommandParameter="{Binding}" Click="LibraryBook_Click" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="Hand" Padding="0">
+                                                <Grid>
+                                                    <TextBlock Text="📖" FontSize="64" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#808080"/>
+                                                    <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressPercentage}" Height="6" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Foreground="#007ACC" Background="#1E1E1E" CornerRadius="0,0,4,4"/>
+                                                </Grid>
+                                            </Button>
+                                            
+                                            <!-- Details -->
+                                            <TextBlock Grid.Row="1" Text="{Binding DisplayTitle}" FontWeight="SemiBold" FontSize="16" Foreground="#F1F1F1" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" Margin="0,0,0,5"/>
+                                            <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                                <TextBlock Text="{DynamicResource LastReadPrefix}" FontSize="12" Foreground="#AAAAAA" Margin="0,0,4,0"/>
+                                                <TextBlock Text="{Binding LastReadDate, StringFormat=' {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#AAAAAA"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        
+                                        <!-- Top Right Delete Button -->
+                                        <Button Content="✕" CommandParameter="{Binding}" Click="RemoveBookFromLibrary_Click" 
+                                                Background="#99000000" Foreground="#F1F1F1" 
+                                                CornerRadius="0,8,0,8" 
+                                                Width="28" Height="28" 
+                                                Padding="0" 
+                                                HorizontalAlignment="Right" VerticalAlignment="Top" 
+                                                Margin="0" 
+                                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                                Cursor="Hand"
+                                                ToolTip.Tip="{DynamicResource RemoveFromLibrary}">
+                                            <Button.Styles>
+                                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                    <Setter Property="Background" Value="#FF4444"/>
+                                                </Style>
+                                            </Button.Styles>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+        <!-- Reader View -->
+        <Grid Name="ReaderViewContainer" IsVisible="False" RowDefinitions="Auto,*,Auto">
+            <!-- Collapsible Control Panel -->
+            <Expander Name="SettingsExpander" Grid.Row="0" Header="{DynamicResource SettingsHeader}" 
+                      ExpandDirection="Down" IsExpanded="True"
+                      Background="Transparent" 
+                      Foreground="#F1F1F1"
+                      BorderThickness="0,0,0,1" BorderBrush="#3E3E42">
+                <ExperimentalAcrylicBorder Padding="15">
+                    <ExperimentalAcrylicBorder.Material>
+                        <ExperimentalAcrylicMaterial BackgroundSource="Digger" TintColor="#2D2D30" TintOpacity="1" MaterialOpacity="0.85" />
+                    </ExperimentalAcrylicBorder.Material>
+                    <WrapPanel Orientation="Horizontal">
+                    
+                        <!-- File Group -->
+                        <Border Classes="GroupBorder">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <Button Content="{DynamicResource BackToLibrary}" Click="BackToLibraryButton_Click" Focusable="False"/>
+                                <Button Content="{DynamicResource OpenFile}" Click="OpenFileButton_Click" Focusable="False"/>
+                                <Button Name="TocButton" Content="{DynamicResource TOCAndBookmarks}" Click="TocButton_Click" Focusable="False"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Playback Group -->
+                        <Border Classes="GroupBorder">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Name="StartStopButton" Content="{DynamicResource Start}" Click="StartStopButton_Click" Focusable="False" Width="70"/>
+                                <Button Name="ReverseButton" Content="{DynamicResource Reverse}" Click="ReverseButton_Click" Focusable="False"/>
+                                <TextBlock Text="{DynamicResource Speed}" Classes="LabelStyle"/>
+                                <Slider Name="SpeedSlider" Minimum="0" Maximum="1000" Value="100" Width="150" Focusable="False" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Appearance Group -->
+                        <Border Classes="GroupBorder">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource Font}" Classes="LabelStyle"/>
+                                    <ComboBox Name="FontComboBox" Width="180" SelectionChanged="FontComboBox_SelectionChanged" Focusable="False"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource Language}" Classes="LabelStyle"/>
+                                    <ComboBox Name="LanguageComboBox" Width="100" SelectionChanged="LanguageComboBox_SelectionChanged" Focusable="False"/>
+                                </StackPanel>
+
+                                <CheckBox Name="FadeCheckBox" Content="{DynamicResource EdgeFade}" VerticalAlignment="Center" Margin="10,0" 
+                                          IsCheckedChanged="FadeCheckBox_IsCheckedChanged" Focusable="False" Foreground="#F1F1F1"/>
+
+                                <CheckBox Name="SpeedReadingCheckBox" Content="{DynamicResource SpeedReading}" VerticalAlignment="Center" Margin="10,0" 
+                                          IsCheckedChanged="SpeedReadingCheckBox_IsCheckedChanged" Focusable="False" Foreground="#F1F1F1"/>
+
+                                <StackPanel Name="SpeedReadingBoldPanel" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0" IsVisible="False">
+                                    <TextBlock Text="{DynamicResource SpeedReadingBoldPercentage}" Classes="LabelStyle"/>
+                                    <Slider Name="SpeedReadingBoldSlider" Minimum="10" Maximum="100" Value="50" Width="100" Focusable="False" VerticalAlignment="Center"
+                                            ValueChanged="SpeedReadingBoldSlider_ValueChanged"/>
+                                    <TextBlock Name="SpeedReadingBoldValueText" Text="50%" VerticalAlignment="Center" Width="35" Foreground="#F1F1F1" FontSize="11" Margin="5,0"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource ThemeLabel}" Classes="LabelStyle"/>
+                                    <ComboBox Name="ThemeComboBox" Width="130" SelectionChanged="ThemeComboBox_SelectionChanged" Focusable="False">
+                                        <ComboBoxItem Content="System Default" Tag="System Default" />
+                                        <ComboBoxItem Content="Dark" Tag="Dark" />
+                                        <ComboBoxItem Content="Light" Tag="Light" />
+                                        <ComboBoxItem Content="Sepia" Tag="Sepia" />
+                                        <ComboBoxItem Content="High Contrast" Tag="High Contrast" />
+                                        <ComboBoxItem Content="Custom" Tag="Custom" />
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Name="CustomColorPanel" Orientation="Horizontal" IsVisible="False">
+                                    <TextBlock Text="{DynamicResource TextColor}" Classes="LabelStyle"/>
+                                    <ColorPicker Name="TextColorPicker" Width="60" ColorChanged="TextColorPicker_ColorChanged" Focusable="False"/>
+                                    <TextBlock Text="{DynamicResource BackgroundColor}" Classes="LabelStyle"/>
+                                    <ColorPicker Name="BackgroundColorPicker" Width="60" ColorChanged="BackgroundColorPicker_ColorChanged" Focusable="False"/>
+                                </StackPanel>
+                            
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource FontSize}" Classes="LabelStyle"/>
+                                    <NumericUpDown Name="FontSizeNumeric" Width="110" Minimum="10" Maximum="800" 
+                                                   Value="48" Focusable="False" ValueChanged="FontSizeNumeric_ValueChanged"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Search Group -->
+                        <Border Classes="GroupBorder">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <TextBox Name="SearchTextBox" Width="150" PlaceholderText="{DynamicResource SearchWatermark}" 
+                                         KeyDown="SearchTextBox_KeyDown" Focusable="True"/>
+                                <Button Name="SearchButton" Content="{DynamicResource SearchNext}" Click="SearchButton_Click" Focusable="False"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Info Group -->
+                        <Border Classes="GroupBorder">
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="{DynamicResource Info}" Click="InfoButton_Click" Focusable="False"/>
+                            </StackPanel>
+                        </Border>
+
+                    </WrapPanel>
+                </ExperimentalAcrylicBorder>
+            </Expander>
+
+            <!-- Main Reading Area -->
+            <Grid Grid.Row="1">
+                <Canvas Name="ReadingAreaCanvas" ClipToBounds="True" Background="Transparent" UseLayoutRounding="False">
+                    <TextBlock 
+                        Name="MainTextBlock" 
+                        Text="ConfigurableReader" 
+                        FontSize="48" 
+                        Padding="0"
+                        VerticalAlignment="Center"
+                        TextAlignment="Left" 
+                        TextWrapping="NoWrap"
+                        UseLayoutRounding="False"
+                        Focusable="False"
+                        ClipToBounds="False"
+                        RenderTransformOrigin="0,0">
+                        <TextBlock.Transitions>
+                            <Transitions>
+                                <BrushTransition Property="Foreground" Duration="0:0:0.4"/>
+                            </Transitions>
+                        </TextBlock.Transitions>
+                    </TextBlock>
+                </Canvas>
+
+                <!-- TOC and Bookmarks Panel -->
+                <Border Name="TocBookmarksPanel" Width="300" HorizontalAlignment="Left" Background="#E61E1E1E" IsVisible="False" BorderBrush="#3E3E42" BorderThickness="0,0,1,0">
+                    <Grid RowDefinitions="*,5,*">
+                        <!-- Table of Contents Section -->
+                        <Grid Grid.Row="0" RowDefinitions="Auto,*">
+                            <Border Background="#2D2D30" Padding="10,5" BorderBrush="#3E3E42" BorderThickness="0,0,0,1">
+                                <TextBlock Text="Table of Contents" FontWeight="Bold" Foreground="#AAAAAA" />
+                            </Border>
+                            <TreeView Name="TocTreeView" Grid.Row="1" Background="Transparent" SelectionChanged="TocTreeView_SelectionChanged" Margin="0,5,0,0">
+                                <TreeView.ItemTemplate>
+                                    <TreeDataTemplate DataType="core:BookmarkItem" ItemsSource="{Binding SubItems}">
+                                        <TextBlock Text="{Binding Title}" />
+                                    </TreeDataTemplate>
+                                </TreeView.ItemTemplate>
+                            </TreeView>
+                        </Grid>
+
+                        <GridSplitter Grid.Row="1" Background="#3E3E42" ResizeDirection="Rows" />
+
+                        <!-- Bookmarks Section -->
+                        <Grid Grid.Row="2" RowDefinitions="Auto,Auto,*">
+                            <Border Grid.Row="0" Background="#2D2D30" Padding="10,5" BorderBrush="#3E3E42" BorderThickness="0,0,0,1">
+                                <TextBlock Text="{DynamicResource Bookmarks}" FontWeight="Bold" Foreground="#AAAAAA" />
+                            </Border>
+                            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="5">
+                                <TextBox Name="BookmarkNameTextBox" Grid.Column="0" PlaceholderText="{DynamicResource NameYourBookmark}" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                <Button Grid.Column="1" Content="{DynamicResource AddBookmark}" Click="AddBookmarkButton_Click" VerticalAlignment="Center" />
+                            </Grid>
+                            <ListBox Name="BookmarksListBox" Grid.Row="2" Background="Transparent" SelectionChanged="BookmarksListBox_SelectionChanged" Margin="5,0,5,5">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="core:BookmarkItem">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
+                                            <Button Grid.Column="1" Content="X" CommandParameter="{Binding}" Click="DeleteBookmarkButton_Click" Background="Transparent" Padding="5,0"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Progress Area -->
+            <Border Grid.Row="2" Background="#2D2D30" Padding="10" BorderThickness="0,1,0,0" BorderBrush="#3E3E42">
+                <Grid ColumnDefinitions="200,*,100,Auto">
+                    <TextBlock Name="BookNameText" Grid.Column="0" Text="{DynamicResource NoFileOpened}" VerticalAlignment="Center" Foreground="#F1F1F1" TextTrimming="CharacterEllipsis"/>
+                    <Slider Name="TextSlider" Grid.Column="1" Minimum="0" Maximum="100" ValueChanged="TextSlider_ValueChanged" Focusable="False"/>
+                    <TextBlock Name="PercentageText" Grid.Column="2" Text="0%" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#F1F1F1"/>
+                    <TextBlock Name="InputModeText" Grid.Column="3" Text="⌨️" FontSize="20" VerticalAlignment="Center" Margin="10,0" ToolTip.Tip="{DynamicResource KeyboardMode}"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

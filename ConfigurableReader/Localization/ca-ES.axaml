@@ -1,0 +1,61 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System">
+    <!-- Main Window -->
+    <sys:String x:Key="SettingsHeader">Configuració i Controls</sys:String>
+    <sys:String x:Key="OpenFile">Obrir Fitxer</sys:String>
+    <sys:String x:Key="Start">Iniciar</sys:String>
+    <sys:String x:Key="Stop">Aturar</sys:String>
+    <sys:String x:Key="Reverse">Invertir</sys:String>
+    <sys:String x:Key="Speed">Velocitat:</sys:String>
+    <sys:String x:Key="Font">Lletra:</sys:String>
+    <sys:String x:Key="Language">Idioma:</sys:String>
+    <sys:String x:Key="EdgeFade">Desvaniment</sys:String>
+    <sys:String x:Key="SpeedReading">Lectura Ràpida</sys:String>
+    <sys:String x:Key="SpeedReadingBoldPercentage">Negreta %:</sys:String>
+    <sys:String x:Key="TextColor">Text:</sys:String>
+    <sys:String x:Key="BackgroundColor">Fons:</sys:String>
+    <sys:String x:Key="FontSize">Mida:</sys:String>
+    <sys:String x:Key="Info">Info</sys:String>
+    <sys:String x:Key="NoFileOpened">Cap fitxer obert</sys:String>
+    <sys:String x:Key="KeyboardMode">Mode Teclat</sys:String>
+    <sys:String x:Key="GamepadMode">Mode Comandament</sys:String>
+    <sys:String x:Key="AllSupportedBooks">Tots els llibres compatibles</sys:String>
+    <sys:String x:Key="OpenFileTitle">Obrir Llibre</sys:String>
+
+    <!-- Dialogs -->
+    <sys:String x:Key="AboutTitle">Sobre el ConfigurableReader</sys:String>
+    <sys:String x:Key="AppDescription">Un lector de text altament personalitzable i multiplataforma, dissenyat per a una lectura còmoda i sense mans.</sys:String>
+    <sys:String x:Key="SupportedFormatsHeader">Formats Compatibles</sys:String>
+    <sys:String x:Key="KeyboardControlsHeader">Controls de Teclat</sys:String>
+    <sys:String x:Key="GamepadControlsHeader">Controls de Comandament</sys:String>
+    <sys:String x:Key="LicensesHeader">Llicències de Codi Obert</sys:String>
+    <sys:String x:Key="ThirdPartyHeader">Biblioteques de Tercers:</sys:String>
+    <sys:String x:Key="Close">Tancar</sys:String>
+    <sys:String x:Key="Ok">Acceptar</sys:String>
+
+    <!-- Messages -->
+    <sys:String x:Key="StartReached">S'ha arribat a l'inici del llibre</sys:String>
+    <sys:String x:Key="EndReached">S'ha arribat al final del llibre</sys:String>
+    <sys:String x:Key="NoReadableText">El fitxer seleccionat no conté text llegible.</sys:String>
+    <sys:String x:Key="ErrorOpeningBook">Error en obrir el llibre:</sys:String>
+
+    <!-- Cerca -->
+    <sys:String x:Key="SearchWatermark">Cercar...</sys:String>
+    <sys:String x:Key="SearchNext">Següent</sys:String>
+    <sys:String x:Key="SearchNoResults">No s'han trobat resultats per a: {0}</sys:String>
+
+    <!-- Library View & Bookmarks -->
+    <sys:String x:Key="MyLibrary">La Meva Biblioteca</sys:String>
+    <sys:String x:Key="OpenNewBook">Obrir Nou Llibre...</sys:String>
+    <sys:String x:Key="LastReadPrefix">Última lectura:</sys:String>
+    <sys:String x:Key="BackToLibrary">⬅ Biblioteca</sys:String>
+    <sys:String x:Key="RemoveFromLibrary">Eliminar de la Biblioteca</sys:String>
+    <sys:String x:Key="TOCAndBookmarks">Índex i Marcadors</sys:String>
+    <sys:String x:Key="ThemeLabel">Tema:</sys:String>
+    <sys:String x:Key="AddBookmark">Afegir</sys:String>
+    <sys:String x:Key="NameYourBookmark">Nom del marcador...</sys:String>
+    <sys:String x:Key="FileNotFound">Fitxer no trobat. Pot ser que hagi estat mogut o eliminat.</sys:String>
+    <sys:String x:Key="CouldNotOpenFile">No s'ha pogut obrir el fitxer:</sys:String>
+    <sys:String x:Key="FailedToLoadBook">Error en carregar el llibre:</sys:String>
+</ResourceDictionary>
