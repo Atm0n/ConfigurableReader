@@ -53,7 +53,8 @@ This project uses the following third-party libraries:
 - [PdfPig](https://github.com/UglyToad/PdfPig) (MIT License) - PDF Parsing
 - [Markdig](https://github.com/xoofx/markdig) (BSD-2-Clause) - Markdown Parsing
 - [OpenXML SDK](https://github.com/dotnet/Open-XML-SDK) (MIT License) - DOCX Parsing
-- [HtmlAgilityPack](https://github.com/zzzprojects/html-agility-pack) (MIT License) - EPUB/HTML Cleaning
+- [HtmlAgilityPack](https://github.com/zzzprojects/html-agility-pack) (MIT License) - HTML Cleaning
+- [VersOne.Epub](https://github.com/versosoftware/versone.epub) (MIT License) - EPUB Parsing
 
 ## Future Roadmap
 
@@ -65,7 +66,7 @@ Looking to contribute or wondering what's next? Here are some planned improvemen
   - [x] Full-text search within the current book.
   - [ ] Table of Contents support for EPUB and PDF.
   - [ ] Custom Bookmarks.
-- **[ ] Advanced Performance:** Implement text chunking/virtualization for instantaneous loading of extremely large books.
+- **[x] Advanced Performance:** Implement text chunking/virtualization for instantaneous loading of extremely large books.
 - **[ ] UI/UX Polish:**
   - Theme presets (Sepia, High Contrast, etc.).
   - Smooth animated transitions.
