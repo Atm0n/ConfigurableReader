@@ -14,6 +14,7 @@ public class AppSettings
     public string? FontFamily { get; set; }
     public bool EnableEdgeFading { get; set; } = true;
     public bool SpeedReadingMode { get; set; } = false;
+    public double SpeedReadingBoldRatio { get; set; } = 0.5;
     public string Theme { get; set; } = "System Default";
 
     private static readonly string SettingsPath = Path.Combine(

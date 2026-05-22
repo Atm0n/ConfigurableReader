@@ -12,6 +12,7 @@
     <sys:String x:Key="Language">Idioma:</sys:String>
     <sys:String x:Key="EdgeFade">Desvaniment</sys:String>
     <sys:String x:Key="SpeedReading">Lectura Ràpida</sys:String>
+    <sys:String x:Key="SpeedReadingBoldPercentage">Negreta %:</sys:String>
     <sys:String x:Key="TextColor">Text:</sys:String>
     <sys:String x:Key="BackgroundColor">Fons:</sys:String>
     <sys:String x:Key="FontSize">Mida:</sys:String>

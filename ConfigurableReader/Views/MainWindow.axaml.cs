@@ -396,9 +396,23 @@ public partial class MainWindow : Window
     {
         if (_controller.IsUpdatingFromCode) return;
         _settings.SpeedReadingMode = SpeedReadingCheckBox.IsChecked ?? false;
+        SpeedReadingBoldPanel.IsVisible = _settings.SpeedReadingMode;
         _settings.Save();
         
         // Force a layout refresh for the current text
+        _renderedBasePosition = -1; // Reset to force complete text refresh
+    }
+
+    private void SpeedReadingBoldSlider_ValueChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (_controller.IsUpdatingFromCode || _settings == null || SpeedReadingBoldSlider == null || SpeedReadingBoldValueText == null) return;
+        
+        int percent = (int)SpeedReadingBoldSlider.Value;
+        SpeedReadingBoldValueText.Text = $"{percent}%";
+        
+        _settings.SpeedReadingBoldRatio = percent / 100.0;
+        _settings.Save();
+        
         _renderedBasePosition = -1; // Reset to force complete text refresh
     }
 

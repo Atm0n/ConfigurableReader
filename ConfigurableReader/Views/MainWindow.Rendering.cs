@@ -132,7 +132,7 @@ public partial class MainWindow
                         if (MainTextBlock.Inlines != null)
                         {
                             MainTextBlock.Inlines.Clear();
-                            var runs = ConfigurableReader.Core.SpeedReadingProcessor.ProcessText(newText);
+                            var runs = ConfigurableReader.Core.SpeedReadingProcessor.ProcessText(newText, _settings.SpeedReadingBoldRatio);
                             MainTextBlock.Inlines.AddRange(runs);
                         }
 
@@ -148,7 +148,7 @@ public partial class MainWindow
                             if (match.Groups[1].Success) // It's a word
                             {
                                 string word = match.Value;
-                                int boldLength = (int)System.Math.Ceiling(word.Length / 2.0);
+                                int boldLength = System.Math.Clamp((int)System.Math.Ceiling(word.Length * _settings.SpeedReadingBoldRatio), 1, word.Length);
                                 overrides.Add(new global::Avalonia.Utilities.ValueSpan<TextRunProperties>(match.Index, boldLength, boldProperties));
                             }
                         }

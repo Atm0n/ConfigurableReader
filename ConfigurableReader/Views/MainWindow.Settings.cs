@@ -70,7 +70,10 @@ public partial class MainWindow
             .FirstOrDefault(i => i.Tag?.ToString() == _settings.Theme) ?? ThemeComboBox.Items.Cast<ComboBoxItem>().First();
         
             SpeedReadingCheckBox.IsChecked = _settings.SpeedReadingMode;
-
+            SpeedReadingBoldSlider.Value = _settings.SpeedReadingBoldRatio * 100;
+            SpeedReadingBoldValueText.Text = $"{(int)(_settings.SpeedReadingBoldRatio * 100)}%";
+            SpeedReadingBoldPanel.IsVisible = _settings.SpeedReadingMode;
+ 
             ApplyThemeColor(_settings.Theme);
         }
     }
@@ -140,6 +143,7 @@ public partial class MainWindow
         _settings.BackgroundColor = BackgroundColorPicker.Color.ToString();
         _settings.ScrollSpeed = SpeedSlider.Value;
         _settings.EnableEdgeFading = FadeCheckBox.IsChecked ?? true;
+        _settings.SpeedReadingBoldRatio = SpeedReadingBoldSlider.Value / 100.0;
 
         if (LanguageComboBox.SelectedItem is ComboBoxItem langItem && langItem.Tag != null)
         {
