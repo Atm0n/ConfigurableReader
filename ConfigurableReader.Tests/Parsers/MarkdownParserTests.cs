@@ -10,7 +10,7 @@ public class MarkdownParserTests
     {
         // Arrange
         string tempFile = Path.GetTempFileName() + ".md";
-        await File.WriteAllTextAsync(tempFile, "# Hello\n\nThis is **Markdown**.");
+        await File.WriteAllTextAsync(tempFile, "# Hello\n\nThis is **Markdown**.", TestContext.Current.CancellationToken);
         
         var parser = new MarkdownBookParser();
 

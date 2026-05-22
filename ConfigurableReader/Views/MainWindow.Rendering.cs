@@ -105,7 +105,8 @@ public partial class MainWindow
         }
 
         const int safeZone = 2000;
-        bool needsUpdate = _renderedBasePosition == -1 || 
+        bool isForcedRefresh = _renderedBasePosition == -1;
+        bool needsUpdate = isForcedRefresh || 
                            _readerService.CurrentPosition < _renderedBasePosition ||
                            _readerService.CurrentPosition > _renderedBasePosition + AppConstants.MaxBufferLength - safeZone;
 
@@ -122,7 +123,7 @@ public partial class MainWindow
             {
                 string newText = _readerService.BufferText.Substring(relativeBase, length);
 
-                if (_currentRenderedText != newText)
+                if (isForcedRefresh || _currentRenderedText != newText)
                 {
                     _currentRenderedText = newText;
                     

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 
 namespace ConfigurableReader.Views;
@@ -49,7 +50,17 @@ public partial class MainWindow
             _readerService.IsReversing = value;
         };
 
-        _gamepadService.PositionAdjustmentRequested += async delta =>
+        _gamepadService.PositionAdjustmentRequested += delta =>
+        {
+            _ = HandlePositionAdjustmentAsync(delta);
+        };
+
+        _gamepadService.Start();
+    }
+
+    private async Task HandlePositionAdjustmentAsync(int delta)
+    {
+        try
         {
             int newPos;
             if (delta > 0)
@@ -64,8 +75,10 @@ public partial class MainWindow
             UpdateDisplayedText();
             UpdateRenderTransform();
             UpdatePercentage();
-        };
-
-        _gamepadService.Start();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error adjusting position via gamepad: {ex.Message}");
+        }
     }
 }
