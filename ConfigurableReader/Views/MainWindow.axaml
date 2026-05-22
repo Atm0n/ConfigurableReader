@@ -202,8 +202,11 @@
                         </TreeView>
                     </TabItem>
                     <TabItem Header="Bookmarks">
-                        <Grid RowDefinitions="Auto,*">
-                            <Button Content="Add Bookmark Here" Click="AddBookmarkButton_Click" HorizontalAlignment="Stretch" Margin="5"/>
+                        <Grid RowDefinitions="Auto,*" Margin="5">
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,5">
+                                <TextBox Name="BookmarkNameTextBox" Watermark="Bookmark name..." VerticalAlignment="Center" Margin="0,0,5,0" />
+                                <Button Grid.Column="1" Content="Add" Click="AddBookmarkButton_Click" VerticalAlignment="Center" />
+                            </Grid>
                             <ListBox Name="BookmarksListBox" Grid.Row="1" Background="Transparent" SelectionChanged="BookmarksListBox_SelectionChanged">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="core:BookmarkItem">

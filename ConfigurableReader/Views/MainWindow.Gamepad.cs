@@ -49,7 +49,7 @@ public partial class MainWindow
             _readerService.IsReversing = value;
         };
 
-        _gamepadService.PositionAdjustmentRequested += delta =>
+        _gamepadService.PositionAdjustmentRequested += async delta =>
         {
             int newPos;
             if (delta > 0)
@@ -60,7 +60,7 @@ public partial class MainWindow
             {
                 newPos = Math.Max(0, _readerService.CurrentPosition + delta);
             }
-            _readerService.ResetPosition(newPos);
+            await _readerService.ResetPositionAsync(newPos);
             UpdateDisplayedText();
             UpdateRenderTransform();
             UpdatePercentage();

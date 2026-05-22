@@ -117,7 +117,7 @@ public class ReaderService : IDisposable
 
     private void OnStateChanged() => StateChanged?.Invoke();
 
-    public void ResetPosition(int charPosition)
+    public async Task ResetPositionAsync(int charPosition)
     {
         _currentPosition = Math.Clamp(charPosition, 0, TotalLength);
         _subCharOffset = 0;
@@ -125,7 +125,7 @@ public class ReaderService : IDisposable
         // If we jump outside current buffer, reload
         if (_currentPosition < _bufferStartPosition || _currentPosition > _bufferStartPosition + _buffer.Length)
         {
-            _ = LoadBufferAsync(_currentPosition);
+            await LoadBufferAsync(_currentPosition);
         }
 
         OnStateChanged();

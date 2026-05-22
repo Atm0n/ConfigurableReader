@@ -12,6 +12,10 @@ A highly customizable, cross-platform text reader designed for a comfortable and
   - Customize text and background colors.
   - Edge fading for better focus.
 - **Progress Tracking:** Automatically saves your last position in each book you read.
+- **Navigation:**
+  - Full-text search capability.
+  - Automatic Table of Contents extraction for EPUB and PDF files.
+  - Custom Bookmarks feature allows saving specific locations with personalized names.
 - **Gamepad Support:** Control your reading experience from the comfort of your couch using any standard HID Gamepad (Xbox, PlayStation, Switch, etc.).
 - **Visual Indicators:** Connection indicator shows whether you are in Keyboard (⌨️) or Gamepad (🎮) mode.
 
@@ -62,10 +66,10 @@ Looking to contribute or wondering what's next? Here are some planned improvemen
 
 - **[ ] Library View:** A central hub to manage your books, see recent reads, and view reading progress at a glance.
 - **[ ] Unit Testing:** Implementation of a robust test suite for parsers, rendering logic, and localization.
-- **[ ] Search & Navigation:**
+- **[x] Search & Navigation:**
   - [x] Full-text search within the current book.
-  - [ ] Table of Contents support for EPUB and PDF.
-  - [ ] Custom Bookmarks.
+  - [x] Table of Contents support for EPUB and PDF.
+  - [x] Custom Bookmarks.
 - **[x] Advanced Performance:** Implement text chunking/virtualization for instantaneous loading of extremely large books.
 - **[x] UI/UX Polish:**
   - Theme presets (Sepia, High Contrast, etc.).

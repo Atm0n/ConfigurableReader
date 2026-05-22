@@ -194,8 +194,8 @@ public partial class MainWindow : Window
                 StopReading();
                 using (_controller.SuppressCodeUpdates())
                 {
+                    await _readerService.ResetPositionAsync(foundIndex);
                     _renderedBasePosition = -1; // Force re-render
-                    _readerService.ResetPosition(foundIndex);
                     
                     TextSlider.Value = _readerService.CurrentPosition;
                     UpdateDisplayedText();
@@ -336,11 +336,12 @@ public partial class MainWindow : Window
         this.Background = new SolidColorBrush(e.NewColor);
     }
 
-    private void TextSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
+    private async void TextSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
         if (!_isUpdatingFromCode)
         {
-            _readerService.ResetPosition((int)TextSlider.Value);
+            await _readerService.ResetPositionAsync((int)TextSlider.Value);
+            _renderedBasePosition = -1;
             UpdateDisplayedText();
             UpdateRenderTransform();
             UpdatePercentage();
@@ -379,6 +380,7 @@ public partial class MainWindow : Window
         if (TocTreeView.SelectedItem is BookmarkItem item)
         {
             JumpToBookmark(item.Position);
+            TocTreeView.SelectedItem = null;
         }
     }
 
@@ -387,15 +389,16 @@ public partial class MainWindow : Window
         if (BookmarksListBox.SelectedItem is BookmarkItem item)
         {
             JumpToBookmark(item.Position);
+            BookmarksListBox.SelectedItem = null;
         }
     }
 
-    private void JumpToBookmark(int position)
+    private async void JumpToBookmark(int position)
     {
         using (_controller.SuppressCodeUpdates())
         {
+            await _readerService.ResetPositionAsync(position);
             _renderedBasePosition = -1; // Force re-render
-            _readerService.ResetPosition(position);
             
             TextSlider.Value = _readerService.CurrentPosition;
             UpdateDisplayedText();
@@ -408,18 +411,23 @@ public partial class MainWindow : Window
     {
         if (_controller.CurrentRecord == null) return;
         
+        string name = string.IsNullOrWhiteSpace(BookmarkNameTextBox.Text) 
+            ? $"Bookmark at {_readerService.CurrentPosition}" 
+            : BookmarkNameTextBox.Text;
+
         var bookmark = new BookmarkItem 
         { 
-            Title = $"Bookmark at {_readerService.CurrentPosition}", 
+            Title = name, 
             Position = _readerService.CurrentPosition 
         };
         
         _controller.CurrentRecord.CustomBookmarks.Add(bookmark);
-        // Refresh ListBox
-        BookmarksListBox.ItemsSource = null;
-        BookmarksListBox.ItemsSource = _controller.CurrentRecord.CustomBookmarks;
+        
+        if (BookmarksListBox.ItemsSource == null)
+            BookmarksListBox.ItemsSource = _controller.CurrentRecord.CustomBookmarks;
         
         _controller.SaveCurrentPosition(); // Saves bookmarks too
+        BookmarkNameTextBox.Text = string.Empty;
     }
 
     private void DeleteBookmarkButton_Click(object? sender, RoutedEventArgs e)
@@ -427,8 +435,6 @@ public partial class MainWindow : Window
         if (sender is Button button && button.CommandParameter is BookmarkItem item && _controller.CurrentRecord != null)
         {
             _controller.CurrentRecord.CustomBookmarks.Remove(item);
-            BookmarksListBox.ItemsSource = null;
-            BookmarksListBox.ItemsSource = _controller.CurrentRecord.CustomBookmarks;
             _controller.SaveCurrentPosition();
         }
     }
