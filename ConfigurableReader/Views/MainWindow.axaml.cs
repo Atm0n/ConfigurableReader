@@ -146,6 +146,14 @@ public partial class MainWindow : Window
                     TextSlider.Value = _readerService.CurrentPosition;
                     BookNameText.Text = bookName;
 
+                    // Bind TOC and Bookmarks
+                    TocTreeView.ItemsSource = _readerService.CurrentSource?.TableOfContents;
+                    if (_controller.CurrentRecord != null)
+                    {
+                        BookmarksListBox.ItemsSource = null;
+                        BookmarksListBox.ItemsSource = _controller.CurrentRecord.CustomBookmarks;
+                    }
+
                     UpdateDisplayedText();
                     UpdatePercentage();
                 }
@@ -358,6 +366,70 @@ public partial class MainWindow : Window
                     }
                 }, DispatcherPriority.Loaded);
             }
+        }
+    }
+
+    private void TocButton_Click(object? sender, RoutedEventArgs e)
+    {
+        TocBookmarksPanel.IsVisible = !TocBookmarksPanel.IsVisible;
+    }
+
+    private void TocTreeView_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (TocTreeView.SelectedItem is BookmarkItem item)
+        {
+            JumpToBookmark(item.Position);
+        }
+    }
+
+    private void BookmarksListBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (BookmarksListBox.SelectedItem is BookmarkItem item)
+        {
+            JumpToBookmark(item.Position);
+        }
+    }
+
+    private void JumpToBookmark(int position)
+    {
+        using (_controller.SuppressCodeUpdates())
+        {
+            _renderedBasePosition = -1; // Force re-render
+            _readerService.ResetPosition(position);
+            
+            TextSlider.Value = _readerService.CurrentPosition;
+            UpdateDisplayedText();
+            UpdateRenderTransform();
+            UpdatePercentage();
+        }
+    }
+
+    private void AddBookmarkButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_controller.CurrentRecord == null) return;
+        
+        var bookmark = new BookmarkItem 
+        { 
+            Title = $"Bookmark at {_readerService.CurrentPosition}", 
+            Position = _readerService.CurrentPosition 
+        };
+        
+        _controller.CurrentRecord.CustomBookmarks.Add(bookmark);
+        // Refresh ListBox
+        BookmarksListBox.ItemsSource = null;
+        BookmarksListBox.ItemsSource = _controller.CurrentRecord.CustomBookmarks;
+        
+        _controller.SaveCurrentPosition(); // Saves bookmarks too
+    }
+
+    private void DeleteBookmarkButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.CommandParameter is BookmarkItem item && _controller.CurrentRecord != null)
+        {
+            _controller.CurrentRecord.CustomBookmarks.Remove(item);
+            BookmarksListBox.ItemsSource = null;
+            BookmarksListBox.ItemsSource = _controller.CurrentRecord.CustomBookmarks;
+            _controller.SaveCurrentPosition();
         }
     }
 }

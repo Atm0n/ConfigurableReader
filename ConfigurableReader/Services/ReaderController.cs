@@ -15,6 +15,8 @@ public class ReaderController
     private List<BookRecord> _bookRecords = [];
 
     public string? CurrentBookFilePath { get; private set; }
+    public BookRecord? CurrentRecord => CurrentBookFilePath != null ? GetOrCreateRecord(CurrentBookFilePath) : null;
+
     private int _suppressCodeUpdatesCount;
     public bool IsUpdatingFromCode => _suppressCodeUpdatesCount > 0;
 

@@ -7,6 +7,7 @@ namespace ConfigurableReader.Services;
 public class ReaderService : IDisposable
 {
     private IBookSource? _source;
+    public IBookSource? CurrentSource => _source;
     private string _buffer = string.Empty;
     private int _bufferStartPosition = 0;
     public int BufferStartPosition => _bufferStartPosition;

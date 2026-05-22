@@ -20,6 +20,7 @@ public class EpubBookSource : IBookSource
     private readonly object _cacheLock = new();
 
     public int TotalLength => _totalLength;
+    public IReadOnlyList<BookmarkItem> TableOfContents { get; }
 
     public EpubBookSource(EpubBook book)
     {
@@ -40,6 +41,33 @@ public class EpubBookSource : IBookSource
         }
 
         _totalLength = Math.Max(0, currentStart - 1);
+
+        TableOfContents = BuildToc(_book.Navigation);
+    }
+
+    private List<BookmarkItem> BuildToc(List<EpubNavigationItem>? navigationItems)
+    {
+        var toc = new List<BookmarkItem>();
+        if (navigationItems == null) return toc;
+
+        foreach (var item in navigationItems)
+        {
+            var bookmark = new BookmarkItem { Title = item.Title ?? "Untitled" };
+
+            // Find matching chapter based on the file link
+            if (!string.IsNullOrEmpty(item.Link?.ContentFilePath))
+            {
+                var fileIndex = _book.ReadingOrder.FindIndex(c => c.FilePath == item.Link.ContentFilePath);
+                if (fileIndex >= 0 && fileIndex < _chapters.Count)
+                {
+                    bookmark.Position = _chapters[fileIndex].StartPosition;
+                }
+            }
+
+            bookmark.SubItems = BuildToc(item.NestedItems);
+            toc.Add(bookmark);
+        }
+        return toc;
     }
 
     public async Task<string> GetTextAsync(int start, int count)

@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:core="using:ConfigurableReader.Core"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
         x:Class="ConfigurableReader.Views.MainWindow"
         Title="ConfigurableReader"
@@ -88,6 +89,7 @@
                     <Border Classes="GroupBorder">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <Button Content="{DynamicResource OpenFile}" Click="OpenFileButton_Click" Focusable="False"/>
+                            <Button Name="TocButton" Content="TOC &amp; Bookmarks" Click="TocButton_Click" Focusable="False"/>
                         </StackPanel>
                     </Border>
 
@@ -165,24 +167,58 @@
         </Expander>
 
         <!-- Main Reading Area -->
-        <Canvas Name="ReadingAreaCanvas" Grid.Row="1" ClipToBounds="True" Background="Transparent" UseLayoutRounding="False">
-            <TextBlock 
-                Name="MainTextBlock" 
-                Text="ConfigurableReader" 
-                FontSize="48" 
-                Padding="0"
-                VerticalAlignment="Center"
-                TextAlignment="Left" 
-                TextWrapping="NoWrap"
-                UseLayoutRounding="False"
-                Focusable="False">
-                <TextBlock.Transitions>
-                    <Transitions>
-                        <BrushTransition Property="Foreground" Duration="0:0:0.4"/>
-                    </Transitions>
-                </TextBlock.Transitions>
-            </TextBlock>
-        </Canvas>
+        <Grid Grid.Row="1">
+            <Canvas Name="ReadingAreaCanvas" ClipToBounds="True" Background="Transparent" UseLayoutRounding="False">
+                <TextBlock 
+                    Name="MainTextBlock" 
+                    Text="ConfigurableReader" 
+                    FontSize="48" 
+                    Padding="0"
+                    VerticalAlignment="Center"
+                    TextAlignment="Left" 
+                    TextWrapping="NoWrap"
+                    UseLayoutRounding="False"
+                    Focusable="False"
+                    ClipToBounds="False"
+                    RenderTransformOrigin="0,0">
+                    <TextBlock.Transitions>
+                        <Transitions>
+                            <BrushTransition Property="Foreground" Duration="0:0:0.4"/>
+                        </Transitions>
+                    </TextBlock.Transitions>
+                </TextBlock>
+            </Canvas>
+
+            <!-- TOC and Bookmarks Panel -->
+            <Border Name="TocBookmarksPanel" Width="300" HorizontalAlignment="Left" Background="#E61E1E1E" IsVisible="False" BorderBrush="#3E3E42" BorderThickness="0,0,1,0">
+                <TabControl>
+                    <TabItem Header="Table of Contents">
+                        <TreeView Name="TocTreeView" Background="Transparent" SelectionChanged="TocTreeView_SelectionChanged">
+                            <TreeView.ItemTemplate>
+                                <TreeDataTemplate DataType="core:BookmarkItem" ItemsSource="{Binding SubItems}">
+                                    <TextBlock Text="{Binding Title}" />
+                                </TreeDataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+                    </TabItem>
+                    <TabItem Header="Bookmarks">
+                        <Grid RowDefinitions="Auto,*">
+                            <Button Content="Add Bookmark Here" Click="AddBookmarkButton_Click" HorizontalAlignment="Stretch" Margin="5"/>
+                            <ListBox Name="BookmarksListBox" Grid.Row="1" Background="Transparent" SelectionChanged="BookmarksListBox_SelectionChanged">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="core:BookmarkItem">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
+                                            <Button Grid.Column="1" Content="X" CommandParameter="{Binding}" Click="DeleteBookmarkButton_Click" Background="Transparent" Padding="5,0"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </Grid>
 
         <!-- Progress Area -->
         <Border Grid.Row="2" Background="#2D2D30" Padding="10" BorderThickness="0,1,0,0" BorderBrush="#3E3E42">

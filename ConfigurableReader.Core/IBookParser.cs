@@ -17,6 +17,11 @@ public interface IBookSource : IDisposable
     /// <param name="count">The number of characters to retrieve.</param>
     /// <returns>A string containing the requested range.</returns>
     Task<string> GetTextAsync(int start, int count);
+
+    /// <summary>
+    /// The Table of Contents for the book, if available.
+    /// </summary>
+    IReadOnlyList<BookmarkItem> TableOfContents { get; }
 }
 
 public interface IBookParser

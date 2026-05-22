@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ConfigurableReader.Core;
 
 /// <summary>
@@ -7,10 +9,12 @@ public class MemoryBookSource : IBookSource
 {
     private readonly string _fullText;
     public int TotalLength => _fullText.Length;
+    public IReadOnlyList<BookmarkItem> TableOfContents { get; }
 
-    public MemoryBookSource(string fullText)
+    public MemoryBookSource(string fullText, IReadOnlyList<BookmarkItem>? tableOfContents = null)
     {
         _fullText = fullText ?? string.Empty;
+        TableOfContents = tableOfContents ?? new List<BookmarkItem>();
     }
 
     public Task<string> GetTextAsync(int start, int count)
