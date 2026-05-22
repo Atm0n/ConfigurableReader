@@ -190,6 +190,9 @@
                                 <CheckBox Name="FadeCheckBox" Content="{DynamicResource EdgeFade}" VerticalAlignment="Center" Margin="10,0" 
                                           IsCheckedChanged="FadeCheckBox_IsCheckedChanged" Focusable="False" Foreground="#F1F1F1"/>
 
+                                <CheckBox Name="SpeedReadingCheckBox" Content="{DynamicResource SpeedReading}" VerticalAlignment="Center" Margin="10,0" 
+                                          IsCheckedChanged="SpeedReadingCheckBox_IsCheckedChanged" Focusable="False" Foreground="#F1F1F1"/>
+
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{DynamicResource ThemeLabel}" Classes="LabelStyle"/>
                                     <ComboBox Name="ThemeComboBox" Width="130" SelectionChanged="ThemeComboBox_SelectionChanged" Focusable="False">

@@ -11,6 +11,7 @@
     <sys:String x:Key="Font">Font:</sys:String>
     <sys:String x:Key="Language">Language:</sys:String>
     <sys:String x:Key="EdgeFade">Edge Fade</sys:String>
+    <sys:String x:Key="SpeedReading">Speed Reading</sys:String>
     <sys:String x:Key="TextColor">Text:</sys:String>
     <sys:String x:Key="BackgroundColor">BG:</sys:String>
     <sys:String x:Key="FontSize">Size:</sys:String>

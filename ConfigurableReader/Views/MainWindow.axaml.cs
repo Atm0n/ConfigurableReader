@@ -383,9 +383,23 @@ public partial class MainWindow : Window
         }
     }
 
-    private void FadeCheckBox_IsCheckedChanged(object? sender, RoutedEventArgs e)
+    private void FadeCheckBox_IsCheckedChanged(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        UpdateEdgeFading(FadeCheckBox.IsChecked ?? true);
+        if (_controller.IsUpdatingFromCode) return;
+        bool enable = FadeCheckBox.IsChecked ?? true;
+        _settings.EnableEdgeFading = enable;
+        _settings.Save();
+        UpdateEdgeFading(enable);
+    }
+
+    private void SpeedReadingCheckBox_IsCheckedChanged(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_controller.IsUpdatingFromCode) return;
+        _settings.SpeedReadingMode = SpeedReadingCheckBox.IsChecked ?? false;
+        _settings.Save();
+        
+        // Force a layout refresh for the current text
+        _renderedBasePosition = -1; // Reset to force complete text refresh
     }
 
     private void TextColorPicker_ColorChanged(object? sender, ColorChangedEventArgs e)

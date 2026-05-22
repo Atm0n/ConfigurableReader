@@ -15,6 +15,7 @@ public partial class MainWindow
     private readonly TranslateTransform _textTranslateTransform = new();
     private DateTime _lastRenderTime;
     private int _renderedBasePosition = -1;
+    private string? _currentRenderedText;
     private TextLayout? _currentTextLayout;
 
     private void InitializeRendering()
@@ -57,7 +58,7 @@ public partial class MainWindow
     {
         if (_currentTextLayout == null || MainTextBlock.Text == null) return (currentPos, 0, false);
 
-        int localIndex = Math.Clamp(currentPos - _renderedBasePosition, 0, MainTextBlock.Text.Length);
+        int localIndex = Math.Clamp(currentPos - _renderedBasePosition, 0, _currentRenderedText?.Length ?? 0);
         
         var startRect = _currentTextLayout.HitTestTextPosition(localIndex);
         double absoluteTargetX = startRect.Left + targetOffset;
@@ -78,7 +79,7 @@ public partial class MainWindow
     {
         if (_currentTextLayout == null || string.IsNullOrEmpty(_readerService.BufferText) || MainTextBlock.Text == null) return;
 
-        int localIndex = Math.Clamp(_readerService.CurrentPosition - _renderedBasePosition, 0, MainTextBlock.Text.Length);
+        int localIndex = Math.Clamp(_readerService.CurrentPosition - _renderedBasePosition, 0, _currentRenderedText?.Length ?? 0);
         var rect = _currentTextLayout.HitTestTextPosition(localIndex);
         
         _textTranslateTransform.X = -(rect.Left - _readerService.CurrentOffsetX);
@@ -121,16 +122,56 @@ public partial class MainWindow
             {
                 string newText = _readerService.BufferText.Substring(relativeBase, length);
 
-                if (MainTextBlock.Text != newText)
+                if (_currentRenderedText != newText)
                 {
-                    MainTextBlock.Text = newText;
+                    _currentRenderedText = newText;
                     
-                    var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
-                    _currentTextLayout = new TextLayout(
-                        newText,
-                        typeface,
-                        MainTextBlock.FontSize,
-                        MainTextBlock.Foreground);
+                    if (_settings.SpeedReadingMode)
+                    {
+                        MainTextBlock.Text = newText;
+                        if (MainTextBlock.Inlines != null)
+                        {
+                            MainTextBlock.Inlines.Clear();
+                            var runs = ConfigurableReader.Core.SpeedReadingProcessor.ProcessText(newText);
+                            MainTextBlock.Inlines.AddRange(runs);
+                        }
+
+                        var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
+                        var boldTypeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, FontWeight.Bold);
+                        
+                        var overrides = new System.Collections.Generic.List<global::Avalonia.Utilities.ValueSpan<TextRunProperties>>();
+                        var boldProperties = new GenericTextRunProperties(boldTypeface, MainTextBlock.FontSize, null, MainTextBlock.Foreground);
+                        
+                        var matches = System.Text.RegularExpressions.Regex.Matches(newText, @"(\p{L}+)|([^\p{L}]+)");
+                        foreach (System.Text.RegularExpressions.Match match in matches)
+                        {
+                            if (match.Groups[1].Success) // It's a word
+                            {
+                                string word = match.Value;
+                                int boldLength = (int)System.Math.Ceiling(word.Length / 2.0);
+                                overrides.Add(new global::Avalonia.Utilities.ValueSpan<TextRunProperties>(match.Index, boldLength, boldProperties));
+                            }
+                        }
+                        
+                        _currentTextLayout = new TextLayout(
+                            newText,
+                            typeface,
+                            MainTextBlock.FontSize,
+                            MainTextBlock.Foreground,
+                            textStyleOverrides: overrides);
+                    }
+                    else
+                    {
+                        if (MainTextBlock.Inlines != null) MainTextBlock.Inlines.Clear();
+                        MainTextBlock.Text = newText;
+                        
+                        var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
+                        _currentTextLayout = new TextLayout(
+                            newText,
+                            typeface,
+                            MainTextBlock.FontSize,
+                            MainTextBlock.Foreground);
+                    }
                 }
             }
         }

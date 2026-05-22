@@ -65,11 +65,12 @@ public partial class MainWindow
         // Apply Theme
         using (_controller.SuppressCodeUpdates())
         {
-            var themeItem = ThemeComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Tag?.ToString() == _settings.Theme);
-            if (themeItem != null)
-            {
-                ThemeComboBox.SelectedItem = themeItem;
-            }
+            ThemeComboBox.SelectedItem = ThemeComboBox.Items
+            .Cast<ComboBoxItem>()
+            .FirstOrDefault(i => i.Tag?.ToString() == _settings.Theme) ?? ThemeComboBox.Items.Cast<ComboBoxItem>().First();
+        
+            SpeedReadingCheckBox.IsChecked = _settings.SpeedReadingMode;
+
             ApplyThemeColor(_settings.Theme);
         }
     }

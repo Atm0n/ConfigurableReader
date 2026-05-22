@@ -8,9 +8,10 @@
     <sys:String x:Key="Stop">Aturar</sys:String>
     <sys:String x:Key="Reverse">Invertir</sys:String>
     <sys:String x:Key="Speed">Velocitat:</sys:String>
-    <sys:String x:Key="Font">Font:</sys:String>
+    <sys:String x:Key="Font">Lletra:</sys:String>
     <sys:String x:Key="Language">Idioma:</sys:String>
     <sys:String x:Key="EdgeFade">Desvaniment</sys:String>
+    <sys:String x:Key="SpeedReading">Lectura Ràpida</sys:String>
     <sys:String x:Key="TextColor">Text:</sys:String>
     <sys:String x:Key="BackgroundColor">Fons:</sys:String>
     <sys:String x:Key="FontSize">Mida:</sys:String>
