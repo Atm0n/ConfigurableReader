@@ -60,12 +60,12 @@ This project uses the following third-party libraries:
 
 Looking to contribute or wondering what's next? Here are some planned improvements:
 
-- **[ ] Library View:** A central hub to manage your books, see recent reads, and view reading progress at a glance.
+- **[X] Library View:** A central hub to manage your books, see recent reads, and view reading progress at a glance.
 - **[ ] Unit Testing:** Implementation of a robust test suite for parsers, rendering logic, and localization.
-- **[ ] Search & Navigation:**
+- **[X] Search & Navigation:**
   - [x] Full-text search within the current book.
-  - [ ] Table of Contents support for EPUB and PDF.
-  - [ ] Custom Bookmarks.
+  - [X] Table of Contents support for EPUB and PDF.
+  - [X] Custom Bookmarks.
 - **[x] Advanced Performance:** Implement text chunking/virtualization for instantaneous loading of extremely large books.
 - **[x] UI/UX Polish:**
   - Theme presets (Sepia, High Contrast, etc.).
