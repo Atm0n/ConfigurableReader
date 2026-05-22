@@ -4,6 +4,9 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using ConfigurableReader.Common;
 using ConfigurableReader.Services;
+using Avalonia;
+using Avalonia.Platform;
+using Avalonia.Styling;
 
 namespace ConfigurableReader.Views;
 
@@ -58,6 +61,70 @@ public partial class MainWindow
 
         this.Background = new SolidColorBrush(BackgroundColorPicker.Color);
         MainTextBlock.Foreground = new SolidColorBrush(TextColorPicker.Color);
+
+        // Apply Theme
+        using (_controller.SuppressCodeUpdates())
+        {
+            var themeItem = ThemeComboBox.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Tag?.ToString() == _settings.Theme);
+            if (themeItem != null)
+            {
+                ThemeComboBox.SelectedItem = themeItem;
+            }
+            ApplyThemeColor(_settings.Theme);
+        }
+    }
+
+    private void ApplyThemeColor(string themeName)
+    {
+        if (themeName == "System Default")
+        {
+            var isDark = Application.Current?.PlatformSettings?.GetColorValues().ThemeVariant == PlatformThemeVariant.Dark;
+            themeName = isDark ? "Dark" : "Light";
+        }
+
+        switch (themeName)
+        {
+            case "Dark":
+                SetColors(Color.Parse("#1E1E1E"), Color.Parse("#F1F1F1"));
+                break;
+            case "Light":
+                SetColors(Color.Parse("#FAFAFA"), Color.Parse("#1A1A1A"));
+                break;
+            case "Sepia":
+                SetColors(Color.Parse("#F4ECD8"), Color.Parse("#5B4636"));
+                break;
+            case "High Contrast":
+                SetColors(Color.Parse("#000000"), Color.Parse("#00FF00"));
+                break;
+            case "Custom":
+                // Don't change colors, just use the custom ones.
+                break;
+        }
+
+        CustomColorPanel.IsVisible = (themeName == "Custom" || _settings.Theme == "Custom");
+    }
+
+    private void SetColors(Color bgColor, Color fgColor)
+    {
+        using (_controller.SuppressCodeUpdates())
+        {
+            BackgroundColorPicker.Color = bgColor;
+            TextColorPicker.Color = fgColor;
+        }
+        this.Background = new SolidColorBrush(bgColor);
+        MainTextBlock.Foreground = new SolidColorBrush(fgColor);
+    }
+
+    private void ThemeComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_controller.IsUpdatingFromCode) return;
+        
+        if (ThemeComboBox.SelectedItem is ComboBoxItem item && item.Tag != null)
+        {
+            _settings.Theme = item.Tag.ToString() ?? "System Default";
+            ApplyThemeColor(_settings.Theme);
+            _settings.Save();
+        }
     }
 
     private void LoadBookPositionConfiguration()
@@ -81,6 +148,11 @@ public partial class MainWindow
         if (FontComboBox.SelectedItem is FontFamily fontFamily)
         {
             _settings.FontFamily = fontFamily.Name;
+        }
+
+        if (ThemeComboBox.SelectedItem is ComboBoxItem themeItem && themeItem.Tag != null)
+        {
+            _settings.Theme = themeItem.Tag.ToString() ?? "System Default";
         }
 
         _controller.SaveCurrentPosition();

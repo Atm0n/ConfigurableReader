@@ -67,7 +67,7 @@ Looking to contribute or wondering what's next? Here are some planned improvemen
   - [ ] Table of Contents support for EPUB and PDF.
   - [ ] Custom Bookmarks.
 - **[x] Advanced Performance:** Implement text chunking/virtualization for instantaneous loading of extremely large books.
-- **[ ] UI/UX Polish:**
+- **[x] UI/UX Polish:**
   - Theme presets (Sepia, High Contrast, etc.).
   - Smooth animated transitions.
   - Modernized About and Settings dialogs.

@@ -11,6 +11,13 @@
         KeyDown="Window_KeyDown"
         Closing="Window_Closing">
 
+    <Window.Transitions>
+        <Transitions>
+            <BrushTransition Property="Background" Duration="0:0:0.4"/>
+            <BrushTransition Property="Foreground" Duration="0:0:0.4"/>
+        </Transitions>
+    </Window.Transitions>
+
     <Window.Resources>
         <LinearGradientBrush x:Key="EdgeFadeMask" StartPoint="0%,50%" EndPoint="100%,50%">
             <GradientStop Color="Transparent" Offset="0"/>
@@ -68,10 +75,13 @@
         <!-- Collapsible Control Panel -->
         <Expander Name="SettingsExpander" Grid.Row="0" Header="{DynamicResource SettingsHeader}" 
                   ExpandDirection="Down" IsExpanded="True"
-                  Background="#2D2D30" 
+                  Background="Transparent" 
                   Foreground="#F1F1F1"
                   BorderThickness="0,0,0,1" BorderBrush="#3E3E42">
-            <Border Padding="15">
+            <ExperimentalAcrylicBorder Padding="15">
+                <ExperimentalAcrylicBorder.Material>
+                    <ExperimentalAcrylicMaterial BackgroundSource="Digger" TintColor="#2D2D30" TintOpacity="1" MaterialOpacity="0.85" />
+                </ExperimentalAcrylicBorder.Material>
                 <WrapPanel Orientation="Horizontal">
                 
                     <!-- File Group -->
@@ -108,11 +118,20 @@
                                       IsCheckedChanged="FadeCheckBox_IsCheckedChanged" Focusable="False" Foreground="#F1F1F1"/>
 
                             <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Theme" Classes="LabelStyle"/>
+                                <ComboBox Name="ThemeComboBox" Width="130" SelectionChanged="ThemeComboBox_SelectionChanged" Focusable="False">
+                                    <ComboBoxItem Content="System Default" Tag="System Default" />
+                                    <ComboBoxItem Content="Dark" Tag="Dark" />
+                                    <ComboBoxItem Content="Light" Tag="Light" />
+                                    <ComboBoxItem Content="Sepia" Tag="Sepia" />
+                                    <ComboBoxItem Content="High Contrast" Tag="High Contrast" />
+                                    <ComboBoxItem Content="Custom" Tag="Custom" />
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Name="CustomColorPanel" Orientation="Horizontal" IsVisible="False">
                                 <TextBlock Text="{DynamicResource TextColor}" Classes="LabelStyle"/>
                                 <ColorPicker Name="TextColorPicker" Width="60" ColorChanged="TextColorPicker_ColorChanged" Focusable="False"/>
-                            </StackPanel>
-                        
-                            <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{DynamicResource BackgroundColor}" Classes="LabelStyle"/>
                                 <ColorPicker Name="BackgroundColorPicker" Width="60" ColorChanged="BackgroundColorPicker_ColorChanged" Focusable="False"/>
                             </StackPanel>
@@ -142,7 +161,7 @@
                     </Border>
 
                 </WrapPanel>
-            </Border>
+            </ExperimentalAcrylicBorder>
         </Expander>
 
         <!-- Main Reading Area -->
@@ -157,6 +176,11 @@
                 TextWrapping="NoWrap"
                 UseLayoutRounding="False"
                 Focusable="False">
+                <TextBlock.Transitions>
+                    <Transitions>
+                        <BrushTransition Property="Foreground" Duration="0:0:0.4"/>
+                    </Transitions>
+                </TextBlock.Transitions>
             </TextBlock>
         </Canvas>
 
