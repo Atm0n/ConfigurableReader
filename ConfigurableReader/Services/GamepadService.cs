@@ -51,6 +51,8 @@ public class GamepadService : IDisposable
     private DateTime _lastDPadUpTime = DateTime.MinValue;
     private DateTime _lastDPadDownTime = DateTime.MinValue;
 
+    public Func<bool>? IsActive { get; set; }
+
     public bool HasActiveGamepads => _activeGamepads.Count > 0;
 
     public void Start()
@@ -73,7 +75,11 @@ public class GamepadService : IDisposable
 
             gamepad.Changes.Subscribe(_ =>
             {
-                Dispatcher.UIThread.Post(() => HandleGamepadInput(gamepad));
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (IsActive != null && !IsActive()) return;
+                    HandleGamepadInput(gamepad);
+                });
             });
         });
     }

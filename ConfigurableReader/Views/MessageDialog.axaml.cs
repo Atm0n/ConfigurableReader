@@ -29,7 +29,13 @@ public partial class MessageDialog : Window
 
                 if (gamepad.BButton || gamepad.AButton || gamepad.Start || gamepad.Select)
                 {
-                    Dispatcher.UIThread.Post(Close);
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (IsActive)
+                        {
+                            Close();
+                        }
+                    });
                 }
             });
         });
