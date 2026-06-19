@@ -16,7 +16,7 @@ A highly customizable, cross-platform text reader designed for a comfortable and
   - Full-text search capability.
   - Automatic Table of Contents extraction for EPUB and PDF files.
   - Custom Bookmarks feature allows saving specific locations with personalized names.
-- **Gamepad Support:** Control your reading experience from the comfort of your couch using any standard HID Gamepad (Xbox, PlayStation, Switch, etc.).
+- **Gamepad Support:** Control your reading experience from the comfort of your couch using any standard HID Gamepad (Xbox, PlayStation, Switch, etc.). Gamepad inputs are only processed when the window is focused/active to avoid accidental inputs when using other applications.
 - **Visual Indicators:** Connection indicator shows whether you are in Keyboard (⌨️) or Gamepad (🎮) mode.
 
 ## Controls

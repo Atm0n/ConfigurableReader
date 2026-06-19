@@ -55,6 +55,7 @@ public partial class MainWindow
             _ = HandlePositionAdjustmentAsync(delta);
         };
 
+        _gamepadService.IsActive = () => IsActive;
         _gamepadService.Start();
     }
 
