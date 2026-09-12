@@ -46,11 +46,6 @@ public partial class MainWindow : Window
 
         ShowLibrary();
 
-        _timer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(AppConstants.TimerIntervalMs),
-        };
-
         _settings = AppSettings.Load();
         LoadBookPositionConfiguration();
         PopulateFontList();
@@ -307,7 +302,7 @@ public partial class MainWindow : Window
         {
             StartStopButton.Content = LocalizationService.GetString("Stop");
             _readerService.IsPaused = false;
-            _lastRenderTime = DateTime.MinValue;
+            StartAnimationLoop();
             SettingsExpander.IsExpanded = false;
         }
         else

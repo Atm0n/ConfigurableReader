@@ -11,46 +11,70 @@ using ConfigurableReader.Common;
 
 public partial class MainWindow
 {
-    private readonly DispatcherTimer _timer;
     private readonly TranslateTransform _textTranslateTransform = new();
-    private DateTime _lastRenderTime;
+    private TimeSpan _lastFrameTime = TimeSpan.Zero;
+    private bool _isAnimationLoopRunning = false;
     private int _renderedBasePosition = -1;
     private string? _currentRenderedText;
     private TextLayout? _currentTextLayout;
 
     private void InitializeRendering()
     {
-        _timer.Tick += OnRendering;
         MainTextBlock.RenderTransform = _textTranslateTransform;
-        _timer.Start();
     }
 
-    private void OnRendering(object? sender, EventArgs e)
+    public void StartAnimationLoop()
     {
+        if (_isAnimationLoopRunning) return;
+        _isAnimationLoopRunning = true;
+        _lastFrameTime = TimeSpan.Zero;
+        RequestAnimationFrame(OnAnimationFrame);
+    }
+
+    private void OnAnimationFrame(TimeSpan timestamp)
+    {
+        if (_readerService.IsPaused || string.IsNullOrEmpty(_readerService.BufferText))
+        {
+            _isAnimationLoopRunning = false;
+            _lastFrameTime = TimeSpan.Zero;
+            return;
+        }
+
         try
         {
-            if (_readerService.IsPaused || string.IsNullOrEmpty(_readerService.BufferText)) return;
-
-            DateTime now = DateTime.Now;
-            if (_lastRenderTime == DateTime.MinValue)
+            if (_lastFrameTime == TimeSpan.Zero)
             {
-                _lastRenderTime = now;
-                return;
+                _lastFrameTime = timestamp;
             }
+            else
+            {
+                double deltaTime = (timestamp - _lastFrameTime).TotalSeconds;
+                _lastFrameTime = timestamp;
 
-            double deltaTime = (now - _lastRenderTime).TotalSeconds;
-            _lastRenderTime = now;
+                // Clamp delta to prevent huge jumps after OS hitch or tab switch
+                deltaTime = Math.Clamp(deltaTime, 0.0, 0.1);
 
-            double pixelsToMove = SpeedSlider.Value * deltaTime;
+                double pixelsToMove = SpeedSlider.Value * deltaTime;
 
-            UpdateDisplayedText();
-            _readerService.Advance(pixelsToMove, MapPixelsToPosition);
-            UpdateRenderTransform();
-            UpdatePercentage();
+                UpdateDisplayedText();
+                _readerService.Advance(pixelsToMove, MapPixelsToPosition);
+                UpdateRenderTransform();
+                UpdatePercentage();
+            }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error in OnRendering: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Error in OnAnimationFrame: {ex.Message}");
+        }
+
+        if (!_readerService.IsPaused)
+        {
+            RequestAnimationFrame(OnAnimationFrame);
+        }
+        else
+        {
+            _isAnimationLoopRunning = false;
+            _lastFrameTime = TimeSpan.Zero;
         }
     }
 
