@@ -48,6 +48,8 @@
     <!-- Library View & Bookmarks -->
     <sys:String x:Key="MyLibrary">La Meva Biblioteca</sys:String>
     <sys:String x:Key="OpenNewBook">Obrir Nou Llibre...</sys:String>
+    <sys:String x:Key="SearchLibraryWatermark">Filtrar biblioteca...</sys:String>
+    <sys:String x:Key="NoBooksFound">No s'han trobat llibres</sys:String>
     <sys:String x:Key="LastReadPrefix">Última lectura:</sys:String>
     <sys:String x:Key="BackToLibrary">⬅ Biblioteca</sys:String>
     <sys:String x:Key="RemoveFromLibrary">Eliminar de la Biblioteca</sys:String>

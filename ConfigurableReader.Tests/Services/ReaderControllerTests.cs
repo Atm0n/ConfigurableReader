@@ -39,4 +39,30 @@ public class ReaderControllerTests
         controller.BookRecords.Count.ShouldBe(initialCount + 1);
         controller.BookRecords.ShouldContain(r => r.FilePath == "C:\\test\\book.txt");
     }
+
+    [Fact]
+    public void BookRecord_ProgressPercentageAndFormattedProgress_CalculatesCorrectly()
+    {
+        var record = new Models.BookRecord
+        {
+            ScrollPosition = 250,
+            TotalLength = 1000
+        };
+
+        record.ProgressPercentage.ShouldBe(25.0);
+        record.FormattedProgress.ShouldBe($"{25.0:F1}%");
+    }
+
+    [Fact]
+    public void BookRecord_FormattedProgress_WhenTotalLengthZero_ReturnsZeroPercent()
+    {
+        var record = new Models.BookRecord
+        {
+            ScrollPosition = 0,
+            TotalLength = 0
+        };
+
+        record.ProgressPercentage.ShouldBe(0);
+        record.FormattedProgress.ShouldBe("0%");
+    }
 }

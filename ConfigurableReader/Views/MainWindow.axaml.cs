@@ -182,9 +182,34 @@ public partial class MainWindow : Window
         LibraryViewContainer.IsVisible = true;
         ReaderViewContainer.IsVisible = false;
         
-        // Refresh library view items
+        ApplyLibraryFilter();
+    }
+
+    private void ApplyLibraryFilter()
+    {
+        string query = LibrarySearchTextBox?.Text?.Trim() ?? string.Empty;
+        var records = _controller.BookRecords.OrderByDescending(b => b.LastReadDate).AsEnumerable();
+
+        if (!string.IsNullOrEmpty(query))
+        {
+            records = records.Where(b => 
+                b.DisplayTitle.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                System.IO.Path.GetFileName(b.FilePath).Contains(query, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var list = records.ToList();
         LibraryItemsControl.ItemsSource = null;
-        LibraryItemsControl.ItemsSource = _controller.BookRecords.OrderByDescending(b => b.LastReadDate).ToList();
+        LibraryItemsControl.ItemsSource = list;
+
+        if (EmptyLibraryText != null)
+        {
+            EmptyLibraryText.IsVisible = list.Count == 0;
+        }
+    }
+
+    private void LibrarySearchTextBox_TextChanged(object? sender, TextChangedEventArgs e)
+    {
+        ApplyLibraryFilter();
     }
 
     private void ShowReader()

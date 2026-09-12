@@ -48,6 +48,8 @@
     <!-- Library View & Bookmarks -->
     <sys:String x:Key="MyLibrary">My Library</sys:String>
     <sys:String x:Key="OpenNewBook">Open New Book...</sys:String>
+    <sys:String x:Key="SearchLibraryWatermark">Filter library...</sys:String>
+    <sys:String x:Key="NoBooksFound">No books found</sys:String>
     <sys:String x:Key="LastReadPrefix">Last read:</sys:String>
     <sys:String x:Key="BackToLibrary">⬅ Library</sys:String>
     <sys:String x:Key="RemoveFromLibrary">Remove from Library</sys:String>
