@@ -16,6 +16,7 @@ public class AppSettings
     public bool SpeedReadingMode { get; set; } = false;
     public double SpeedReadingBoldRatio { get; set; } = 0.5;
     public string Theme { get; set; } = "System Default";
+    public string LibrarySortOption { get; set; } = "Recent";
 
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

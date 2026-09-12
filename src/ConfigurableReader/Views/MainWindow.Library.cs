@@ -17,13 +17,24 @@ public partial class MainWindow
         LibraryViewContainer.IsVisible = true;
         ReaderViewContainer.IsVisible = false;
 
+        if (LibrarySortComboBox != null && LibrarySortComboBox.SelectedItem == null)
+        {
+            using (_controller.SuppressCodeUpdates())
+            {
+                var match = LibrarySortComboBox.Items
+                    .Cast<ComboBoxItem>()
+                    .FirstOrDefault(i => i.Tag?.ToString() == _settings.LibrarySortOption);
+                LibrarySortComboBox.SelectedItem = match ?? LibrarySortComboBox.Items.Cast<ComboBoxItem>().FirstOrDefault();
+            }
+        }
+
         ApplyLibraryFilter();
     }
 
     private void ApplyLibraryFilter()
     {
         string query = LibrarySearchTextBox?.Text?.Trim() ?? string.Empty;
-        var records = _controller.BookRecords.OrderByDescending(b => b.LastReadDate).AsEnumerable();
+        var records = _controller.BookRecords.AsEnumerable();
 
         if (!string.IsNullOrEmpty(query))
         {
@@ -31,6 +42,19 @@ public partial class MainWindow
                 b.DisplayTitle.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                 Path.GetFileName(b.FilePath).Contains(query, StringComparison.OrdinalIgnoreCase));
         }
+
+        string sortKey = (LibrarySortComboBox?.SelectedItem as ComboBoxItem)?.Tag?.ToString() 
+            ?? _settings.LibrarySortOption 
+            ?? "Recent";
+
+        records = sortKey switch
+        {
+            "TitleAsc" => records.OrderBy(b => b.DisplayTitle, StringComparer.CurrentCultureIgnoreCase),
+            "TitleDesc" => records.OrderByDescending(b => b.DisplayTitle, StringComparer.CurrentCultureIgnoreCase),
+            "ProgressDesc" => records.OrderByDescending(b => b.ProgressPercentage).ThenByDescending(b => b.LastReadDate),
+            "ProgressAsc" => records.OrderBy(b => b.ProgressPercentage).ThenByDescending(b => b.LastReadDate),
+            _ => records.OrderByDescending(b => b.LastReadDate)
+        };
 
         var list = records.ToList();
         LibraryItemsControl.ItemsSource = null;
@@ -44,6 +68,17 @@ public partial class MainWindow
 
     private void LibrarySearchTextBox_TextChanged(object? sender, TextChangedEventArgs e)
     {
+        ApplyLibraryFilter();
+    }
+
+    private void LibrarySortComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_controller.IsUpdatingFromCode) return;
+        if (LibrarySortComboBox?.SelectedItem is ComboBoxItem item && item.Tag != null)
+        {
+            _settings.LibrarySortOption = item.Tag.ToString() ?? "Recent";
+            _settings.Save();
+        }
         ApplyLibraryFilter();
     }
 

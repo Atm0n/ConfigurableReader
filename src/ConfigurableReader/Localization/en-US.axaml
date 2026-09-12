@@ -71,4 +71,11 @@
     <sys:String x:Key="ThemeNord">Nord</sys:String>
     <sys:String x:Key="ThemeHighContrast">High Contrast</sys:String>
     <sys:String x:Key="ThemeCustom">Custom</sys:String>
+
+    <!-- Library Sorting -->
+    <sys:String x:Key="SortRecent">Recently Read</sys:String>
+    <sys:String x:Key="SortTitleAsc">Title (A → Z)</sys:String>
+    <sys:String x:Key="SortTitleDesc">Title (Z → A)</sys:String>
+    <sys:String x:Key="SortProgressDesc">Progress (Highest)</sys:String>
+    <sys:String x:Key="SortProgressAsc">Progress (Lowest)</sys:String>
 </ResourceDictionary>

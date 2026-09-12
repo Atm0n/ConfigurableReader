@@ -71,4 +71,11 @@
     <sys:String x:Key="ThemeNord">Nord</sys:String>
     <sys:String x:Key="ThemeHighContrast">Alt contrast</sys:String>
     <sys:String x:Key="ThemeCustom">Personalitzat</sys:String>
+
+    <!-- Library Sorting -->
+    <sys:String x:Key="SortRecent">Llegit recentment</sys:String>
+    <sys:String x:Key="SortTitleAsc">Títol (A → Z)</sys:String>
+    <sys:String x:Key="SortTitleDesc">Títol (Z → A)</sys:String>
+    <sys:String x:Key="SortProgressDesc">Progrés (Major)</sys:String>
+    <sys:String x:Key="SortProgressAsc">Progrés (Menor)</sys:String>
 </ResourceDictionary>
