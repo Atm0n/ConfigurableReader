@@ -96,4 +96,23 @@ public class TxtParserTests : IDisposable
         // Assert
         text.ShouldBeEmpty();
     }
+
+    [Fact]
+    public async Task TxtBookSource_GetTextAsync_WithMultiByteUtf8Characters_PreservesCharactersAndOffsets()
+    {
+        // Arrange (contains accented characters, Catalan/Spanish chars, and emoji)
+        var content = "¡Hola! ¿Cómo estás? Café y música. 😊";
+        await File.WriteAllTextAsync(_tempFilePath, content, TestContext.Current.CancellationToken);
+        var parser = new TxtBookParser();
+        using var source = await parser.CreateSourceAsync(_tempFilePath);
+
+        // Act & Assert
+        source.TotalLength.ShouldBe(content.Length);
+        var fullText = await source.GetTextAsync(0, source.TotalLength);
+        fullText.ShouldBe(content);
+
+        // Slice specifically inside multi-byte characters
+        var slice = await source.GetTextAsync(7, 11);
+        slice.ShouldBe("¿Cómo estás");
+    }
 }

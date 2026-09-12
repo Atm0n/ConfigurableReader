@@ -38,8 +38,10 @@ public static class BookRecordStore
         {
             string? directory = Path.GetDirectoryName(StorePath);
             if (directory != null) Directory.CreateDirectory(directory);
+            string tempPath = StorePath + ".tmp";
             string json = JsonSerializer.Serialize(records, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(StorePath, json);
+            File.WriteAllText(tempPath, json);
+            File.Move(tempPath, StorePath, overwrite: true);
         }
         catch (Exception ex)
         {

@@ -45,8 +45,10 @@ public class AppSettings
         {
             string? directory = Path.GetDirectoryName(SettingsPath);
             if (directory != null) Directory.CreateDirectory(directory);
+            string tempPath = SettingsPath + ".tmp";
             string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(SettingsPath, json);
+            File.WriteAllText(tempPath, json);
+            File.Move(tempPath, SettingsPath, overwrite: true);
         }
         catch (Exception ex)
         {

@@ -43,7 +43,7 @@ public partial class EpubBookParser : IBookParser
         {
             foreach (var node in blockNodes)
             {
-                node.ParentNode.InsertAfter(doc.CreateTextNode(" "), node);
+                node.ParentNode?.InsertAfter(doc.CreateTextNode(" "), node);
             }
         }
 
