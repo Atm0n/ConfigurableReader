@@ -97,11 +97,21 @@ public class GamepadService : IDisposable
 
     public void Start()
     {
-        _gamepadSubscription = _devices.Controllers<Gamepad>().Subscribe(gamepad =>
+        try
         {
-            gamepad.Connect();
+            _gamepadSubscription = _devices.Controllers<Gamepad>().Subscribe(gamepad =>
+            {
+                try
+                {
+                    gamepad.Connect();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[GamepadService] Could not connect gamepad: {ex.Message}");
+                    return;
+                }
 
-            var subs = new List<IDisposable>();
+                var subs = new List<IDisposable>();
 
             subs.Add(gamepad.ConnectionState.Subscribe(isConnected =>
             {
@@ -144,6 +154,11 @@ public class GamepadService : IDisposable
 
             _gamepadSubscriptions[gamepad] = subs;
         });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[GamepadService] Failed to initialize gamepad subsystem: {ex.Message}");
+        }
     }
 
     public void ProcessInput(

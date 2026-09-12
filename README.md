@@ -85,6 +85,14 @@ A modern, highly customizable desktop reading application built with [.NET 10](h
 | **LB / RB (Bumpers)** | Adjust scroll speed |
 | **LT / RT (Triggers)** | Rewind / Fast-forward (Hold to scroll, double-tap boost) |
 
+> [!TIP]
+> **Linux Gamepad Setup:**
+> By default, Linux restricts access to raw HID device nodes (`/dev/hidraw*`) to root. To allow regular users to use gamepads with ConfigurableReader without root privileges, install the included udev rule:
+> ```bash
+> sudo cp packaging/linux/99-configurable-reader.rules /etc/udev/rules.d/
+> sudo udevadm control --reload-rules && sudo udevadm trigger
+> ```
+
 ---
 
 ## 🚀 Getting Started

@@ -1,0 +1,11 @@
+# ConfigurableReader Gamepad Permissions
+# Grants user seat access (TAG+="uaccess") and read/write permissions to raw HID device nodes
+# so that non-root users can use gamepads and controllers with ConfigurableReader on Linux.
+
+# Generic HID raw devices (gamepads, joysticks, controllers)
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", MODE="0666", TAG+="uaccess"
+
+# Fallback for input subsystem joysticks & gamepads
+KERNEL=="js[0-9]*", SUBSYSTEM=="input", MODE="0666", TAG+="uaccess"
+KERNEL=="event[0-9]*", SUBSYSTEM=="input", ATTRS{name}=="*Controller*", MODE="0666", TAG+="uaccess"
+KERNEL=="event[0-9]*", SUBSYSTEM=="input", ATTRS{name}=="*Gamepad*", MODE="0666", TAG+="uaccess"
