@@ -1,5 +1,5 @@
 using ConfigurableReader.Parsers.Txt;
-using FluentAssertions;
+using Shouldly;
 
 namespace ConfigurableReader.Tests.Parsers;
 
@@ -24,14 +24,14 @@ public class TxtParserTests : IDisposable
     public void TxtBookParser_FormatName_ReturnsTextFiles()
     {
         var parser = new TxtBookParser();
-        parser.FormatName.Should().Be("Text Files");
+        parser.FormatName.ShouldBe("Text Files");
     }
 
     [Fact]
     public void TxtBookParser_SupportedExtensions_ContainsTxt()
     {
         var parser = new TxtBookParser();
-        parser.SupportedExtensions.Should().Contain(".txt");
+        parser.SupportedExtensions.ShouldContain(".txt");
     }
 
     [Fact]
@@ -45,8 +45,8 @@ public class TxtParserTests : IDisposable
         using var source = await parser.CreateSourceAsync(_tempFilePath);
 
         // Assert
-        source.Should().NotBeNull();
-        source.Should().BeOfType<TxtBookSource>();
+        source.ShouldNotBeNull();
+        source.ShouldBeOfType<TxtBookSource>();
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class TxtParserTests : IDisposable
         var length = source.TotalLength;
 
         // Assert
-        length.Should().Be(content.Length);
+        length.ShouldBe(content.Length);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class TxtParserTests : IDisposable
         var text = await source.GetTextAsync(0, source.TotalLength);
 
         // Assert
-        text.Should().Be("Line 1  Line 2 Tabbed");
+        text.ShouldBe("Line 1  Line 2 Tabbed");
     }
 
     [Fact]
@@ -94,6 +94,6 @@ public class TxtParserTests : IDisposable
         var text = await source.GetTextAsync(100, 10);
 
         // Assert
-        text.Should().BeEmpty();
+        text.ShouldBeEmpty();
     }
 }

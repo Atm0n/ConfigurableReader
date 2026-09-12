@@ -1,6 +1,6 @@
 using ConfigurableReader.Core;
 using ConfigurableReader.Services;
-using FluentAssertions;
+using Shouldly;
 
 namespace ConfigurableReader.Tests.Services;
 
@@ -18,7 +18,7 @@ public class ReaderControllerTests
         
         // Assert
         // This will be empty if BookRecordStore.Load() returns empty or file doesn't exist during test.
-        controller.BookRecords.Should().NotBeNull();
+        controller.BookRecords.ShouldNotBeNull();
     }
 
     [Fact]
@@ -34,9 +34,9 @@ public class ReaderControllerTests
         var record = controller.GetOrCreateRecord("C:\\test\\book.txt");
 
         // Assert
-        record.Should().NotBeNull();
-        record.FilePath.Should().Be("C:\\test\\book.txt");
-        controller.BookRecords.Count.Should().Be(initialCount + 1);
-        controller.BookRecords.Should().Contain(r => r.FilePath == "C:\\test\\book.txt");
+        record.ShouldNotBeNull();
+        record.FilePath.ShouldBe("C:\\test\\book.txt");
+        controller.BookRecords.Count.ShouldBe(initialCount + 1);
+        controller.BookRecords.ShouldContain(r => r.FilePath == "C:\\test\\book.txt");
     }
 }

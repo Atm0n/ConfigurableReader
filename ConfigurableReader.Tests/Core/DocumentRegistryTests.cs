@@ -1,6 +1,6 @@
 using ConfigurableReader.Core;
-using FluentAssertions;
 using Moq;
+using Shouldly;
 
 namespace ConfigurableReader.Tests.Core;
 
@@ -20,8 +20,8 @@ public class DocumentRegistryTests
         var result = registry.GetParserForFile("book.txt");
 
         // Assert
-        result.Should().NotBeNull();
-        result.Should().Be(mockParser.Object);
+        result.ShouldNotBeNull();
+        result.ShouldBe(mockParser.Object);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class DocumentRegistryTests
         var result = registry.GetParserForFile("book.txt");
 
         // Assert
-        result.Should().BeNull();
+        result.ShouldBeNull();
     }
 
     [Fact]
@@ -60,8 +60,8 @@ public class DocumentRegistryTests
         var result = await registry.CreateSourceAsync("book.txt");
 
         // Assert
-        result.Should().NotBeNull();
-        result.Should().Be(mockSource.Object);
+        result.ShouldNotBeNull();
+        result.ShouldBe(mockSource.Object);
         mockParser.Verify(p => p.CreateSourceAsync("book.txt"), Times.Once);
     }
 
@@ -71,11 +71,8 @@ public class DocumentRegistryTests
         // Arrange
         var registry = new DocumentRegistry();
 
-        // Act
-        Func<Task> act = async () => await registry.CreateSourceAsync("book.unknown");
-
-        // Assert
-        await act.Should().ThrowAsync<NotSupportedException>()
-                 .WithMessage("No parser found for file extension: .unknown");
+        // Act & Assert
+        var ex = await Should.ThrowAsync<NotSupportedException>(async () => await registry.CreateSourceAsync("book.unknown"));
+        ex.Message.ShouldBe("No parser found for file extension: .unknown");
     }
 }

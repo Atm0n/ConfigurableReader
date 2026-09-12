@@ -1,5 +1,5 @@
 using ConfigurableReader.Parsers.Markdown;
-using FluentAssertions;
+using Shouldly;
 
 namespace ConfigurableReader.Tests.Parsers;
 
@@ -19,8 +19,8 @@ public class MarkdownParserTests
         var text = await source.GetTextAsync(0, source.TotalLength);
 
         // Assert
-        text.Should().Contain("Hello");
-        text.Should().Contain("This is Markdown.");
+        text.ShouldContain("Hello");
+        text.ShouldContain("This is Markdown.");
         
         File.Delete(tempFile);
     }

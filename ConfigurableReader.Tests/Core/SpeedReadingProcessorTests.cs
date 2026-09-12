@@ -1,7 +1,7 @@
 using System.Linq;
-using ConfigurableReader.Core;
-using FluentAssertions;
 using Avalonia.Media;
+using ConfigurableReader.Core;
+using Shouldly;
 
 namespace ConfigurableReader.Tests.Core;
 
@@ -18,13 +18,13 @@ public class SpeedReadingProcessorTests
 
         // Assert
         // "Reader" has 6 letters. At 0.5 ratio, bold length should be 3: "Rea" (Bold) + "der" (Normal)
-        runs.Should().HaveCount(2);
+        runs.Count.ShouldBe(2);
         
-        runs[0].Text.Should().Be("Rea");
-        runs[0].FontWeight.Should().Be(FontWeight.Bold);
+        runs[0].Text.ShouldBe("Rea");
+        runs[0].FontWeight.ShouldBe(FontWeight.Bold);
 
-        runs[1].Text.Should().Be("der");
-        runs[1].FontWeight.Should().Be(FontWeight.Normal);
+        runs[1].Text.ShouldBe("der");
+        runs[1].FontWeight.ShouldBe(FontWeight.Normal);
     }
 
     [Fact]
@@ -38,13 +38,13 @@ public class SpeedReadingProcessorTests
         var runs = SpeedReadingProcessor.ProcessText(text, ratio);
 
         // Assert
-        runs.Should().HaveCount(2);
+        runs.Count.ShouldBe(2);
         
-        runs[0].Text.Should().Be("Con");
-        runs[0].FontWeight.Should().Be(FontWeight.Bold);
+        runs[0].Text.ShouldBe("Con");
+        runs[0].FontWeight.ShouldBe(FontWeight.Bold);
 
-        runs[1].Text.Should().Be("figurable");
-        runs[1].FontWeight.Should().Be(FontWeight.Normal);
+        runs[1].Text.ShouldBe("figurable");
+        runs[1].FontWeight.ShouldBe(FontWeight.Normal);
     }
 
     [Fact]
@@ -59,9 +59,9 @@ public class SpeedReadingProcessorTests
 
         // Assert
         // Even with a very small ratio, we should clamp to 1 bold letter
-        runs.Should().HaveCount(1);
-        runs[0].Text.Should().Be("a");
-        runs[0].FontWeight.Should().Be(FontWeight.Bold);
+        runs.Count.ShouldBe(1);
+        runs[0].Text.ShouldBe("a");
+        runs[0].FontWeight.ShouldBe(FontWeight.Bold);
     }
 
     [Fact]
@@ -78,24 +78,24 @@ public class SpeedReadingProcessorTests
         // ", " (Normal ", ")
         // "world" (Bold "wor" + Normal "ld")
         // "!" (Normal "!")
-        runs.Should().HaveCount(6);
+        runs.Count.ShouldBe(6);
 
-        runs[0].Text.Should().Be("Hel");
-        runs[0].FontWeight.Should().Be(FontWeight.Bold);
+        runs[0].Text.ShouldBe("Hel");
+        runs[0].FontWeight.ShouldBe(FontWeight.Bold);
 
-        runs[1].Text.Should().Be("lo");
-        runs[1].FontWeight.Should().Be(FontWeight.Normal);
+        runs[1].Text.ShouldBe("lo");
+        runs[1].FontWeight.ShouldBe(FontWeight.Normal);
 
-        runs[2].Text.Should().Be(", ");
-        runs[2].FontWeight.Should().Be(FontWeight.Normal);
+        runs[2].Text.ShouldBe(", ");
+        runs[2].FontWeight.ShouldBe(FontWeight.Normal);
 
-        runs[3].Text.Should().Be("wor");
-        runs[3].FontWeight.Should().Be(FontWeight.Bold);
+        runs[3].Text.ShouldBe("wor");
+        runs[3].FontWeight.ShouldBe(FontWeight.Bold);
 
-        runs[4].Text.Should().Be("ld");
-        runs[4].FontWeight.Should().Be(FontWeight.Normal);
+        runs[4].Text.ShouldBe("ld");
+        runs[4].FontWeight.ShouldBe(FontWeight.Normal);
 
-        runs[5].Text.Should().Be("!");
-        runs[5].FontWeight.Should().Be(FontWeight.Normal);
+        runs[5].Text.ShouldBe("!");
+        runs[5].FontWeight.ShouldBe(FontWeight.Normal);
     }
 }

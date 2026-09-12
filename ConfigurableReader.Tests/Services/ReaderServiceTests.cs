@@ -1,7 +1,7 @@
 using ConfigurableReader.Core;
 using ConfigurableReader.Services;
-using FluentAssertions;
 using Moq;
+using Shouldly;
 
 namespace ConfigurableReader.Tests.Services;
 
@@ -21,9 +21,9 @@ public class ReaderServiceTests
         await service.SetSourceAsync(mockSource.Object, 100);
 
         // Assert
-        service.CurrentPosition.Should().Be(100);
-        service.TotalLength.Should().Be(1000);
-        service.BufferText.Should().Be("Sample text buffer");
+        service.CurrentPosition.ShouldBe(100);
+        service.TotalLength.ShouldBe(1000);
+        service.BufferText.ShouldBe("Sample text buffer");
     }
 
     [Fact]
@@ -47,6 +47,6 @@ public class ReaderServiceTests
         });
 
         // Assert
-        service.CurrentPosition.Should().Be(105);
+        service.CurrentPosition.ShouldBe(105);
     }
 }

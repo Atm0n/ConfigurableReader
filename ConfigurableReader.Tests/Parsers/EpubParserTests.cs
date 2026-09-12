@@ -1,5 +1,5 @@
 using ConfigurableReader.Parsers.Epub;
-using FluentAssertions;
+using Shouldly;
 
 namespace ConfigurableReader.Tests.Parsers;
 
@@ -9,13 +9,13 @@ public class EpubParserTests
     public void FormatName_IsEpub()
     {
         var parser = new EpubBookParser();
-        parser.FormatName.Should().Be("EPUB Books");
+        parser.FormatName.ShouldBe("EPUB Books");
     }
 
     [Fact]
     public void SupportedExtensions_ContainsEpub()
     {
         var parser = new EpubBookParser();
-        parser.SupportedExtensions.Should().Contain(".epub");
+        parser.SupportedExtensions.ShouldContain(".epub");
     }
 }
