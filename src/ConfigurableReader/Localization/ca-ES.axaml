@@ -91,4 +91,30 @@
     <sys:String x:Key="ReadArticle">Llegir</sys:String>
     <sys:String x:Key="InvalidUrl">Si us plau, introdueix un URL HTTP o HTTPS vàlid.</sys:String>
     <sys:String x:Key="LoadingWebpage">Obtenint i analitzant l'article...</sys:String>
+
+    <!-- Keybindings & Shortcuts -->
+    <sys:String x:Key="KeybindingsTitle">Dreceres de teclat</sys:String>
+    <sys:String x:Key="KeybindingsPrompt">Fes clic a 'Reassigna' i prem la tecla desitjada.</sys:String>
+    <sys:String x:Key="ConfigureKeybindings">⌨️ Configura dreceres...</sys:String>
+    <sys:String x:Key="Rebind">Reassigna</sys:String>
+    <sys:String x:Key="PressAnyKey">Prem una tecla...</sys:String>
+    <sys:String x:Key="ResetDefaults">Restaura</sys:String>
+    <sys:String x:Key="Save">Desa</sys:String>
+    <sys:String x:Key="Cancel">Cancel·la</sys:String>
+    <sys:String x:Key="ActionTogglePlayPause">Reprodueix / Pausa</sys:String>
+    <sys:String x:Key="ActionDirectionBackward">Desplaça enrere</sys:String>
+    <sys:String x:Key="ActionDirectionForward">Desplaça endavant</sys:String>
+    <sys:String x:Key="ActionToggleReverse">Inverteix direcció</sys:String>
+    <sys:String x:Key="ActionFontSizeIncrease">Augmenta mida de lletra</sys:String>
+    <sys:String x:Key="ActionFontSizeDecrease">Redueix mida de lletra</sys:String>
+    <sys:String x:Key="ActionToggleEdgeFade">Alterna esvaïment de vores</sys:String>
+    <sys:String x:Key="ActionToggleSettings">Panell de configuració</sys:String>
+    <sys:String x:Key="ActionCycleTheme">Canvia tema</sys:String>
+    <sys:String x:Key="ActionToggleReadingMode">Canvia mode de lectura</sys:String>
+    <sys:String x:Key="ActionOpenWebpage">Llegeix article web</sys:String>
+    <sys:String x:Key="ActionToggleZenMode">Mode Zen (Pantalla completa)</sys:String>
+    <sys:String x:Key="ActionSpeedIncrease">Augmenta velocitat / PPM</sys:String>
+    <sys:String x:Key="ActionSpeedDecrease">Redueix velocitat / PPM</sys:String>
+    <sys:String x:Key="ActionShowInfo">Quant a / Informació</sys:String>
+    <sys:String x:Key="ActionConfigureKeybindings">Configura dreceres</sys:String>
 </ResourceDictionary>

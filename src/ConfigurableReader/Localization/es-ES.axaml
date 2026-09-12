@@ -91,4 +91,30 @@
     <sys:String x:Key="ReadArticle">Leer</sys:String>
     <sys:String x:Key="InvalidUrl">Por favor, introduce una URL HTTP o HTTPS válida.</sys:String>
     <sys:String x:Key="LoadingWebpage">Obteniendo y analizando el artículo...</sys:String>
+
+    <!-- Keybindings & Shortcuts -->
+    <sys:String x:Key="KeybindingsTitle">Atajos de teclado</sys:String>
+    <sys:String x:Key="KeybindingsPrompt">Haz clic en 'Reasignar' y pulsa la tecla deseada.</sys:String>
+    <sys:String x:Key="ConfigureKeybindings">⌨️ Configurar atajos...</sys:String>
+    <sys:String x:Key="Rebind">Reasignar</sys:String>
+    <sys:String x:Key="PressAnyKey">Pulsa una tecla...</sys:String>
+    <sys:String x:Key="ResetDefaults">Restablecer</sys:String>
+    <sys:String x:Key="Save">Guardar</sys:String>
+    <sys:String x:Key="Cancel">Cancelar</sys:String>
+    <sys:String x:Key="ActionTogglePlayPause">Reproducir / Pausar</sys:String>
+    <sys:String x:Key="ActionDirectionBackward">Desplazar hacia atrás</sys:String>
+    <sys:String x:Key="ActionDirectionForward">Desplazar hacia adelante</sys:String>
+    <sys:String x:Key="ActionToggleReverse">Invertir dirección</sys:String>
+    <sys:String x:Key="ActionFontSizeIncrease">Aumentar tamaño de fuente</sys:String>
+    <sys:String x:Key="ActionFontSizeDecrease">Disminuir tamaño de fuente</sys:String>
+    <sys:String x:Key="ActionToggleEdgeFade">Alternar desvanecimiento de bordes</sys:String>
+    <sys:String x:Key="ActionToggleSettings">Panel de ajustes</sys:String>
+    <sys:String x:Key="ActionCycleTheme">Cambiar tema</sys:String>
+    <sys:String x:Key="ActionToggleReadingMode">Cambiar modo de lectura</sys:String>
+    <sys:String x:Key="ActionOpenWebpage">Leer artículo web</sys:String>
+    <sys:String x:Key="ActionToggleZenMode">Modo Zen (Pantalla completa)</sys:String>
+    <sys:String x:Key="ActionSpeedIncrease">Aumentar velocidad / PPM</sys:String>
+    <sys:String x:Key="ActionSpeedDecrease">Disminuir velocidad / PPM</sys:String>
+    <sys:String x:Key="ActionShowInfo">Acerca de / Información</sys:String>
+    <sys:String x:Key="ActionConfigureKeybindings">Configurar atajos</sys:String>
 </ResourceDictionary>

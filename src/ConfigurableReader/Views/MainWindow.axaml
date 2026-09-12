@@ -300,9 +300,10 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Info Group -->
+                        <!-- Info & Shortcuts Group -->
                         <Border Classes="GroupBorder">
-                            <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Button Content="{DynamicResource ConfigureKeybindings}" Click="KeybindingsButton_Click" Focusable="False"/>
                                 <Button Content="{DynamicResource Info}" Click="InfoButton_Click" Focusable="False"/>
                             </StackPanel>
                         </Border>

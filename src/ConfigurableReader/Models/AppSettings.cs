@@ -19,6 +19,7 @@ public class AppSettings
     public string LibrarySortOption { get; set; } = "Recent";
     public string ReadingMode { get; set; } = "Marquee";
     public int RsvpWpm { get; set; } = 300;
+    public KeyBindingsConfig KeyBindings { get; set; } = KeyBindingsConfig.GetDefaultBindings();
 
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -32,7 +33,9 @@ public class AppSettings
             if (File.Exists(SettingsPath))
             {
                 string json = File.ReadAllText(SettingsPath);
-                return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+                var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+                settings.KeyBindings ??= KeyBindingsConfig.GetDefaultBindings();
+                return settings;
             }
         }
         catch (Exception ex)

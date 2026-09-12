@@ -1,8 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using ConfigurableReader.Common;
+using ConfigurableReader.Models;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ConfigurableReader.Views;
 
@@ -18,35 +21,44 @@ public partial class MainWindow
             return;
         }
 
-        switch (e.Key)
+        if (e.Key == Key.Escape && _isZenMode)
         {
-            case Key.Left: _readerService.IsReversing = true; break;
-            case Key.Right: _readerService.IsReversing = false; break;
-            case Key.Space: ToggleStartStop(); break;
-            case Key.Up:
+            ToggleZenMode();
+            return;
+        }
+
+        var action = _settings.KeyBindings.GetActionForKey(e.Key);
+        if (action == null) return;
+
+        switch (action.Value)
+        {
+            case ReaderAction.DirectionBackward: _readerService.IsReversing = true; break;
+            case ReaderAction.DirectionForward: _readerService.IsReversing = false; break;
+            case ReaderAction.TogglePlayPause: ToggleStartStop(); break;
+            case ReaderAction.FontSizeIncrease:
                 int upStep = (DateTime.Now - _lastKeyUpTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs
                     ? AppConstants.LargeFontSizeStep
                     : AppConstants.SmallFontSizeStep;
                 _lastKeyUpTime = DateTime.Now;
                 AdjustFontSize(upStep);
                 break;
-            case Key.Down:
+            case ReaderAction.FontSizeDecrease:
                 int downStep = (DateTime.Now - _lastKeyDownTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs
                     ? -AppConstants.LargeFontSizeStep
                     : -AppConstants.SmallFontSizeStep;
                 _lastKeyDownTime = DateTime.Now;
                 AdjustFontSize(downStep);
                 break;
-            case Key.R: _readerService.IsReversing = !_readerService.IsReversing; break;
-            case Key.F: FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked; break;
-            case Key.S: SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded; break;
-            case Key.T: CycleNextTheme(); break;
-            case Key.M: ToggleReadingMode(); break;
-            case Key.U: _ = OpenWebpageAsync(); break;
-            case Key.I: _ = ShowInfoAsync(); break;
-            case Key.F11: ToggleZenMode(); break;
-            case Key.Escape: if (_isZenMode) ToggleZenMode(); break;
-            case Key.OemPlus: case Key.Add:
+            case ReaderAction.ToggleReverse: _readerService.IsReversing = !_readerService.IsReversing; break;
+            case ReaderAction.ToggleEdgeFade: FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked; break;
+            case ReaderAction.ToggleSettings: SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded; break;
+            case ReaderAction.CycleTheme: CycleNextTheme(); break;
+            case ReaderAction.ToggleReadingMode: ToggleReadingMode(); break;
+            case ReaderAction.OpenWebpage: _ = OpenWebpageAsync(); break;
+            case ReaderAction.ShowInfo: _ = ShowInfoAsync(); break;
+            case ReaderAction.ToggleZenMode: ToggleZenMode(); break;
+            case ReaderAction.ConfigureKeybindings: _ = ShowKeybindingsAsync(); break;
+            case ReaderAction.SpeedIncrease:
                 if (_settings.ReadingMode == "RSVP")
                 {
                     RsvpWpmNumeric.Value = Math.Min(2000, (RsvpWpmNumeric.Value ?? 300) + 25);
@@ -56,7 +68,7 @@ public partial class MainWindow
                     SpeedSlider.Value += AppConstants.DefaultSpeedIncrement;
                 }
                 break;
-            case Key.OemMinus: case Key.Subtract:
+            case ReaderAction.SpeedDecrease:
                 if (_settings.ReadingMode == "RSVP")
                 {
                     RsvpWpmNumeric.Value = Math.Max(50, (RsvpWpmNumeric.Value ?? 300) - 25);
@@ -67,6 +79,22 @@ public partial class MainWindow
                 }
                 break;
         }
+    }
+
+    private async Task ShowKeybindingsAsync()
+    {
+        var dialog = new KeybindingsDialog(_settings.KeyBindings);
+        var result = await dialog.ShowDialog<KeyBindingsConfig?>(this);
+        if (result != null)
+        {
+            _settings.KeyBindings = result;
+            _settings.Save();
+        }
+    }
+
+    private void KeybindingsButton_Click(object? sender, RoutedEventArgs e)
+    {
+        _ = ShowKeybindingsAsync();
     }
 
     private void SearchTextBox_KeyDown(object? sender, KeyEventArgs e)

@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:ConfigurableReader.Views"
+        x:Class="ConfigurableReader.Views.KeybindingsDialog"
+        Title="Keyboard Shortcuts" Width="560" Height="560"
+        WindowStartupLocation="CenterOwner"
+        WindowDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent">
+    <Border Background="#2D2D30" BorderBrush="#007ACC" BorderThickness="2" CornerRadius="8" Padding="20">
+        <Grid RowDefinitions="Auto,*,Auto">
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                <TextBlock Text="⌨️ Keyboard Shortcuts" FontSize="18" FontWeight="Bold" Foreground="#4DACFF"/>
+                <TextBlock Text="{DynamicResource KeybindingsPrompt}" FontSize="12" Foreground="#CCCCCC" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- Shortcuts List -->
+            <Border Grid.Row="1" Background="#1E1E1E" BorderBrush="#3E3E42" BorderThickness="1" CornerRadius="6" Padding="6,4">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl Name="ShortcutsItemsControl">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="views:KeybindingItemViewModel">
+                                <Border BorderBrush="#2D2D30" BorderThickness="0,0,0,1" Padding="8,7">
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" FontSize="13" Foreground="#F1F1F1"/>
+
+                                        <Border Grid.Column="1" Background="#252526" BorderBrush="#3E3E42" BorderThickness="1"
+                                                CornerRadius="4" Padding="10,4" MinWidth="90" Margin="0,0,8,0">
+                                            <TextBlock Text="{Binding KeyDisplay}" HorizontalAlignment="Center"
+                                                       FontWeight="Bold" FontSize="12" Foreground="{Binding KeyColor}"/>
+                                        </Border>
+
+                                        <Button Grid.Column="2" Content="{Binding ButtonText}" Width="85" Height="28"
+                                                Click="RebindButton_Click" CommandParameter="{Binding}"
+                                                Background="#3E3E42" Foreground="{Binding ButtonForeground}"
+                                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                                FontSize="12" CornerRadius="4"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Bottom Buttons -->
+            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,15,0,0">
+                <Button Content="{DynamicResource ResetDefaults}" Height="32" Click="ResetDefaultsButton_Click"
+                        Background="#3E3E42" Foreground="#E0E0E0" FontSize="12" CornerRadius="4" Padding="12,0"/>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <Button Content="{DynamicResource Cancel}" Width="80" Height="32" Click="CancelButton_Click"
+                            Background="#3E3E42" Foreground="#CCCCCC" HorizontalContentAlignment="Center" FontSize="12" CornerRadius="4"/>
+                    <Button Content="{DynamicResource Save}" Width="90" Height="32" Click="SaveButton_Click"
+                            Background="#007ACC" Foreground="White" FontWeight="SemiBold" HorizontalContentAlignment="Center" FontSize="12" CornerRadius="4"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

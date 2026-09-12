@@ -91,4 +91,30 @@
     <sys:String x:Key="ReadArticle">Read</sys:String>
     <sys:String x:Key="InvalidUrl">Please enter a valid HTTP or HTTPS URL.</sys:String>
     <sys:String x:Key="LoadingWebpage">Fetching and parsing article...</sys:String>
+
+    <!-- Keybindings & Shortcuts -->
+    <sys:String x:Key="KeybindingsTitle">Keyboard Shortcuts</sys:String>
+    <sys:String x:Key="KeybindingsPrompt">Click 'Rebind' next to any action, then press the desired key.</sys:String>
+    <sys:String x:Key="ConfigureKeybindings">⌨️ Configure Shortcuts...</sys:String>
+    <sys:String x:Key="Rebind">Rebind</sys:String>
+    <sys:String x:Key="PressAnyKey">Press a key...</sys:String>
+    <sys:String x:Key="ResetDefaults">Reset Defaults</sys:String>
+    <sys:String x:Key="Save">Save</sys:String>
+    <sys:String x:Key="Cancel">Cancel</sys:String>
+    <sys:String x:Key="ActionTogglePlayPause">Play / Pause</sys:String>
+    <sys:String x:Key="ActionDirectionBackward">Scroll Backward</sys:String>
+    <sys:String x:Key="ActionDirectionForward">Scroll Forward</sys:String>
+    <sys:String x:Key="ActionToggleReverse">Toggle Direction</sys:String>
+    <sys:String x:Key="ActionFontSizeIncrease">Increase Font Size</sys:String>
+    <sys:String x:Key="ActionFontSizeDecrease">Decrease Font Size</sys:String>
+    <sys:String x:Key="ActionToggleEdgeFade">Toggle Edge Fade</sys:String>
+    <sys:String x:Key="ActionToggleSettings">Toggle Settings Panel</sys:String>
+    <sys:String x:Key="ActionCycleTheme">Cycle Next Theme</sys:String>
+    <sys:String x:Key="ActionToggleReadingMode">Cycle Reading Mode</sys:String>
+    <sys:String x:Key="ActionOpenWebpage">Read Web Article</sys:String>
+    <sys:String x:Key="ActionToggleZenMode">Toggle Zen Mode (Fullscreen)</sys:String>
+    <sys:String x:Key="ActionSpeedIncrease">Increase Speed / WPM</sys:String>
+    <sys:String x:Key="ActionSpeedDecrease">Decrease Speed / WPM</sys:String>
+    <sys:String x:Key="ActionShowInfo">About / Info</sys:String>
+    <sys:String x:Key="ActionConfigureKeybindings">Open Shortcut Manager</sys:String>
 </ResourceDictionary>
