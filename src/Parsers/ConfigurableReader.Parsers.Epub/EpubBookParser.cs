@@ -19,6 +19,19 @@ public partial class EpubBookParser : IBookParser
         return await EpubBookSource.CreateAsync(book);
     }
 
+    public async Task<byte[]?> ExtractCoverImageAsync(string filePath)
+    {
+        try
+        {
+            EpubBook book = await EpubReader.ReadBookAsync(filePath);
+            return book.CoverImage;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public static string ExtractTextFromHtml(string html)
     {
         if (string.IsNullOrEmpty(html)) return string.Empty;

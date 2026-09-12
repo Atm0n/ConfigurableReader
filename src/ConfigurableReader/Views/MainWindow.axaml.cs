@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     private readonly ReaderService _readerService = new();
     private readonly DocumentRegistry _documentRegistry;
     private readonly ReaderController _controller;
+    private readonly CoverService _coverService;
 
     private string? _currentBookFileName => _controller.CurrentBookFilePath;
     private bool _isUpdatingFromCode => _controller.IsUpdatingFromCode;
@@ -38,6 +39,7 @@ public partial class MainWindow : Window
     {
         _documentRegistry = documentRegistry;
         _controller = new ReaderController(documentRegistry, _readerService);
+        _coverService = new CoverService(documentRegistry);
 
         InitializeComponent();
 
@@ -182,6 +184,11 @@ public partial class MainWindow : Window
 
                 UpdateDisplayedText();
                 UpdatePercentage();
+
+                if (_controller.CurrentRecord != null)
+                {
+                    _ = _coverService.PopulateCoverForRecordAsync(_controller.CurrentRecord);
+                }
 
                 ShowReader();
             }

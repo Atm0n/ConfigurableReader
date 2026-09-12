@@ -48,6 +48,34 @@ public partial class HtmlBookParser : IBookParser
         return new MemoryBookSource(article.CleanText, article.Headings, article.Title);
     }
 
+    public async Task<byte[]?> ExtractCoverImageAsync(string filePathOrUrl)
+    {
+        try
+        {
+            string rawHtml;
+            if (filePathOrUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                filePathOrUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                rawHtml = await _httpClient.GetStringAsync(filePathOrUrl);
+            }
+            else
+            {
+                rawHtml = await File.ReadAllTextAsync(filePathOrUrl);
+            }
+
+            var article = HtmlArticleExtractor.Extract(rawHtml);
+            if (!string.IsNullOrEmpty(article.CoverImageUrl))
+            {
+                return await _httpClient.GetByteArrayAsync(article.CoverImageUrl);
+            }
+        }
+        catch
+        {
+            // Fallback to null
+        }
+        return null;
+    }
+
     private static string GetTitleFromUrl(string url)
     {
         try

@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace ConfigurableReader.Parsers.Html;
 
-public record ExtractedArticle(string Title, string CleanText, IReadOnlyList<BookmarkItem> Headings);
+public record ExtractedArticle(string Title, string CleanText, IReadOnlyList<BookmarkItem> Headings, string? CoverImageUrl = null);
 
 public static partial class HtmlArticleExtractor
 {
@@ -36,13 +36,16 @@ public static partial class HtmlArticleExtractor
         // 1. Extract Title
         string title = ExtractTitle(doc) ?? fallbackTitle ?? "Untitled";
 
-        // 2. Remove unwanted tags throughout the document
+        // 2. Extract Cover Image URL (before removing tags)
+        string? coverImageUrl = ExtractCoverImageUrl(doc);
+
+        // 3. Remove unwanted tags throughout the document
         RemoveUnwantedElements(doc.DocumentNode);
 
-        // 3. Find the main content container
+        // 4. Find the main content container
         HtmlNode contentRoot = FindMainContentNode(doc);
 
-        // 4. Extract structured text and headings (Table of Contents)
+        // 5. Extract structured text and headings (Table of Contents)
         var headings = new List<BookmarkItem>();
         var textBuilder = new StringBuilder();
 
@@ -50,7 +53,22 @@ public static partial class HtmlArticleExtractor
 
         string finalText = WhitespaceRegex().Replace(textBuilder.ToString(), " ").Trim();
 
-        return new ExtractedArticle(title, finalText, headings);
+        return new ExtractedArticle(title, finalText, headings, coverImageUrl);
+    }
+
+    private static string? ExtractCoverImageUrl(HtmlDocument doc)
+    {
+        var ogImage = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']/@content")
+                   ?? doc.DocumentNode.SelectSingleNode("//meta[@name='twitter:image']/@content");
+        if (ogImage != null)
+        {
+            string url = ogImage.GetAttributeValue("content", "").Trim();
+            if (!string.IsNullOrWhiteSpace(url) && (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
+            {
+                return url;
+            }
+        }
+        return null;
     }
 
     private static string? ExtractTitle(HtmlDocument doc)

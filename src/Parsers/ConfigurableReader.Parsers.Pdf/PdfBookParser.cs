@@ -19,6 +19,36 @@ public partial class PdfBookParser : IBookParser
         return new MemoryBookSource(text, toc);
     }
 
+    public async Task<byte[]?> ExtractCoverImageAsync(string filePath)
+    {
+        return await Task.Run(() =>
+        {
+            try
+            {
+                using var document = PdfDocument.Open(filePath);
+                if (document.NumberOfPages == 0) return null;
+
+                var firstPage = document.GetPage(1);
+                var images = firstPage.GetImages().ToList();
+                if (images.Count == 0) return null;
+
+                var largestImage = images
+                    .OrderByDescending(img => img.WidthInSamples * img.HeightInSamples)
+                    .FirstOrDefault();
+
+                if (largestImage != null && largestImage.TryGetPng(out byte[] pngBytes))
+                {
+                    return pngBytes;
+                }
+            }
+            catch
+            {
+                // Fallback to null
+            }
+            return null;
+        });
+    }
+
     private async Task<(string Text, List<BookmarkItem> Toc)> ExtractTextAsync(string filePath)
     {
         return await Task.Run(() =>

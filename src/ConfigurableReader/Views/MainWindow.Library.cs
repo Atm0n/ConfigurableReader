@@ -3,6 +3,7 @@ using Avalonia.Interactivity;
 using ConfigurableReader.Models;
 using ConfigurableReader.Services;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -64,6 +65,22 @@ public partial class MainWindow
         {
             EmptyLibraryText.IsVisible = list.Count == 0;
         }
+
+        PopulateCovers(list);
+    }
+
+    private void PopulateCovers(IEnumerable<BookRecord> records)
+    {
+        _ = Task.Run(async () =>
+        {
+            foreach (var record in records)
+            {
+                if (!record.HasCoverBitmap)
+                {
+                    await _coverService.PopulateCoverForRecordAsync(record);
+                }
+            }
+        });
     }
 
     private void LibrarySearchTextBox_TextChanged(object? sender, TextChangedEventArgs e)

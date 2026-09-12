@@ -38,4 +38,9 @@ public interface IBookParser
     /// Creates a source that can provide text chunks for the book.
     /// </summary>
     Task<IBookSource> CreateSourceAsync(string filePath);
+
+    /// <summary>
+    /// Extracts the book's cover art image bytes, if available.
+    /// </summary>
+    Task<byte[]?> ExtractCoverImageAsync(string filePath) => Task.FromResult<byte[]?>(null);
 }
