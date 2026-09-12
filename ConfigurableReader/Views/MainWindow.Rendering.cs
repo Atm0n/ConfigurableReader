@@ -129,12 +129,18 @@ public partial class MainWindow
                     
                     if (_settings.SpeedReadingMode)
                     {
-                        MainTextBlock.Text = newText;
+                        MainTextBlock.Text = null;
                         if (MainTextBlock.Inlines != null)
                         {
                             MainTextBlock.Inlines.Clear();
-                            var runs = ConfigurableReader.Core.SpeedReadingProcessor.ProcessText(newText, _settings.SpeedReadingBoldRatio);
-                            MainTextBlock.Inlines.AddRange(runs);
+                            var segments = ConfigurableReader.Core.SpeedReadingProcessor.ProcessText(newText, _settings.SpeedReadingBoldRatio);
+                            foreach (var seg in segments)
+                            {
+                                MainTextBlock.Inlines.Add(new Avalonia.Controls.Documents.Run(seg.Text)
+                                {
+                                    FontWeight = seg.IsBold ? FontWeight.Bold : FontWeight.Normal
+                                });
+                            }
                         }
 
                         var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
@@ -143,15 +149,10 @@ public partial class MainWindow
                         var overrides = new System.Collections.Generic.List<global::Avalonia.Utilities.ValueSpan<TextRunProperties>>();
                         var boldProperties = new GenericTextRunProperties(boldTypeface, MainTextBlock.FontSize, null, MainTextBlock.Foreground);
                         
-                        var matches = System.Text.RegularExpressions.Regex.Matches(newText, @"(\p{L}+)|([^\p{L}]+)");
-                        foreach (System.Text.RegularExpressions.Match match in matches)
+                        var boldSpans = ConfigurableReader.Core.SpeedReadingProcessor.GetBoldSpans(newText, _settings.SpeedReadingBoldRatio);
+                        foreach (var (spanIndex, spanLength) in boldSpans)
                         {
-                            if (match.Groups[1].Success) // It's a word
-                            {
-                                string word = match.Value;
-                                int boldLength = System.Math.Clamp((int)System.Math.Ceiling(word.Length * _settings.SpeedReadingBoldRatio), 1, word.Length);
-                                overrides.Add(new global::Avalonia.Utilities.ValueSpan<TextRunProperties>(match.Index, boldLength, boldProperties));
-                            }
+                            overrides.Add(new global::Avalonia.Utilities.ValueSpan<TextRunProperties>(spanIndex, spanLength, boldProperties));
                         }
                         
                         _currentTextLayout = new TextLayout(
