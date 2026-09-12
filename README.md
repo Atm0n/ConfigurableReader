@@ -1,83 +1,144 @@
 # ConfigurableReader
 
-A highly customizable, cross-platform text reader designed for a comfortable and hands-free reading experience. Built with [Avalonia UI](https://github.com/AvaloniaUI/Avalonia).
+A modern, highly customizable desktop reading application built with [.NET 10](https://dotnet.microsoft.com/) and [Avalonia UI](https://github.com/AvaloniaUI/Avalonia). Designed for comfortable, hands-free reading, rapid comprehension, and effortless book management from either your desk or couch.
 
-## Key Features
+---
 
-- **Layout-Driven Precision:** Uses a high-performance rendering engine that accounts for font kerning and typographic details for perfectly smooth scrolling.
-- **Multi-Format Support:** Read books in **TXT, EPUB, PDF, DOCX, and Markdown**.
-- **Auto-Scrolling:** Adjust scroll speed to match your reading pace exactly.
-- **Visual Customization:**
-  - Change font size (supports massive fonts for accessibility).
-  - Customize text and background colors.
-  - Edge fading for better focus.
-- **Progress Tracking:** Automatically saves your last position in each book you read.
-- **Navigation:**
-  - Full-text search capability.
-  - Automatic Table of Contents extraction for EPUB and PDF files.
-  - Custom Bookmarks feature allows saving specific locations with personalized names.
-- **Gamepad Support:** Control your reading experience from the comfort of your couch using any standard HID Gamepad (Xbox, PlayStation, Switch, etc.). Gamepad inputs are only processed when the window is focused/active to avoid accidental inputs when using other applications.
-- **Visual Indicators:** Connection indicator shows whether you are in Keyboard (⌨️) or Gamepad (🎮) mode.
+## 🌟 Key Features
 
-## Controls
+### 📖 Multiple Reading Modes
+- **Continuous Auto-Scroll:** High-performance typography rendering with smooth variable speed, bidirectional flow, and customizable edge fading.
+- **Bionic / Focus Reading:** Enhances reading speed and fixation by dynamically bolding the initial anchor letters of each word to guide saccadic eye movements.
+- **RSVP (Rapid Serial Visual Presentation):** Spritz-style word-by-word streaming with an **Optimal Recognition Point (ORP)** focal highlight, eliminating eye movement fatigue and supporting speeds up to **2,000 WPM**.
 
-### Keyboard
-- **Space:** Play / Pause
-- **Left / Right Arrows:** Set Direction (Forward/Backward)
-- **Up / Down Arrows:** Adjust Font Size (Tap for 1pt, double-tap for 10pt)
-- **R:** Toggle Direction
-- **F:** Toggle Edge Fade
-- **S:** Toggle Settings Panel
-- **I:** Show Info / About
-- **+/- (Numpad or Main):** Adjust Scroll Speed
+### 📚 Multi-Format & Web Article Support
+- **EPUB (`.epub`):** Chapter hierarchy, metadata parsing, and embedded cover art extraction.
+- **PDF (`.pdf`):** High-fidelity text and Table of Contents extraction via [PdfPig](https://github.com/UglyToad/PdfPig), including cover page graphic extraction.
+- **Web & Online Articles (`http://`, `https://`, `.html`, `.htm`):** Clean Readability-style web reader powered by [HtmlAgilityPack](https://github.com/zzzprojects/html-agility-pack) that strips ads, navbars, and noise, extracting clean headings and OpenGraph preview images.
+- **Microsoft Word (`.docx`):** Document text parsing via [DocumentFormat.OpenXml](https://github.com/dotnet/Open-XML-SDK).
+- **Markdown (`.md`):** Clean rendering with [Markdig](https://github.com/xoofx/markdig).
+- **Plain Text (`.txt`):** Fast loading of any text file.
 
-### Gamepad
-- **A / B Buttons:** Play / Pause
-- **DPad Up / Down:** Adjust Font Size
-- **DPad Left / Right:** Set Direction (Forward/Backward)
-- **X Button:** Toggle Direction
-- **Y Button:** Toggle Edge Fade
-- **LB / RB (Bumpers):** Adjust Scroll Speed
-- **LT / RT (Triggers):** Rewind / Fast-Forward (Hold to scroll, double-tap for Boost)
-- **Input Indicator:** Check the bottom-right corner for ⌨️/🎮 icon.
+### 🖼️ Visual Bookshelf Library
+- **Cover Art Extraction:** Automatically extracts and caches book covers for EPUB, PDF, and Web articles in `%APPDATA%\ConfigurableReader\Covers\`.
+- **Organized Browsing:** Filter books by title or path, with instant sorting by **Recently Read**, **Title**, or **Progress %**.
+- **Instant Resume:** Automatically remembers your exact reading position and progress for every document.
 
-## Getting Started
+### 🎨 Themes & Typography Customization
+- **9 Curated Reading Themes:** Dark, Light, Sepia, Nord, Solarized Dark, Dracula, Cyberpunk, Forest, and Monochrome.
+- **Full Styling Freedom:** Custom text and background color pickers, font family selector, custom font sizes (including high-accessibility sizing), and edge fade gradient controls.
+- **Zen Mode (<kbd>F11</kbd> / <kbd>Z</kbd>):** Distraction-free full-screen reading mode that hides toolbars and chrome for pure immersion.
 
-1. Launch the application.
-2. Click **Open File** to select a book (Supports `.txt`, `.epub`, `.pdf`, `.docx`, `.md`).
-3. Use the **Speed Slider** (or controller bumpers) to adjust how fast the text scrolls.
-4. Click **Start** (or press Space / A / B) to begin reading.
+### 📊 Reading Statistics & Live Analytics
+- **Live WPM Calculation:** Real-time reading speed metrics based on actual words scrolled or displayed.
+- **Session Tracking:** Tracks reading duration, total words read, and calculates estimated time to finish the book.
 
-## Dependencies
+### 🧭 Navigation & Bookmarks
+- **Table of Contents:** Live chapter tree for EPUB, PDF, and structured HTML articles.
+- **Custom Bookmarks:** Save, label, and revisit specific passages with one click.
+- **In-Book Search:** Full-text instant search with jump-to-result navigation.
 
-This project uses the following third-party libraries:
+### 🎮 Dual Input System (Keyboard + Gamepad)
+- **Lean-Back Couch Reading:** Full native controller support for Xbox, PlayStation, Nintendo Switch, and standard HID gamepads via [HIDDevices](https://github.com/DevDecoder/HIDDevices).
+- **Focus Detection:** Gamepad inputs are only processed when the reader window is focused to prevent accidental inputs while multitasking.
+- **Live Mode Indicator:** Real-time status indicator (⌨️ / 🎮) in the status bar.
+- **Drag & Drop:** Drag any supported file or web URL directly into the reader window.
 
-- [Avalonia](https://github.com/AvaloniaUI/Avalonia) (MIT License)
-- [HIDDevices](https://github.com/DevDecoder/HIDDevices) (Apache License 2.0)
-- [PdfPig](https://github.com/UglyToad/PdfPig) (MIT License) - PDF Parsing
-- [Markdig](https://github.com/xoofx/markdig) (BSD-2-Clause) - Markdown Parsing
-- [OpenXML SDK](https://github.com/dotnet/Open-XML-SDK) (MIT License) - DOCX Parsing
-- [HtmlAgilityPack](https://github.com/zzzprojects/html-agility-pack) (MIT License) - HTML Cleaning
-- [VersOne.Epub](https://github.com/versosoftware/versone.epub) (MIT License) - EPUB Parsing
+### 🌐 Internationalization (i18n)
+- Multilingual interface supporting **English (en-US)**, **Spanish (es-ES)**, and **Catalan (ca-ES)** with seamless runtime switching.
 
-## Future Roadmap
+---
 
-Looking to contribute or wondering what's next? Here are some planned improvements:
+## ⌨️ Controls & Shortcuts
 
-- **[X] Library View:** A central hub to manage your books, see recent reads, and view reading progress at a glance.
-- **[x] Unit Testing:** Implementation of a robust test suite for parsers, rendering logic, and localization.
-- **[x] Search & Navigation:**
-  - [x] Full-text search within the current book.
-  - [x] Table of Contents support for EPUB and PDF.
-  - [x] Custom Bookmarks.
-- **[x] Advanced Performance:** Implement text chunking/virtualization for instantaneous loading of extremely large books.
-- **[x] UI/UX Polish:**
-  - Theme presets (Sepia, High Contrast, etc.).
-  - Smooth animated transitions.
-  - Modernized About and Settings dialogs.
-- **[x] CI/CD:** Automated builds and releases via GitHub Actions.
-- [x] Add speed reading mode with part of the word in bold.
+### Keyboard Controls
 
-## License
+| Shortcut | Action |
+| :--- | :--- |
+| <kbd>Space</kbd> | Play / Pause reading |
+| <kbd>←</kbd> / <kbd>→</kbd> | Set direction (Backward / Forward) |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Adjust font size (Tap: 1pt, Double-tap: 10pt) |
+| <kbd>Ctrl</kbd> + <kbd>Scroll</kbd> | Fine font size adjustment |
+| <kbd>Scroll</kbd> | Scroll through text position |
+| <kbd>R</kbd> | Reverse reading direction |
+| <kbd>F</kbd> | Toggle edge fade effect |
+| <kbd>S</kbd> | Toggle Settings drawer |
+| <kbd>T</kbd> | Cycle through color themes |
+| <kbd>M</kbd> | Cycle reading mode (Normal ➔ Bionic ➔ RSVP) |
+| <kbd>U</kbd> | Open Webpage / Article dialog |
+| <kbd>F11</kbd> | Toggle Zen / Fullscreen mode |
+| <kbd>Esc</kbd> | Exit Zen mode |
+| <kbd>+</kbd> / <kbd>-</kbd> | Increase / Decrease scroll speed (or RSVP WPM) |
+| <kbd>I</kbd> | Show About / Info dialog |
+
+### Gamepad Controls
+
+| Button | Action |
+| :--- | :--- |
+| **A / B** | Play / Pause |
+| **DPad Up / Down** | Adjust font size |
+| **DPad Left / Right** | Set direction (Backward / Forward) |
+| **X** | Reverse reading direction |
+| **Y** | Toggle edge fade |
+| **LB / RB (Bumpers)** | Adjust scroll speed |
+| **LT / RT (Triggers)** | Rewind / Fast-forward (Hold to scroll, double-tap boost) |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+
+### Building and Running
+```bash
+# Clone the repository
+git clone https://github.com/Atm0n/ConfigurableReader.git
+cd ConfigurableReader
+
+# Run the test suite
+dotnet test ConfigurableReader.slnx
+
+# Launch the application
+dotnet run --project src/ConfigurableReader
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+ConfigurableReader/
+├── src/
+│   ├── ConfigurableReader.Core/          # Domain abstractions (IBookParser, IBookSource, BookmarkItem)
+│   ├── Parsers/
+│   │   ├── ConfigurableReader.Parsers.Epub/ # EPUB parsing & cover extraction (VersOne.Epub)
+│   │   ├── ConfigurableReader.Parsers.Pdf/  # PDF text, TOC & cover extraction (PdfPig)
+│   │   └── ConfigurableReader.Parsers.Html/ # Web article extractor & HTML parser (HtmlAgilityPack)
+│   └── ConfigurableReader/              # Avalonia 12 UI Application
+│       ├── Common/                      # Constants & utilities
+│       ├── Models/                      # AppSettings, BookRecord, ReaderTheme
+│       ├── Services/                    # ReaderService, ReaderController, CoverService, GamepadService
+│       └── Views/                       # MainWindow (partial classes: Library, Input, Rendering, Bookmarks, Settings)
+└── tests/
+    └── ConfigurableReader.Tests/        # Unit tests using Shouldly & Microsoft.Testing.Platform
+```
+
+---
+
+## 📦 Dependencies
+
+- [Avalonia UI](https://github.com/AvaloniaUI/Avalonia) (MIT)
+- [HIDDevices](https://github.com/DevDecoder/HIDDevices) (Apache 2.0)
+- [PdfPig](https://github.com/UglyToad/PdfPig) (MIT)
+- [VersOne.Epub](https://github.com/versosoftware/versone.epub) (MIT)
+- [HtmlAgilityPack](https://github.com/zzzprojects/html-agility-pack) (MIT)
+- [DocumentFormat.OpenXml](https://github.com/dotnet/Open-XML-SDK) (MIT)
+- [Markdig](https://github.com/xoofx/markdig) (BSD-2-Clause)
+- [Shouldly](https://github.com/shouldly/shouldly) (Test assertion library)
+
+---
+
+## 📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.

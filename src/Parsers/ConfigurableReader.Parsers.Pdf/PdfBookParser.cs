@@ -36,7 +36,7 @@ public partial class PdfBookParser : IBookParser
                     .OrderByDescending(img => img.WidthInSamples * img.HeightInSamples)
                     .FirstOrDefault();
 
-                if (largestImage != null && largestImage.TryGetPng(out byte[] pngBytes))
+                if (largestImage != null && largestImage.TryGetPng(out byte[]? pngBytes) && pngBytes != null)
                 {
                     return pngBytes;
                 }
