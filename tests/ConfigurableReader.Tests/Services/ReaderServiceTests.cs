@@ -49,4 +49,32 @@ public class ReaderServiceTests
         // Assert
         service.CurrentPosition.ShouldBe(105);
     }
+
+    [Fact]
+    public async Task AdvanceToPosition_UpdatesPositionAndHandlesEof()
+    {
+        // Arrange
+        var service = new ReaderService();
+        var mockSource = new Mock<IBookSource>();
+        mockSource.Setup(s => s.TotalLength).Returns(500);
+        mockSource.Setup(s => s.GetTextAsync(It.IsAny<int>(), It.IsAny<int>()))
+                  .ReturnsAsync("Sample text buffer");
+
+        await service.SetSourceAsync(mockSource.Object, 100);
+        service.IsPaused = false;
+
+        // Act: Advance within bounds
+        service.AdvanceToPosition(250);
+        service.CurrentPosition.ShouldBe(250);
+        service.IsPaused.ShouldBeFalse();
+
+        // Act: Advance to EOF
+        bool eofFired = false;
+        service.EndOfBookReached += () => eofFired = true;
+
+        service.AdvanceToPosition(500);
+        service.CurrentPosition.ShouldBe(500);
+        service.IsPaused.ShouldBeTrue();
+        eofFired.ShouldBeTrue();
+    }
 }

@@ -2,11 +2,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
+using ConfigurableReader.Common;
+using ConfigurableReader.Core;
 using System;
 
 namespace ConfigurableReader.Views;
-
-using ConfigurableReader.Common;
 
 public partial class MainWindow
 {
@@ -16,6 +16,9 @@ public partial class MainWindow
     private int _renderedBasePosition = -1;
     private string? _currentRenderedText;
     private TextLayout? _currentTextLayout;
+
+    private double _rsvpRemainingDelayMs = 0;
+    private RsvpWord? _currentRsvpWord;
 
     private void InitializeRendering()
     {
@@ -53,12 +56,19 @@ public partial class MainWindow
                 // Clamp delta to prevent huge jumps after OS hitch or tab switch
                 deltaTime = Math.Clamp(deltaTime, 0.0, 0.1);
 
-                double pixelsToMove = SpeedSlider.Value * deltaTime;
+                if (_settings.ReadingMode == "RSVP")
+                {
+                    OnRsvpAnimationFrame(deltaTime);
+                }
+                else
+                {
+                    double pixelsToMove = SpeedSlider.Value * deltaTime;
 
-                UpdateDisplayedText();
-                _readerService.Advance(pixelsToMove, MapPixelsToPosition);
-                UpdateRenderTransform();
-                UpdatePercentage();
+                    UpdateDisplayedText();
+                    _readerService.Advance(pixelsToMove, MapPixelsToPosition);
+                    UpdateRenderTransform();
+                    UpdatePercentage();
+                }
             }
         }
         catch (Exception ex)
@@ -75,6 +85,69 @@ public partial class MainWindow
             _isAnimationLoopRunning = false;
             _lastFrameTime = TimeSpan.Zero;
         }
+    }
+
+    private void OnRsvpAnimationFrame(double deltaTime)
+    {
+        _rsvpRemainingDelayMs -= deltaTime * 1000.0;
+
+        if (_rsvpRemainingDelayMs <= 0)
+        {
+            AdvanceRsvpWord();
+        }
+        UpdatePercentage();
+    }
+
+    private void AdvanceRsvpWord()
+    {
+        if (string.IsNullOrEmpty(_readerService.BufferText)) return;
+
+        if (_readerService.IsReversing)
+        {
+            int currentStart = _currentRsvpWord?.StartPosition ?? _readerService.CurrentPosition;
+            var prevWord = RsvpProcessor.FindPreviousWord(_readerService.BufferText, _readerService.BufferStartPosition, currentStart);
+            if (prevWord == null)
+            {
+                _readerService.AdvanceToPosition(0);
+                return;
+            }
+
+            _currentRsvpWord = prevWord;
+            _readerService.AdvanceToPosition(_currentRsvpWord.StartPosition);
+            DisplayRsvpWord(_currentRsvpWord);
+            _rsvpRemainingDelayMs = RsvpProcessor.CalculateDelayMs(_settings.RsvpWpm, _currentRsvpWord.DelayMultiplier);
+        }
+        else
+        {
+            int nextTargetPos = _currentRsvpWord != null
+                ? _currentRsvpWord.StartPosition + _currentRsvpWord.Length
+                : _readerService.CurrentPosition;
+
+            var nextWord = RsvpProcessor.FindWordAtOrAfter(_readerService.BufferText, _readerService.BufferStartPosition, nextTargetPos);
+            if (nextWord == null)
+            {
+                _readerService.AdvanceToPosition(_readerService.TotalLength);
+                return;
+            }
+
+            _currentRsvpWord = nextWord;
+            _readerService.AdvanceToPosition(_currentRsvpWord.StartPosition);
+            DisplayRsvpWord(_currentRsvpWord);
+            _rsvpRemainingDelayMs = RsvpProcessor.CalculateDelayMs(_settings.RsvpWpm, _currentRsvpWord.DelayMultiplier);
+        }
+
+        using (_controller.SuppressCodeUpdates())
+        {
+            TextSlider.Value = _readerService.CurrentPosition;
+        }
+    }
+
+    private void DisplayRsvpWord(RsvpWord word)
+    {
+        if (RsvpPrefixText == null || RsvpOrpText == null || RsvpSuffixText == null) return;
+        RsvpPrefixText.Text = word.Prefix;
+        RsvpOrpText.Text = word.OrpChar.ToString();
+        RsvpSuffixText.Text = word.Suffix;
     }
 
     private (int newPos, double newOffset, bool eof) MapPixelsToPosition(int currentPos, double targetOffset)
@@ -124,6 +197,28 @@ public partial class MainWindow
         if (_readerService.CurrentPosition < _readerService.BufferStartPosition ||
             _readerService.CurrentPosition >= _readerService.BufferStartPosition + _readerService.BufferText.Length)
         {
+            return;
+        }
+
+        if (_settings.ReadingMode == "RSVP")
+        {
+            _currentRsvpWord = RsvpProcessor.FindWordAtOrAfter(_readerService.BufferText, _readerService.BufferStartPosition, _readerService.CurrentPosition);
+            if (_currentRsvpWord != null)
+            {
+                DisplayRsvpWord(_currentRsvpWord);
+                _rsvpRemainingDelayMs = RsvpProcessor.CalculateDelayMs(_settings.RsvpWpm, _currentRsvpWord.DelayMultiplier);
+            }
+            else
+            {
+                if (RsvpPrefixText != null) RsvpPrefixText.Text = string.Empty;
+                if (RsvpOrpText != null) RsvpOrpText.Text = string.Empty;
+                if (RsvpSuffixText != null) RsvpSuffixText.Text = string.Empty;
+            }
+
+            using (_controller.SuppressCodeUpdates())
+            {
+                TextSlider.Value = _readerService.CurrentPosition;
+            }
             return;
         }
 
@@ -222,6 +317,29 @@ public partial class MainWindow
     {
         if (_readerService.TotalLength <= 0 || ReadingStatsText == null) return;
 
+        if (_settings.ReadingMode == "RSVP")
+        {
+            double rsvpWpm = _settings.RsvpWpm;
+            int remaining = Math.Max(0, _readerService.TotalLength - _readerService.CurrentPosition);
+            double remainingWords = remaining / 5.0;
+            if (rsvpWpm > 0 && remainingWords > 0)
+            {
+                double minutesRemaining = remainingWords / rsvpWpm;
+                int totalMinutes = (int)Math.Ceiling(minutesRemaining);
+
+                string timeEst = totalMinutes >= 60
+                    ? $"{totalMinutes / 60}h {totalMinutes % 60}m"
+                    : $"{totalMinutes}m";
+
+                ReadingStatsText.Text = $"{rsvpWpm:F0} WPM • ~{timeEst} left";
+            }
+            else
+            {
+                ReadingStatsText.Text = $"{rsvpWpm:F0} WPM";
+            }
+            return;
+        }
+
         double speedPixels = SpeedSlider.Value;
         double fontSize = MainTextBlock.FontSize > 0 ? MainTextBlock.FontSize : 48;
 
@@ -258,11 +376,15 @@ public partial class MainWindow
     private void AdjustFontSize(int delta)
     {
         double newSize = MainTextBlock.FontSize + delta;
-        MainTextBlock.FontSize = Math.Clamp(newSize, AppConstants.MinFontSize, AppConstants.MaxFontSize);
-        FontSizeNumeric.Value = (decimal)MainTextBlock.FontSize;
+        double clampedSize = Math.Clamp(newSize, AppConstants.MinFontSize, AppConstants.MaxFontSize);
+        UpdateFontSize(clampedSize);
+        FontSizeNumeric.Value = (decimal)clampedSize;
 
         _renderedBasePosition = -1;
         UpdateDisplayedText();
-        UpdateRenderTransform();
+        if (_settings.ReadingMode != "RSVP")
+        {
+            UpdateRenderTransform();
+        }
     }
 }

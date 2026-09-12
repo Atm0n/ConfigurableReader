@@ -78,4 +78,10 @@
     <sys:String x:Key="SortTitleDesc">Title (Z → A)</sys:String>
     <sys:String x:Key="SortProgressDesc">Progress (Highest)</sys:String>
     <sys:String x:Key="SortProgressAsc">Progress (Lowest)</sys:String>
+
+    <!-- Reading Modes -->
+    <sys:String x:Key="ReadingModeLabel">Mode:</sys:String>
+    <sys:String x:Key="ModeMarquee">Continuous Scroll</sys:String>
+    <sys:String x:Key="ModeRsvp">RSVP Speed Flash</sys:String>
+    <sys:String x:Key="RsvpWpmLabel">WPM:</sys:String>
 </ResourceDictionary>

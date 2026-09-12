@@ -295,7 +295,7 @@ public partial class MainWindow : Window
     {
         if (!_isUpdatingFromCode && e.NewValue.HasValue)
         {
-            MainTextBlock.FontSize = (double)e.NewValue.Value;
+            UpdateFontSize((double)e.NewValue.Value);
             UpdateDisplayedText();
 
             // Force a re-center if paused

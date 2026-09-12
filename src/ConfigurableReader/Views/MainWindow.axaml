@@ -204,8 +204,27 @@
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <Button Name="StartStopButton" Content="{DynamicResource Start}" Click="StartStopButton_Click" Focusable="False" Width="70"/>
                                 <Button Name="ReverseButton" Content="{DynamicResource Reverse}" Click="ReverseButton_Click" Focusable="False"/>
-                                <TextBlock Text="{DynamicResource Speed}" Classes="LabelStyle"/>
-                                <Slider Name="SpeedSlider" Minimum="0" Maximum="1000" Value="100" Width="150" Focusable="False" VerticalAlignment="Center"/>
+                                
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource ReadingModeLabel}" Classes="LabelStyle"/>
+                                    <ComboBox Name="ReadingModeComboBox" Width="160" SelectionChanged="ReadingModeComboBox_SelectionChanged" Focusable="False">
+                                        <ComboBoxItem Content="{DynamicResource ModeMarquee}" Tag="Marquee"/>
+                                        <ComboBoxItem Content="{DynamicResource ModeRsvp}" Tag="RSVP"/>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <!-- Marquee Speed -->
+                                <StackPanel Name="MarqueeSpeedPanel" Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource Speed}" Classes="LabelStyle"/>
+                                    <Slider Name="SpeedSlider" Minimum="0" Maximum="1000" Value="100" Width="130" Focusable="False" VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- RSVP WPM -->
+                                <StackPanel Name="RsvpSpeedPanel" Orientation="Horizontal" IsVisible="False">
+                                    <TextBlock Text="{DynamicResource RsvpWpmLabel}" Classes="LabelStyle"/>
+                                    <NumericUpDown Name="RsvpWpmNumeric" Minimum="50" Maximum="2000" Increment="25" Value="300" Width="110" Focusable="False" 
+                                                   ValueChanged="RsvpWpmNumeric_ValueChanged"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
 
@@ -308,6 +327,39 @@
                         </TextBlock.Transitions>
                     </TextBlock>
                 </Canvas>
+
+                <!-- RSVP Speed-Reading Display Container -->
+                <Grid Name="RsvpAreaContainer" Background="Transparent" IsVisible="False"
+                      PointerWheelChanged="ReadingAreaCanvas_PointerWheelChanged">
+                    <Border Width="600" MaxHeight="220" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Grid RowDefinitions="Auto,Auto,Auto">
+                            <!-- Top Reticle Guide -->
+                            <Grid Grid.Row="0" Margin="0,0,0,15">
+                                <Rectangle Height="1" Fill="#55888888" HorizontalAlignment="Stretch"/>
+                                <Rectangle Width="3" Height="12" Fill="#FF453A" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                            </Grid>
+
+                            <!-- Word Display (Prefix, ORP, Suffix) -->
+                            <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*" Margin="0,10">
+                                <TextBlock Name="RsvpPrefixText" Grid.Column="0" Text="" 
+                                           FontSize="48" HorizontalAlignment="Right" TextAlignment="Right"
+                                           Foreground="#F1F1F1" UseLayoutRounding="False"/>
+                                <TextBlock Name="RsvpOrpText" Grid.Column="1" Text="" 
+                                           FontSize="48" HorizontalAlignment="Center" TextAlignment="Center"
+                                           Foreground="#FF453A" FontWeight="Bold" UseLayoutRounding="False"/>
+                                <TextBlock Name="RsvpSuffixText" Grid.Column="2" Text="" 
+                                           FontSize="48" HorizontalAlignment="Left" TextAlignment="Left"
+                                           Foreground="#F1F1F1" UseLayoutRounding="False"/>
+                            </Grid>
+
+                            <!-- Bottom Reticle Guide -->
+                            <Grid Grid.Row="2" Margin="0,15,0,0">
+                                <Rectangle Height="1" Fill="#55888888" HorizontalAlignment="Stretch"/>
+                                <Rectangle Width="3" Height="12" Fill="#FF453A" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
 
                 <!-- TOC and Bookmarks Panel -->
                 <Border Name="TocBookmarksPanel" Width="300" HorizontalAlignment="Left" Background="#E61E1E1E" IsVisible="False" BorderBrush="#3E3E42" BorderThickness="0,0,1,0">

@@ -29,7 +29,7 @@ public partial class MainWindow
     private void ApplySettings()
     {
         FontSizeNumeric.Value = (decimal)_settings.FontSize;
-        MainTextBlock.FontSize = _settings.FontSize;
+        UpdateFontSize(_settings.FontSize);
 
         if (Color.TryParse(_settings.TextColor, out var textColor))
             TextColorPicker.Color = textColor;
@@ -59,7 +59,7 @@ public partial class MainWindow
         }
 
         this.Background = new SolidColorBrush(BackgroundColorPicker.Color);
-        MainTextBlock.Foreground = new SolidColorBrush(TextColorPicker.Color);
+        UpdateTextColor(new SolidColorBrush(TextColorPicker.Color));
 
         // Apply Theme
         using (_controller.SuppressCodeUpdates())
@@ -74,7 +74,51 @@ public partial class MainWindow
             SpeedReadingBoldPanel.IsVisible = _settings.SpeedReadingMode;
 
             ApplyThemeColor(_settings.Theme);
+
+            // Reading Mode & RSVP
+            ReadingModeComboBox.SelectedItem = ReadingModeComboBox.Items
+                .Cast<ComboBoxItem>()
+                .FirstOrDefault(i => i.Tag?.ToString() == _settings.ReadingMode) ?? ReadingModeComboBox.Items.Cast<ComboBoxItem>().First();
+
+            RsvpWpmNumeric.Value = _settings.RsvpWpm;
+            ApplyReadingMode(_settings.ReadingMode);
         }
+    }
+
+    public void ApplyReadingMode(string mode)
+    {
+        bool isRsvp = mode == "RSVP";
+        _settings.ReadingMode = isRsvp ? "RSVP" : "Marquee";
+
+        ReadingAreaCanvas.IsVisible = !isRsvp;
+        RsvpAreaContainer.IsVisible = isRsvp;
+        MarqueeSpeedPanel.IsVisible = !isRsvp;
+        RsvpSpeedPanel.IsVisible = isRsvp;
+
+        _renderedBasePosition = -1;
+        _currentRsvpWord = null;
+        _rsvpRemainingDelayMs = 0;
+
+        UpdateDisplayedText();
+        if (!isRsvp)
+        {
+            UpdateRenderTransform();
+        }
+        UpdateReadingStats();
+    }
+
+    public void ToggleReadingMode()
+    {
+        string nextMode = _settings.ReadingMode == "RSVP" ? "Marquee" : "RSVP";
+        _settings.ReadingMode = nextMode;
+        using (_controller.SuppressCodeUpdates())
+        {
+            ReadingModeComboBox.SelectedItem = ReadingModeComboBox.Items
+                .Cast<ComboBoxItem>()
+                .FirstOrDefault(i => i.Tag?.ToString() == nextMode);
+        }
+        ApplyReadingMode(nextMode);
+        _settings.Save();
     }
 
     public void CycleNextTheme()
@@ -115,7 +159,7 @@ public partial class MainWindow
             if (Color.TryParse(_settings.BackgroundColor, out var bg))
                 this.Background = new SolidColorBrush(bg);
             if (Color.TryParse(_settings.TextColor, out var fg))
-                MainTextBlock.Foreground = new SolidColorBrush(fg);
+                UpdateTextColor(new SolidColorBrush(fg));
         }
 
         CustomColorPanel.IsVisible = (themeName == "Custom" || _settings.Theme == "Custom");
@@ -136,7 +180,7 @@ public partial class MainWindow
         }
 
         this.Background = new SolidColorBrush(bgColor);
-        MainTextBlock.Foreground = new SolidColorBrush(fgColor);
+        UpdateTextColor(new SolidColorBrush(fgColor));
 
         if (BottomControlBar != null)
         {
@@ -147,6 +191,21 @@ public partial class MainWindow
         if (BookNameText != null) BookNameText.Foreground = new SolidColorBrush(barFg);
         if (PercentageText != null) PercentageText.Foreground = new SolidColorBrush(barFg);
         if (ReadingStatsText != null) ReadingStatsText.Foreground = new SolidColorBrush(barFg);
+    }
+
+    private void UpdateTextColor(IBrush brush)
+    {
+        MainTextBlock.Foreground = brush;
+        if (RsvpPrefixText != null) RsvpPrefixText.Foreground = brush;
+        if (RsvpSuffixText != null) RsvpSuffixText.Foreground = brush;
+    }
+
+    private void UpdateFontSize(double size)
+    {
+        MainTextBlock.FontSize = size;
+        if (RsvpPrefixText != null) RsvpPrefixText.FontSize = size;
+        if (RsvpOrpText != null) RsvpOrpText.FontSize = size;
+        if (RsvpSuffixText != null) RsvpSuffixText.FontSize = size;
     }
 
     private void ThemeComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -190,9 +249,34 @@ public partial class MainWindow
             _settings.Theme = themeItem.Tag.ToString() ?? "System Default";
         }
 
+        if (ReadingModeComboBox.SelectedItem is ComboBoxItem modeItem && modeItem.Tag != null)
+        {
+            _settings.ReadingMode = modeItem.Tag.ToString() ?? "Marquee";
+        }
+        _settings.RsvpWpm = (int)(RsvpWpmNumeric.Value ?? 300);
+
         _controller.SaveCurrentPosition();
 
         _settings.Save();
+    }
+
+    private void ReadingModeComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_controller.IsUpdatingFromCode) return;
+        if (ReadingModeComboBox.SelectedItem is ComboBoxItem item && item.Tag != null)
+        {
+            string mode = item.Tag.ToString() ?? "Marquee";
+            ApplyReadingMode(mode);
+            _settings.Save();
+        }
+    }
+
+    private void RsvpWpmNumeric_ValueChanged(object? sender, NumericUpDownValueChangedEventArgs e)
+    {
+        if (_controller.IsUpdatingFromCode || !e.NewValue.HasValue) return;
+        _settings.RsvpWpm = (int)e.NewValue.Value;
+        _settings.Save();
+        UpdateReadingStats();
     }
 
     private void FontComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -200,6 +284,9 @@ public partial class MainWindow
         if (FontComboBox.SelectedItem is FontFamily fontFamily)
         {
             MainTextBlock.FontFamily = fontFamily;
+            if (RsvpPrefixText != null) RsvpPrefixText.FontFamily = fontFamily;
+            if (RsvpOrpText != null) RsvpOrpText.FontFamily = fontFamily;
+            if (RsvpSuffixText != null) RsvpSuffixText.FontFamily = fontFamily;
         }
     }
 

@@ -78,4 +78,10 @@
     <sys:String x:Key="SortTitleDesc">Título (Z → A)</sys:String>
     <sys:String x:Key="SortProgressDesc">Progreso (Mayor)</sys:String>
     <sys:String x:Key="SortProgressAsc">Progreso (Menor)</sys:String>
+
+    <!-- Reading Modes -->
+    <sys:String x:Key="ReadingModeLabel">Modo:</sys:String>
+    <sys:String x:Key="ModeMarquee">Desplazamiento continuo</sys:String>
+    <sys:String x:Key="ModeRsvp">Lectura rápida RSVP</sys:String>
+    <sys:String x:Key="RsvpWpmLabel">PPM:</sys:String>
 </ResourceDictionary>

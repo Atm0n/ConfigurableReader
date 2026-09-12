@@ -56,6 +56,7 @@
                         <TextBlock Text="• F: Toggle Edge Fade" />
                         <TextBlock Text="• S: Toggle Settings" />
                         <TextBlock Text="• T: Cycle Reading Themes" />
+                        <TextBlock Text="• M: Toggle Reading Mode (Marquee / RSVP)" />
                         <TextBlock Text="• F11: Fullscreen / Zen Mode" />
                         <TextBlock Text="• Ctrl+Wheel: Adjust Font Size" />
                         <TextBlock Text="• I: Show Info" />

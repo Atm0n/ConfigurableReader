@@ -41,11 +41,30 @@ public partial class MainWindow
             case Key.F: FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked; break;
             case Key.S: SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded; break;
             case Key.T: CycleNextTheme(); break;
+            case Key.M: ToggleReadingMode(); break;
             case Key.I: _ = ShowInfoAsync(); break;
             case Key.F11: ToggleZenMode(); break;
             case Key.Escape: if (_isZenMode) ToggleZenMode(); break;
-            case Key.OemPlus: case Key.Add: SpeedSlider.Value += AppConstants.DefaultSpeedIncrement; break;
-            case Key.OemMinus: case Key.Subtract: SpeedSlider.Value -= AppConstants.DefaultSpeedIncrement; break;
+            case Key.OemPlus: case Key.Add:
+                if (_settings.ReadingMode == "RSVP")
+                {
+                    RsvpWpmNumeric.Value = Math.Min(2000, (RsvpWpmNumeric.Value ?? 300) + 25);
+                }
+                else
+                {
+                    SpeedSlider.Value += AppConstants.DefaultSpeedIncrement;
+                }
+                break;
+            case Key.OemMinus: case Key.Subtract:
+                if (_settings.ReadingMode == "RSVP")
+                {
+                    RsvpWpmNumeric.Value = Math.Max(50, (RsvpWpmNumeric.Value ?? 300) - 25);
+                }
+                else
+                {
+                    SpeedSlider.Value -= AppConstants.DefaultSpeedIncrement;
+                }
+                break;
         }
     }
 

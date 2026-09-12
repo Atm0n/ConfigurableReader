@@ -17,6 +17,8 @@ public class AppSettings
     public double SpeedReadingBoldRatio { get; set; } = 0.5;
     public string Theme { get; set; } = "System Default";
     public string LibrarySortOption { get; set; } = "Recent";
+    public string ReadingMode { get; set; } = "Marquee";
+    public int RsvpWpm { get; set; } = 300;
 
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

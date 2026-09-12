@@ -101,6 +101,29 @@ public class ReaderService : IDisposable
         OnStateChanged();
     }
 
+    /// <summary>
+    /// Advances directly to a character position (used in RSVP mode).
+    /// Handles boundary checking, sliding buffer triggers, and end/start of book detection.
+    /// </summary>
+    public void AdvanceToPosition(int newPosition)
+    {
+        if (_isPaused || _source == null) return;
+
+        _currentPosition = Math.Clamp(newPosition, 0, TotalLength);
+        _subCharOffset = 0;
+
+        CheckBufferBoundaries();
+
+        if (_currentPosition >= TotalLength || (_isReversing && _currentPosition <= 0))
+        {
+            _isPaused = true;
+            if (_isReversing) StartOfBookReached?.Invoke();
+            else EndOfBookReached?.Invoke();
+        }
+
+        OnStateChanged();
+    }
+
     private void CheckBufferBoundaries()
     {
         // Simple sliding window check
