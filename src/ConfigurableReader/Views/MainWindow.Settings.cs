@@ -164,4 +164,66 @@ public partial class MainWindow
 
         _settings.Save();
     }
+
+    private void FontComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (FontComboBox.SelectedItem is FontFamily fontFamily)
+        {
+            MainTextBlock.FontFamily = fontFamily;
+        }
+    }
+
+    private void LanguageComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (!_isUpdatingFromCode && LanguageComboBox.SelectedItem is ComboBoxItem item && item.Tag != null)
+        {
+            string langCode = item.Tag.ToString() ?? "en-US";
+            LocalizationService.SetLanguage(langCode);
+        }
+    }
+
+    private void FadeCheckBox_IsCheckedChanged(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_controller.IsUpdatingFromCode) return;
+        bool enable = FadeCheckBox.IsChecked ?? true;
+        _settings.EnableEdgeFading = enable;
+        _settings.Save();
+        UpdateEdgeFading(enable);
+    }
+
+    private void SpeedReadingCheckBox_IsCheckedChanged(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_controller.IsUpdatingFromCode) return;
+        _settings.SpeedReadingMode = SpeedReadingCheckBox.IsChecked ?? false;
+        SpeedReadingBoldPanel.IsVisible = _settings.SpeedReadingMode;
+        _settings.Save();
+        
+        // Force a layout refresh for the current text
+        _renderedBasePosition = -1; // Reset to force complete text refresh
+        UpdateDisplayedText();
+    }
+
+    private void SpeedReadingBoldSlider_ValueChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (_controller.IsUpdatingFromCode || _settings == null || SpeedReadingBoldSlider == null || SpeedReadingBoldValueText == null) return;
+        
+        int percent = (int)SpeedReadingBoldSlider.Value;
+        SpeedReadingBoldValueText.Text = $"{percent}%";
+        
+        _settings.SpeedReadingBoldRatio = percent / 100.0;
+        _settings.Save();
+        
+        _renderedBasePosition = -1; // Reset to force complete text refresh
+        UpdateDisplayedText();
+    }
+
+    private void TextColorPicker_ColorChanged(object? sender, ColorChangedEventArgs e)
+    {
+        MainTextBlock.Foreground = new SolidColorBrush(e.NewColor);
+    }
+
+    private void BackgroundColorPicker_ColorChanged(object? sender, ColorChangedEventArgs e)
+    {
+        this.Background = new SolidColorBrush(e.NewColor);
+    }
 }
