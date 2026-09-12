@@ -84,4 +84,11 @@
     <sys:String x:Key="ModeMarquee">Continuous Scroll</sys:String>
     <sys:String x:Key="ModeRsvp">RSVP Speed Flash</sys:String>
     <sys:String x:Key="RsvpWpmLabel">WPM:</sys:String>
+
+    <!-- Web / HTML Reader -->
+    <sys:String x:Key="ReadWebpage">🌐 Read Webpage...</sys:String>
+    <sys:String x:Key="EnterUrlPrompt">Enter or paste the webpage or article URL:</sys:String>
+    <sys:String x:Key="ReadArticle">Read</sys:String>
+    <sys:String x:Key="InvalidUrl">Please enter a valid HTTP or HTTPS URL.</sys:String>
+    <sys:String x:Key="LoadingWebpage">Fetching and parsing article...</sys:String>
 </ResourceDictionary>

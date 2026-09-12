@@ -90,8 +90,11 @@ public class ReaderController
 
         record.LastReadDate = DateTime.Now;
         record.TotalLength = source.TotalLength;
-        // Optionally extract title if supported by the parser in the future, for now fallback to filename
-        if (string.IsNullOrEmpty(record.Title))
+        if (!string.IsNullOrEmpty(source.Title))
+        {
+            record.Title = source.Title;
+        }
+        else if (string.IsNullOrEmpty(record.Title))
         {
             record.Title = Path.GetFileNameWithoutExtension(filePath);
         }

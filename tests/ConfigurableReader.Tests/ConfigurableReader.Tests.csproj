@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\ConfigurableReader.Core\ConfigurableReader.Core.csproj" />
     <ProjectReference Include="..\..\src\Parsers\ConfigurableReader.Parsers.Docx\ConfigurableReader.Parsers.Docx.csproj" />
     <ProjectReference Include="..\..\src\Parsers\ConfigurableReader.Parsers.Epub\ConfigurableReader.Parsers.Epub.csproj" />
+    <ProjectReference Include="..\..\src\Parsers\ConfigurableReader.Parsers.Html\ConfigurableReader.Parsers.Html.csproj" />
     <ProjectReference Include="..\..\src\Parsers\ConfigurableReader.Parsers.Markdown\ConfigurableReader.Parsers.Markdown.csproj" />
     <ProjectReference Include="..\..\src\Parsers\ConfigurableReader.Parsers.Pdf\ConfigurableReader.Parsers.Pdf.csproj" />
     <ProjectReference Include="..\..\src\Parsers\ConfigurableReader.Parsers.Txt\ConfigurableReader.Parsers.Txt.csproj" />

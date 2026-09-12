@@ -11,6 +11,14 @@ public class DocumentRegistry
 
     public IBookParser? GetParserForFile(string filePath)
     {
+        if (string.IsNullOrWhiteSpace(filePath)) return null;
+
+        if (filePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            filePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return _parsers.FirstOrDefault(p => p.SupportedExtensions.Contains(".html"));
+        }
+
         string extension = Path.GetExtension(filePath).ToLowerInvariant();
         return _parsers.FirstOrDefault(p => p.SupportedExtensions.Contains(extension));
     }

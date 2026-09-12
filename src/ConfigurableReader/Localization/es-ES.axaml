@@ -84,4 +84,11 @@
     <sys:String x:Key="ModeMarquee">Desplazamiento continuo</sys:String>
     <sys:String x:Key="ModeRsvp">Lectura rápida RSVP</sys:String>
     <sys:String x:Key="RsvpWpmLabel">PPM:</sys:String>
+
+    <!-- Web / HTML Reader -->
+    <sys:String x:Key="ReadWebpage">🌐 Leer página web...</sys:String>
+    <sys:String x:Key="EnterUrlPrompt">Introduce o pega la URL de la página o artículo web:</sys:String>
+    <sys:String x:Key="ReadArticle">Leer</sys:String>
+    <sys:String x:Key="InvalidUrl">Por favor, introduce una URL HTTP o HTTPS válida.</sys:String>
+    <sys:String x:Key="LoadingWebpage">Obteniendo y analizando el artículo...</sys:String>
 </ResourceDictionary>

@@ -22,6 +22,11 @@ public interface IBookSource : IDisposable
     /// The Table of Contents for the book, if available.
     /// </summary>
     IReadOnlyList<BookmarkItem> TableOfContents { get; }
+
+    /// <summary>
+    /// The title of the book or article, if available.
+    /// </summary>
+    string? Title => null;
 }
 
 public interface IBookParser

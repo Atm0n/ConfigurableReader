@@ -22,5 +22,12 @@ public class BookRecord
     public string FormattedProgress => TotalLength > 0 ? $"{Math.Clamp(ProgressPercentage, 0, 100):F1}%" : "0%";
 
     [JsonIgnore]
+    public bool IsWebArticle => FilePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                                FilePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+
+    [JsonIgnore]
+    public string CoverIcon => IsWebArticle ? "🌐" : "📖";
+
+    [JsonIgnore]
     public string DisplayTitle => string.IsNullOrEmpty(Title) ? System.IO.Path.GetFileNameWithoutExtension(FilePath) : Title;
 }

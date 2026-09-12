@@ -92,6 +92,23 @@ public partial class MainWindow : Window
     }
 
     private void OpenFileButton_Click(object? sender, RoutedEventArgs e) => _ = OpenFileAsync();
+    private void OpenWebpageButton_Click(object? sender, RoutedEventArgs e) => _ = OpenWebpageAsync();
+
+    private async Task OpenWebpageAsync()
+    {
+        try
+        {
+            string? url = await OpenUrlDialog.ShowAsync(this);
+            if (!string.IsNullOrWhiteSpace(url))
+            {
+                await LoadBookAsync(url);
+            }
+        }
+        catch (Exception ex)
+        {
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("FailedToLoadBook")}\n{ex.Message}");
+        }
+    }
 
     private async Task OpenFileAsync()
     {

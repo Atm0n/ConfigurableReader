@@ -2,6 +2,7 @@
   <Folder Name="/Parsers/">
     <Project Path="src/Parsers/ConfigurableReader.Parsers.Docx/ConfigurableReader.Parsers.Docx.csproj" />
     <Project Path="src/Parsers/ConfigurableReader.Parsers.Epub/ConfigurableReader.Parsers.Epub.csproj" />
+    <Project Path="src/Parsers/ConfigurableReader.Parsers.Html/ConfigurableReader.Parsers.Html.csproj" />
     <Project Path="src/Parsers/ConfigurableReader.Parsers.Markdown/ConfigurableReader.Parsers.Markdown.csproj" />
     <Project Path="src/Parsers/ConfigurableReader.Parsers.Pdf/ConfigurableReader.Parsers.Pdf.csproj" />
     <Project Path="src/Parsers/ConfigurableReader.Parsers.Txt/ConfigurableReader.Parsers.Txt.csproj" />

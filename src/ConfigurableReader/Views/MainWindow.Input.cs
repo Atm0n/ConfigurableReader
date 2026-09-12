@@ -42,6 +42,7 @@ public partial class MainWindow
             case Key.S: SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded; break;
             case Key.T: CycleNextTheme(); break;
             case Key.M: ToggleReadingMode(); break;
+            case Key.U: _ = OpenWebpageAsync(); break;
             case Key.I: _ = ShowInfoAsync(); break;
             case Key.F11: ToggleZenMode(); break;
             case Key.Escape: if (_isZenMode) ToggleZenMode(); break;
@@ -111,7 +112,7 @@ public partial class MainWindow
 
     private void Window_DragOver(object? sender, DragEventArgs e)
     {
-        if (e.DataTransfer.Contains(DataFormat.File))
+        if (e.DataTransfer.Contains(DataFormat.File) || e.DataTransfer.Contains(DataFormat.Text))
         {
             e.DragEffects = DragDropEffects.Copy;
         }
@@ -130,6 +131,18 @@ public partial class MainWindow
             if (supportedFile != null)
             {
                 _ = LoadBookAsync(supportedFile.Path.LocalPath);
+                return;
+            }
+        }
+
+        string? text = e.DataTransfer.TryGetText();
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            string trimmed = text.Trim();
+            if (trimmed.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                _ = LoadBookAsync(trimmed);
             }
         }
     }

@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ConfigurableReader.Views.OpenUrlDialog"
+        Title="Open Web Article" Width="480" Height="210"
+        WindowStartupLocation="CenterOwner"
+        WindowDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent">
+    <Border Background="#2D2D30" BorderBrush="#007ACC" BorderThickness="2" CornerRadius="8" Padding="20">
+        <Grid RowDefinitions="Auto,*,Auto">
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                <TextBlock Text="🌐 Read Web Article" FontSize="18" FontWeight="Bold" Foreground="#4DACFF"/>
+                <TextBlock Text="{DynamicResource EnterUrlPrompt}" FontSize="13" Foreground="#CCCCCC" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- URL Input -->
+            <TextBox Name="UrlTextBox" Grid.Row="1" Height="36"
+                     PlaceholderText="https://example.com/article"
+                     VerticalContentAlignment="Center"
+                     FontSize="14" Foreground="#F1F1F1" Background="#1E1E1E"
+                     BorderBrush="#3E3E42" CornerRadius="4"
+                     KeyDown="UrlTextBox_KeyDown"/>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,15,0,0">
+                <Button Content="{DynamicResource Cancel}" Width="80" Height="32" Click="CancelButton_Click"
+                        Background="#3E3E42" Foreground="#CCCCCC" HorizontalContentAlignment="Center"/>
+                <Button Name="ReadButton" Content="{DynamicResource ReadArticle}" Width="100" Height="32" Click="ReadButton_Click"
+                        Background="#007ACC" Foreground="White" FontWeight="SemiBold" HorizontalContentAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

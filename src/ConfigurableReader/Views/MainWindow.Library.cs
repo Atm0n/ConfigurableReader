@@ -105,7 +105,7 @@ public partial class MainWindow
         {
             if (sender is Button button && button.CommandParameter is BookRecord record)
             {
-                if (File.Exists(record.FilePath))
+                if (record.IsWebArticle || File.Exists(record.FilePath))
                 {
                     await LoadBookAsync(record.FilePath);
                 }

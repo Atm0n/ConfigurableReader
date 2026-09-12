@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using ConfigurableReader.Core;
 using ConfigurableReader.Parsers.Docx;
 using ConfigurableReader.Parsers.Epub;
+using ConfigurableReader.Parsers.Html;
 using ConfigurableReader.Parsers.Markdown;
 using ConfigurableReader.Parsers.Pdf;
 using ConfigurableReader.Parsers.Txt;
@@ -28,6 +29,7 @@ public partial class App : Application
             registry.RegisterParser(new PdfBookParser());
             registry.RegisterParser(new DocxBookParser());
             registry.RegisterParser(new MarkdownBookParser());
+            registry.RegisterParser(new HtmlBookParser());
 
             desktop.MainWindow = new MainWindow(registry);
         }

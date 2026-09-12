@@ -8,11 +8,13 @@ public class MemoryBookSource : IBookSource
     private readonly string _fullText;
     public int TotalLength => _fullText.Length;
     public IReadOnlyList<BookmarkItem> TableOfContents { get; }
+    public string? Title { get; }
 
-    public MemoryBookSource(string fullText, IReadOnlyList<BookmarkItem>? tableOfContents = null)
+    public MemoryBookSource(string fullText, IReadOnlyList<BookmarkItem>? tableOfContents = null, string? title = null)
     {
         _fullText = fullText ?? string.Empty;
         TableOfContents = tableOfContents ?? new List<BookmarkItem>();
+        Title = title;
     }
 
     public Task<string> GetTextAsync(int start, int count)
