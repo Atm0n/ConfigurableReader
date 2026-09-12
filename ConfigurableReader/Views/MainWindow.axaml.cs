@@ -54,6 +54,9 @@ public partial class MainWindow : Window
         InitializeRendering();
         InitializeGamepad();
 
+        AddHandler(DragDrop.DragOverEvent, Window_DragOver);
+        AddHandler(DragDrop.DropEvent, Window_Drop);
+
         _readerService.StartOfBookReached += () => 
         {
             Dispatcher.UIThread.Post(() => _ = OnStartOfBookReachedAsync());
@@ -386,6 +389,8 @@ public partial class MainWindow : Window
             case Key.F: FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked; break;
             case Key.S: SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded; break;
             case Key.I: _ = ShowInfoAsync(); break;
+            case Key.F11: ToggleZenMode(); break;
+            case Key.Escape: if (_isZenMode) ToggleZenMode(); break;
             case Key.OemPlus: case Key.Add: SpeedSlider.Value += AppConstants.DefaultSpeedIncrement; break;
             case Key.OemMinus: case Key.Subtract: SpeedSlider.Value -= AppConstants.DefaultSpeedIncrement; break;
         }
@@ -572,6 +577,65 @@ public partial class MainWindow : Window
         {
             _controller.CurrentRecord.CustomBookmarks.Remove(item);
             _controller.SaveCurrentPosition();
+        }
+    }
+
+    private void Window_DragOver(object? sender, DragEventArgs e)
+    {
+        if (e.DataTransfer.Contains(DataFormat.File))
+        {
+            e.DragEffects = DragDropEffects.Copy;
+        }
+        else
+        {
+            e.DragEffects = DragDropEffects.None;
+        }
+    }
+
+    private void Window_Drop(object? sender, DragEventArgs e)
+    {
+        var files = e.DataTransfer.TryGetFiles();
+        if (files != null)
+        {
+            var supportedFile = files.FirstOrDefault(f => _documentRegistry.GetParserForFile(f.Path.LocalPath) != null);
+            if (supportedFile != null)
+            {
+                _ = LoadBookAsync(supportedFile.Path.LocalPath);
+            }
+        }
+    }
+
+    private void ReadingAreaCanvas_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            AdjustFontSize(e.Delta.Y > 0 ? 2 : -2);
+            e.Handled = true;
+        }
+        else if (_currentBookFileName != null)
+        {
+            int delta = (int)(e.Delta.Y * -150);
+            _ = HandlePositionAdjustmentAsync(delta);
+            e.Handled = true;
+        }
+    }
+
+    private bool _isZenMode = false;
+
+    private void ToggleZenMode()
+    {
+        _isZenMode = !_isZenMode;
+        if (_isZenMode)
+        {
+            WindowState = WindowState.FullScreen;
+            SettingsExpander.IsVisible = false;
+            BottomControlBar.IsVisible = false;
+        }
+        else
+        {
+            WindowState = WindowState.Maximized;
+            SettingsExpander.IsVisible = true;
+            BottomControlBar.IsVisible = true;
         }
     }
 }

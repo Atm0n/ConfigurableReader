@@ -215,6 +215,39 @@ public partial class MainWindow
         {
             double percentage = (double)_readerService.CurrentPosition / _readerService.TotalLength * 100;
             PercentageText.Text = $"{percentage:F1}%";
+            UpdateReadingStats();
+        }
+    }
+
+    private void UpdateReadingStats()
+    {
+        if (_readerService.TotalLength <= 0 || ReadingStatsText == null) return;
+
+        double speedPixels = SpeedSlider.Value;
+        double fontSize = MainTextBlock.FontSize > 0 ? MainTextBlock.FontSize : 48;
+        
+        // Average character width for proportional Latin fonts is approx 0.55 * fontSize
+        double avgCharWidth = fontSize * 0.55;
+        double charsPerSecond = speedPixels / Math.Max(1.0, avgCharWidth);
+        
+        // Standard typographic calculation: 5 characters per word
+        double wpm = (charsPerSecond * 60.0) / 5.0;
+
+        int remainingChars = Math.Max(0, _readerService.TotalLength - _readerService.CurrentPosition);
+        if (charsPerSecond > 0 && remainingChars > 0)
+        {
+            double secondsRemaining = remainingChars / charsPerSecond;
+            int totalMinutes = (int)Math.Ceiling(secondsRemaining / 60.0);
+
+            string timeEst = totalMinutes >= 60 
+                ? $"{totalMinutes / 60}h {totalMinutes % 60}m" 
+                : $"{totalMinutes}m";
+
+            ReadingStatsText.Text = $"{wpm:F0} WPM • ~{timeEst} left";
+        }
+        else
+        {
+            ReadingStatsText.Text = $"{wpm:F0} WPM";
         }
     }
 

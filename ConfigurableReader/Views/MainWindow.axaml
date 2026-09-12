@@ -10,6 +10,7 @@
         WindowState="Maximized"
         Background="#1E1E1E"
         Foreground="#F1F1F1"
+        DragDrop.AllowDrop="True"
         KeyDown="Window_KeyDown"
         Closing="Window_Closing">
 
@@ -271,7 +272,8 @@
 
             <!-- Main Reading Area -->
             <Grid Grid.Row="1">
-                <Canvas Name="ReadingAreaCanvas" ClipToBounds="True" Background="Transparent" UseLayoutRounding="False">
+                <Canvas Name="ReadingAreaCanvas" ClipToBounds="True" Background="Transparent" UseLayoutRounding="False"
+                        PointerWheelChanged="ReadingAreaCanvas_PointerWheelChanged">
                     <TextBlock 
                         Name="MainTextBlock" 
                         Text="ConfigurableReader" 
@@ -336,12 +338,13 @@
             </Grid>
 
             <!-- Progress Area -->
-            <Border Grid.Row="2" Background="#2D2D30" Padding="10" BorderThickness="0,1,0,0" BorderBrush="#3E3E42">
-                <Grid ColumnDefinitions="200,*,100,Auto">
+            <Border Name="BottomControlBar" Grid.Row="2" Background="#2D2D30" Padding="10" BorderThickness="0,1,0,0" BorderBrush="#3E3E42">
+                <Grid ColumnDefinitions="200,*,Auto,Auto,Auto">
                     <TextBlock Name="BookNameText" Grid.Column="0" Text="{DynamicResource NoFileOpened}" VerticalAlignment="Center" Foreground="#F1F1F1" TextTrimming="CharacterEllipsis"/>
                     <Slider Name="TextSlider" Grid.Column="1" Minimum="0" Maximum="100" ValueChanged="TextSlider_ValueChanged" Focusable="False"/>
-                    <TextBlock Name="PercentageText" Grid.Column="2" Text="0%" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#F1F1F1"/>
-                    <TextBlock Name="InputModeText" Grid.Column="3" Text="⌨️" FontSize="20" VerticalAlignment="Center" Margin="10,0" ToolTip.Tip="{DynamicResource KeyboardMode}"/>
+                    <TextBlock Name="ReadingStatsText" Grid.Column="2" Text="" VerticalAlignment="Center" Foreground="#AAAAAA" FontSize="12" Margin="15,0,5,0"/>
+                    <TextBlock Name="PercentageText" Grid.Column="3" Text="0%" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#F1F1F1" Margin="5,0"/>
+                    <TextBlock Name="InputModeText" Grid.Column="4" Text="⌨️" FontSize="20" VerticalAlignment="Center" Margin="10,0" ToolTip.Tip="{DynamicResource KeyboardMode}"/>
                 </Grid>
             </Border>
         </Grid>
