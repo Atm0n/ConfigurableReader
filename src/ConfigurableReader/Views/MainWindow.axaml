@@ -214,8 +214,9 @@
                                 
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{DynamicResource ReadingModeLabel}" Classes="LabelStyle"/>
-                                    <ComboBox Name="ReadingModeComboBox" Width="160" SelectionChanged="ReadingModeComboBox_SelectionChanged" Focusable="False">
+                                    <ComboBox Name="ReadingModeComboBox" Width="170" SelectionChanged="ReadingModeComboBox_SelectionChanged" Focusable="False">
                                         <ComboBoxItem Content="{DynamicResource ModeMarquee}" Tag="Marquee"/>
+                                        <ComboBoxItem Content="{DynamicResource ModeFocusRuler}" Tag="FocusRuler"/>
                                         <ComboBoxItem Content="{DynamicResource ModeRsvp}" Tag="RSVP"/>
                                     </ComboBox>
                                 </StackPanel>
@@ -335,6 +336,25 @@
                         </TextBlock.Transitions>
                     </TextBlock>
                 </Canvas>
+
+                <!-- Focus Ruler / Reading Mask Overlay -->
+                <Grid Name="FocusRulerOverlay" IsVisible="False" IsHitTestVisible="False">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Dimming Mask -->
+                    <Border Grid.Row="0" Name="FocusRulerTopMask" Background="#A6000000" />
+
+                    <!-- Center Aperture (Active Focus Line) -->
+                    <Border Grid.Row="1" Name="FocusRulerAperture" Background="Transparent"
+                            BorderBrush="#4DACFF" BorderThickness="0,1.5,0,1.5" Height="90" />
+
+                    <!-- Bottom Dimming Mask -->
+                    <Border Grid.Row="2" Name="FocusRulerBottomMask" Background="#A6000000" />
+                </Grid>
 
                 <!-- RSVP Speed-Reading Display Container -->
                 <Grid Name="RsvpAreaContainer" Background="Transparent" IsVisible="False"

@@ -19,6 +19,8 @@ public class AppSettings
     public string LibrarySortOption { get; set; } = "Recent";
     public string ReadingMode { get; set; } = "Marquee";
     public int RsvpWpm { get; set; } = 300;
+    public double FocusRulerOpacity { get; set; } = 0.65;
+    public double FocusRulerHeightMultiplier { get; set; } = 1.8;
     public KeyBindingsConfig KeyBindings { get; set; } = KeyBindingsConfig.GetDefaultBindings();
 
     private static readonly string SettingsPath = Path.Combine(

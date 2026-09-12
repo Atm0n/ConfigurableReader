@@ -8,6 +8,7 @@ A modern, highly customizable desktop reading application built with [.NET 10](h
 
 ### 📖 Multiple Reading Modes
 - **Continuous Auto-Scroll:** High-performance typography rendering with smooth variable speed, bidirectional flow, and customizable edge fading.
+- **Focus Ruler / Reading Mask:** Softly dims the upper and lower text canvas, isolating the active reading line with an adjustable focus aperture and guide rails to eliminate visual distractions (ideal for ADHD, dyslexia, and deep reading focus).
 - **Bionic / Focus Reading:** Enhances reading speed and fixation by dynamically bolding the initial anchor letters of each word to guide saccadic eye movements.
 - **RSVP (Rapid Serial Visual Presentation):** Spritz-style word-by-word streaming with an **Optimal Recognition Point (ORP)** focal highlight, eliminating eye movement fatigue and supporting speeds up to **2,000 WPM**.
 
@@ -64,7 +65,8 @@ A modern, highly customizable desktop reading application built with [.NET 10](h
 | <kbd>F</kbd> | Toggle edge fade effect |
 | <kbd>S</kbd> | Toggle Settings drawer |
 | <kbd>T</kbd> | Cycle through color themes |
-| <kbd>M</kbd> | Cycle reading mode (Normal ➔ Bionic ➔ RSVP) |
+| <kbd>M</kbd> | Cycle reading mode (Continuous Scroll ➔ Focus Ruler ➔ RSVP) |
+| <kbd>K</kbd> | Open Keyboard Shortcut Manager (rebind any action) |
 | <kbd>U</kbd> | Open Webpage / Article dialog |
 | <kbd>F11</kbd> | Toggle Zen / Fullscreen mode |
 | <kbd>Esc</kbd> | Exit Zen mode |

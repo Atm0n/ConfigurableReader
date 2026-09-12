@@ -82,6 +82,7 @@
     <!-- Reading Modes -->
     <sys:String x:Key="ReadingModeLabel">Mode:</sys:String>
     <sys:String x:Key="ModeMarquee">Continuous Scroll</sys:String>
+    <sys:String x:Key="ModeFocusRuler">Focus Ruler Mask</sys:String>
     <sys:String x:Key="ModeRsvp">RSVP Speed Flash</sys:String>
     <sys:String x:Key="RsvpWpmLabel">WPM:</sys:String>
 

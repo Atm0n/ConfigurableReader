@@ -5,6 +5,7 @@ using Avalonia.Platform;
 using Avalonia.Styling;
 using ConfigurableReader.Common;
 using ConfigurableReader.Services;
+using System;
 using System.Linq;
 
 namespace ConfigurableReader.Views;
@@ -88,12 +89,22 @@ public partial class MainWindow
     public void ApplyReadingMode(string mode)
     {
         bool isRsvp = mode == "RSVP";
-        _settings.ReadingMode = isRsvp ? "RSVP" : "Marquee";
+        bool isFocusRuler = mode == "FocusRuler";
+        _settings.ReadingMode = isRsvp ? "RSVP" : (isFocusRuler ? "FocusRuler" : "Marquee");
 
         ReadingAreaCanvas.IsVisible = !isRsvp;
         RsvpAreaContainer.IsVisible = isRsvp;
         MarqueeSpeedPanel.IsVisible = !isRsvp;
         RsvpSpeedPanel.IsVisible = isRsvp;
+
+        if (FocusRulerOverlay != null)
+        {
+            FocusRulerOverlay.IsVisible = isFocusRuler;
+            if (isFocusRuler)
+            {
+                UpdateFocusRulerDimensions();
+            }
+        }
 
         _renderedBasePosition = -1;
         _currentRsvpWord = null;
@@ -109,7 +120,12 @@ public partial class MainWindow
 
     public void ToggleReadingMode()
     {
-        string nextMode = _settings.ReadingMode == "RSVP" ? "Marquee" : "RSVP";
+        string nextMode = _settings.ReadingMode switch
+        {
+            "Marquee" => "FocusRuler",
+            "FocusRuler" => "RSVP",
+            _ => "Marquee"
+        };
         _settings.ReadingMode = nextMode;
         using (_controller.SuppressCodeUpdates())
         {
@@ -163,6 +179,7 @@ public partial class MainWindow
         }
 
         CustomColorPanel.IsVisible = (themeName == "Custom" || _settings.Theme == "Custom");
+        UpdateFocusRulerDimensions();
     }
 
     private void SetThemeColors(ReaderTheme theme)
@@ -206,6 +223,25 @@ public partial class MainWindow
         if (RsvpPrefixText != null) RsvpPrefixText.FontSize = size;
         if (RsvpOrpText != null) RsvpOrpText.FontSize = size;
         if (RsvpSuffixText != null) RsvpSuffixText.FontSize = size;
+        UpdateFocusRulerDimensions();
+    }
+
+    private void UpdateFocusRulerDimensions()
+    {
+        if (FocusRulerAperture == null) return;
+        double apertureHeight = Math.Max(50, _settings.FontSize * _settings.FocusRulerHeightMultiplier);
+        FocusRulerAperture.Height = apertureHeight;
+
+        byte alpha = (byte)Math.Clamp((int)(255 * _settings.FocusRulerOpacity), 0, 255);
+        Color maskColor = Colors.Black;
+        if (Color.TryParse(_settings.BackgroundColor, out var bg))
+        {
+            maskColor = bg;
+        }
+
+        var maskBrush = new SolidColorBrush(Color.FromArgb(alpha, maskColor.R, maskColor.G, maskColor.B));
+        if (FocusRulerTopMask != null) FocusRulerTopMask.Background = maskBrush;
+        if (FocusRulerBottomMask != null) FocusRulerBottomMask.Background = maskBrush;
     }
 
     private void ThemeComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)

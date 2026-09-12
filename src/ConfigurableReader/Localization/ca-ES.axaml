@@ -82,6 +82,7 @@
     <!-- Reading Modes -->
     <sys:String x:Key="ReadingModeLabel">Mode:</sys:String>
     <sys:String x:Key="ModeMarquee">Desplaçament continu</sys:String>
+    <sys:String x:Key="ModeFocusRuler">Regle d'enfocament</sys:String>
     <sys:String x:Key="ModeRsvp">Lectura ràpida RSVP</sys:String>
     <sys:String x:Key="RsvpWpmLabel">PPM:</sys:String>
 
