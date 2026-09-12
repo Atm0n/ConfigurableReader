@@ -24,10 +24,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ConfigurableReader.Core\ConfigurableReader.Core.csproj" />
-    <ProjectReference Include="..\ConfigurableReader.Parsers.Txt\ConfigurableReader.Parsers.Txt.csproj" />
-    <ProjectReference Include="..\ConfigurableReader.Parsers.Epub\ConfigurableReader.Parsers.Epub.csproj" />
-    <ProjectReference Include="..\ConfigurableReader.Parsers.Pdf\ConfigurableReader.Parsers.Pdf.csproj" />
-    <ProjectReference Include="..\ConfigurableReader.Parsers.Docx\ConfigurableReader.Parsers.Docx.csproj" />
-    <ProjectReference Include="..\ConfigurableReader.Parsers.Markdown\ConfigurableReader.Parsers.Markdown.csproj" />
+    <ProjectReference Include="..\Parsers\ConfigurableReader.Parsers.Txt\ConfigurableReader.Parsers.Txt.csproj" />
+    <ProjectReference Include="..\Parsers\ConfigurableReader.Parsers.Epub\ConfigurableReader.Parsers.Epub.csproj" />
+    <ProjectReference Include="..\Parsers\ConfigurableReader.Parsers.Pdf\ConfigurableReader.Parsers.Pdf.csproj" />
+    <ProjectReference Include="..\Parsers\ConfigurableReader.Parsers.Docx\ConfigurableReader.Parsers.Docx.csproj" />
+    <ProjectReference Include="..\Parsers\ConfigurableReader.Parsers.Markdown\ConfigurableReader.Parsers.Markdown.csproj" />
   </ItemGroup>
 </Project>

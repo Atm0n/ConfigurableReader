@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\ConfigurableReader.Core\ConfigurableReader.Core.csproj" />
+    <ProjectReference Include="..\..\ConfigurableReader.Core\ConfigurableReader.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" />
-    <PackageReference Include="VersOne.Epub" />
+    <PackageReference Include="DocumentFormat.OpenXml" />
   </ItemGroup>
 
   <PropertyGroup>
