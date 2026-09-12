@@ -225,13 +225,16 @@
 
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{DynamicResource ThemeLabel}" Classes="LabelStyle"/>
-                                    <ComboBox Name="ThemeComboBox" Width="130" SelectionChanged="ThemeComboBox_SelectionChanged" Focusable="False">
-                                        <ComboBoxItem Content="System Default" Tag="System Default" />
-                                        <ComboBoxItem Content="Dark" Tag="Dark" />
-                                        <ComboBoxItem Content="Light" Tag="Light" />
-                                        <ComboBoxItem Content="Sepia" Tag="Sepia" />
-                                        <ComboBoxItem Content="High Contrast" Tag="High Contrast" />
-                                        <ComboBoxItem Content="Custom" Tag="Custom" />
+                                    <ComboBox Name="ThemeComboBox" Width="160" SelectionChanged="ThemeComboBox_SelectionChanged" Focusable="False">
+                                        <ComboBoxItem Content="{DynamicResource ThemeSystemDefault}" Tag="System Default" />
+                                        <ComboBoxItem Content="{DynamicResource ThemeDark}" Tag="Dark" />
+                                        <ComboBoxItem Content="{DynamicResource ThemeLight}" Tag="Light" />
+                                        <ComboBoxItem Content="{DynamicResource ThemeSepia}" Tag="Sepia" />
+                                        <ComboBoxItem Content="{DynamicResource ThemeOled}" Tag="OLED Black" />
+                                        <ComboBoxItem Content="{DynamicResource ThemeSolarized}" Tag="Solarized Dark" />
+                                        <ComboBoxItem Content="{DynamicResource ThemeNord}" Tag="Nord" />
+                                        <ComboBoxItem Content="{DynamicResource ThemeHighContrast}" Tag="High Contrast" />
+                                        <ComboBoxItem Content="{DynamicResource ThemeCustom}" Tag="Custom" />
                                     </ComboBox>
                                 </StackPanel>
 

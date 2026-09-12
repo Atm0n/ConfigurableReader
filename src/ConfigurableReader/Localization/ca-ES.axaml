@@ -60,4 +60,15 @@
     <sys:String x:Key="FileNotFound">Fitxer no trobat. Pot ser que hagi estat mogut o eliminat.</sys:String>
     <sys:String x:Key="CouldNotOpenFile">No s'ha pogut obrir el fitxer:</sys:String>
     <sys:String x:Key="FailedToLoadBook">Error en carregar el llibre:</sys:String>
+
+    <!-- Themes -->
+    <sys:String x:Key="ThemeSystemDefault">Per defecte del sistema</sys:String>
+    <sys:String x:Key="ThemeDark">Fosc</sys:String>
+    <sys:String x:Key="ThemeLight">Paper / Clar</sys:String>
+    <sys:String x:Key="ThemeSepia">Sèpia càlid</sys:String>
+    <sys:String x:Key="ThemeOled">OLED Negre</sys:String>
+    <sys:String x:Key="ThemeSolarized">Solarized Fosc</sys:String>
+    <sys:String x:Key="ThemeNord">Nord</sys:String>
+    <sys:String x:Key="ThemeHighContrast">Alt contrast</sys:String>
+    <sys:String x:Key="ThemeCustom">Personalitzat</sys:String>
 </ResourceDictionary>

@@ -60,4 +60,15 @@
     <sys:String x:Key="FileNotFound">Archivo no encontrado. Puede que haya sido movido o eliminado.</sys:String>
     <sys:String x:Key="CouldNotOpenFile">No se pudo abrir el archivo:</sys:String>
     <sys:String x:Key="FailedToLoadBook">Error al cargar el libro:</sys:String>
+
+    <!-- Themes -->
+    <sys:String x:Key="ThemeSystemDefault">Predeterminado del sistema</sys:String>
+    <sys:String x:Key="ThemeDark">Oscuro</sys:String>
+    <sys:String x:Key="ThemeLight">Papel / Claro</sys:String>
+    <sys:String x:Key="ThemeSepia">Sepia cálido</sys:String>
+    <sys:String x:Key="ThemeOled">OLED Negro</sys:String>
+    <sys:String x:Key="ThemeSolarized">Solarized Oscuro</sys:String>
+    <sys:String x:Key="ThemeNord">Nord</sys:String>
+    <sys:String x:Key="ThemeHighContrast">Alto contraste</sys:String>
+    <sys:String x:Key="ThemeCustom">Personalizado</sys:String>
 </ResourceDictionary>

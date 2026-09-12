@@ -55,6 +55,9 @@
                         <TextBlock Text="• R: Toggle Direction" />
                         <TextBlock Text="• F: Toggle Edge Fade" />
                         <TextBlock Text="• S: Toggle Settings" />
+                        <TextBlock Text="• T: Cycle Reading Themes" />
+                        <TextBlock Text="• F11: Fullscreen / Zen Mode" />
+                        <TextBlock Text="• Ctrl+Wheel: Adjust Font Size" />
                         <TextBlock Text="• I: Show Info" />
                         <TextBlock Text="• +/-: Adjust Speed" />
                     </StackPanel>

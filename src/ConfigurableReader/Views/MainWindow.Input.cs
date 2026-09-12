@@ -40,6 +40,7 @@ public partial class MainWindow
             case Key.R: _readerService.IsReversing = !_readerService.IsReversing; break;
             case Key.F: FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked; break;
             case Key.S: SettingsExpander.IsExpanded = !SettingsExpander.IsExpanded; break;
+            case Key.T: CycleNextTheme(); break;
             case Key.I: _ = ShowInfoAsync(); break;
             case Key.F11: ToggleZenMode(); break;
             case Key.Escape: if (_isZenMode) ToggleZenMode(); break;

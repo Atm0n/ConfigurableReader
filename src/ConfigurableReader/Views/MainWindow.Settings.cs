@@ -77,45 +77,76 @@ public partial class MainWindow
         }
     }
 
+    public void CycleNextTheme()
+    {
+        var selectablePresets = ReaderTheme.Presets.Where(p => p.Key != "Custom").ToList();
+        string currentKey = _settings.Theme;
+        int currentIndex = selectablePresets.FindIndex(p => p.Key == currentKey);
+        int nextIndex = (currentIndex + 1) % selectablePresets.Count;
+        var nextPreset = selectablePresets[nextIndex];
+
+        _settings.Theme = nextPreset.Key;
+        using (_controller.SuppressCodeUpdates())
+        {
+            ThemeComboBox.SelectedItem = ThemeComboBox.Items
+                .Cast<ComboBoxItem>()
+                .FirstOrDefault(i => i.Tag?.ToString() == nextPreset.Key);
+        }
+        ApplyThemeColor(nextPreset.Key);
+        _settings.Save();
+    }
+
     private void ApplyThemeColor(string themeName)
     {
-        if (themeName == "System Default")
+        string effectiveTheme = themeName;
+        if (effectiveTheme == "System Default")
         {
             var isDark = Application.Current?.PlatformSettings?.GetColorValues().ThemeVariant == PlatformThemeVariant.Dark;
-            themeName = isDark ? "Dark" : "Light";
+            effectiveTheme = isDark ? "Dark" : "Light";
         }
 
-        switch (themeName)
+        var preset = ReaderTheme.Presets.FirstOrDefault(p => p.Key == effectiveTheme);
+        if (preset != null && effectiveTheme != "Custom")
         {
-            case "Dark":
-                SetColors(Color.Parse("#1E1E1E"), Color.Parse("#F1F1F1"));
-                break;
-            case "Light":
-                SetColors(Color.Parse("#FAFAFA"), Color.Parse("#1A1A1A"));
-                break;
-            case "Sepia":
-                SetColors(Color.Parse("#F4ECD8"), Color.Parse("#5B4636"));
-                break;
-            case "High Contrast":
-                SetColors(Color.Parse("#000000"), Color.Parse("#00FF00"));
-                break;
-            case "Custom":
-                // Don't change colors, just use the custom ones.
-                break;
+            SetThemeColors(preset);
+        }
+        else if (effectiveTheme == "Custom")
+        {
+            if (Color.TryParse(_settings.BackgroundColor, out var bg))
+                this.Background = new SolidColorBrush(bg);
+            if (Color.TryParse(_settings.TextColor, out var fg))
+                MainTextBlock.Foreground = new SolidColorBrush(fg);
         }
 
         CustomColorPanel.IsVisible = (themeName == "Custom" || _settings.Theme == "Custom");
     }
 
-    private void SetColors(Color bgColor, Color fgColor)
+    private void SetThemeColors(ReaderTheme theme)
     {
+        var bgColor = Color.Parse(theme.Background);
+        var fgColor = Color.Parse(theme.Foreground);
+        var barBg = Color.Parse(theme.ControlBarBackground);
+        var barFg = Color.Parse(theme.ControlBarForeground);
+        var borderColor = Color.Parse(theme.BorderBrush);
+
         using (_controller.SuppressCodeUpdates())
         {
             BackgroundColorPicker.Color = bgColor;
             TextColorPicker.Color = fgColor;
         }
+
         this.Background = new SolidColorBrush(bgColor);
         MainTextBlock.Foreground = new SolidColorBrush(fgColor);
+
+        if (BottomControlBar != null)
+        {
+            BottomControlBar.Background = new SolidColorBrush(barBg);
+            BottomControlBar.BorderBrush = new SolidColorBrush(borderColor);
+        }
+
+        if (BookNameText != null) BookNameText.Foreground = new SolidColorBrush(barFg);
+        if (PercentageText != null) PercentageText.Foreground = new SolidColorBrush(barFg);
+        if (ReadingStatsText != null) ReadingStatsText.Foreground = new SolidColorBrush(barFg);
     }
 
     private void ThemeComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -218,11 +249,28 @@ public partial class MainWindow
 
     private void TextColorPicker_ColorChanged(object? sender, ColorChangedEventArgs e)
     {
+        if (_controller.IsUpdatingFromCode) return;
         MainTextBlock.Foreground = new SolidColorBrush(e.NewColor);
+        SetThemeToCustom();
     }
 
     private void BackgroundColorPicker_ColorChanged(object? sender, ColorChangedEventArgs e)
     {
+        if (_controller.IsUpdatingFromCode) return;
         this.Background = new SolidColorBrush(e.NewColor);
+        SetThemeToCustom();
+    }
+
+    private void SetThemeToCustom()
+    {
+        _settings.Theme = "Custom";
+        using (_controller.SuppressCodeUpdates())
+        {
+            ThemeComboBox.SelectedItem = ThemeComboBox.Items
+                .Cast<ComboBoxItem>()
+                .FirstOrDefault(i => i.Tag?.ToString() == "Custom");
+            CustomColorPanel.IsVisible = true;
+        }
+        _settings.Save();
     }
 }
