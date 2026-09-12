@@ -18,6 +18,7 @@ public static class AppConstants
     public const double GamepadTriggerThreshold = 0.1;
     public const int GamepadBoostMultiplier = 4;
     public const int GamepadBaseMoveAmount = 100;
+    public const int GamepadButtonDebounceMs = 120;
 
     // Constraints
     public const double MinFontSize = 10;
