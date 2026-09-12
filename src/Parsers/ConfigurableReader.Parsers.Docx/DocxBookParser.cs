@@ -1,8 +1,8 @@
-using System.Text;
-using System.Text.RegularExpressions;
 using ConfigurableReader.Core;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ConfigurableReader.Parsers.Docx;
 

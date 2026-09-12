@@ -1,20 +1,17 @@
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
+using ConfigurableReader.Core;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Media;
-using Avalonia.Threading;
-using Avalonia.Input;
-using Avalonia.Controls.Primitives;
-using ConfigurableReader.Core;
-using System.Collections.Generic;
 
 namespace ConfigurableReader.Views;
 
 using ConfigurableReader.Models;
-using ConfigurableReader.Common;
 using ConfigurableReader.Services;
 
 public partial class MainWindow : Window
@@ -23,7 +20,7 @@ public partial class MainWindow : Window
     private readonly ReaderService _readerService = new();
     private readonly DocumentRegistry _documentRegistry;
     private readonly ReaderController _controller;
-    
+
     private string? _currentBookFileName => _controller.CurrentBookFilePath;
     private bool _isUpdatingFromCode => _controller.IsUpdatingFromCode;
 
@@ -57,12 +54,12 @@ public partial class MainWindow : Window
         AddHandler(DragDrop.DragOverEvent, Window_DragOver);
         AddHandler(DragDrop.DropEvent, Window_Drop);
 
-        _readerService.StartOfBookReached += () => 
+        _readerService.StartOfBookReached += () =>
         {
             Dispatcher.UIThread.Post(() => _ = OnStartOfBookReachedAsync());
         };
 
-        _readerService.EndOfBookReached += () => 
+        _readerService.EndOfBookReached += () =>
         {
             Dispatcher.UIThread.Post(() => _ = OnEndOfBookReachedAsync());
         };
@@ -101,13 +98,13 @@ public partial class MainWindow : Window
         try
         {
             var filters = new List<Avalonia.Platform.Storage.FilePickerFileType>();
-            
+
             // Add "All Supported Books" combined filter
             var allExtensions = _documentRegistry.AvailableParsers
                 .SelectMany(p => p.SupportedExtensions)
                 .Select(e => $"*{e}")
                 .ToList();
-            
+
             if (allExtensions.Any())
             {
                 filters.Add(new Avalonia.Platform.Storage.FilePickerFileType(LocalizationService.GetString("AllSupportedBooks"))
@@ -151,7 +148,7 @@ public partial class MainWindow : Window
             using (_controller.SuppressCodeUpdates())
             {
                 _renderedBasePosition = -1; // Force re-render of the text buffer
-                
+
                 string bookName = await _controller.OpenBookAsync(filePath);
 
                 TextSlider.Maximum = _readerService.TotalLength;
@@ -168,7 +165,7 @@ public partial class MainWindow : Window
 
                 UpdateDisplayedText();
                 UpdatePercentage();
-                
+
                 ShowReader();
             }
         }
@@ -207,7 +204,7 @@ public partial class MainWindow : Window
                 {
                     await _readerService.ResetPositionAsync(foundIndex);
                     _renderedBasePosition = -1; // Force re-render
-                    
+
                     TextSlider.Value = _readerService.CurrentPosition;
                     UpdateDisplayedText();
                     UpdateRenderTransform();
@@ -304,7 +301,7 @@ public partial class MainWindow : Window
             // Force a re-center if paused
             if (_readerService.IsPaused)
             {
-                Dispatcher.UIThread.Post(() => 
+                Dispatcher.UIThread.Post(() =>
                 {
                     if (ReadingAreaCanvas.Bounds.Height > 0 && MainTextBlock.Bounds.Height > 0)
                     {

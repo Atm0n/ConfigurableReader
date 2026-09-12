@@ -1,8 +1,7 @@
-using System.Text;
-using System.Text.RegularExpressions;
 using ConfigurableReader.Core;
-using VersOne.Epub;
 using HtmlAgilityPack;
+using System.Text.RegularExpressions;
+using VersOne.Epub;
 
 namespace ConfigurableReader.Parsers.Epub;
 

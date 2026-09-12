@@ -1,6 +1,6 @@
+using Avalonia.Controls;
 using System;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 
 namespace ConfigurableReader.Views;
 
@@ -20,13 +20,13 @@ public partial class MainWindow
         };
 
         _gamepadService.ToggleStartStopRequested += ToggleStartStop;
-        
-        _gamepadService.ToggleReverseRequested += () => 
+
+        _gamepadService.ToggleReverseRequested += () =>
         {
             _readerService.IsReversing = !_readerService.IsReversing;
         };
 
-        _gamepadService.ToggleFadeRequested += () => 
+        _gamepadService.ToggleFadeRequested += () =>
         {
             FadeCheckBox.IsChecked = !FadeCheckBox.IsChecked;
         };
@@ -40,12 +40,12 @@ public partial class MainWindow
 
         _gamepadService.FontSizeAdjustmentRequested += AdjustFontSize;
 
-        _gamepadService.SpeedAdjustmentRequested += delta => 
+        _gamepadService.SpeedAdjustmentRequested += delta =>
         {
             SpeedSlider.Value += delta;
         };
 
-        _gamepadService.SetReverseDirectionRequested += value => 
+        _gamepadService.SetReverseDirectionRequested += value =>
         {
             _readerService.IsReversing = value;
         };

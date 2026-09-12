@@ -1,8 +1,7 @@
+using ConfigurableReader.Core;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
-using ConfigurableReader.Core;
 
 namespace ConfigurableReader.Models;
 
@@ -13,7 +12,7 @@ public class BookRecord
     public int ScrollPosition { get; set; }
     public int TotalLength { get; set; }
     public DateTime LastReadDate { get; set; }
-    
+
     public ObservableCollection<BookmarkItem> CustomBookmarks { get; set; } = new ObservableCollection<BookmarkItem>();
 
     [JsonIgnore]

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ConfigurableReader.Core;
 
 /// <summary>
@@ -21,7 +19,7 @@ public class MemoryBookSource : IBookSource
     {
         if (start < 0) start = 0;
         if (start >= _fullText.Length) return Task.FromResult(string.Empty);
-        
+
         int actualCount = Math.Min(count, _fullText.Length - start);
         return Task.FromResult(_fullText.Substring(start, actualCount));
     }

@@ -1,12 +1,11 @@
-using System.Collections.Generic;
-using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using ConfigurableReader.Common;
-using ConfigurableReader.Services;
-using Avalonia;
 using Avalonia.Platform;
 using Avalonia.Styling;
+using ConfigurableReader.Common;
+using ConfigurableReader.Services;
+using System.Linq;
 
 namespace ConfigurableReader.Views;
 
@@ -68,12 +67,12 @@ public partial class MainWindow
             ThemeComboBox.SelectedItem = ThemeComboBox.Items
             .Cast<ComboBoxItem>()
             .FirstOrDefault(i => i.Tag?.ToString() == _settings.Theme) ?? ThemeComboBox.Items.Cast<ComboBoxItem>().First();
-        
+
             SpeedReadingCheckBox.IsChecked = _settings.SpeedReadingMode;
             SpeedReadingBoldSlider.Value = _settings.SpeedReadingBoldRatio * 100;
             SpeedReadingBoldValueText.Text = $"{(int)(_settings.SpeedReadingBoldRatio * 100)}%";
             SpeedReadingBoldPanel.IsVisible = _settings.SpeedReadingMode;
- 
+
             ApplyThemeColor(_settings.Theme);
         }
     }
@@ -122,7 +121,7 @@ public partial class MainWindow
     private void ThemeComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (_controller.IsUpdatingFromCode) return;
-        
+
         if (ThemeComboBox.SelectedItem is ComboBoxItem item && item.Tag != null)
         {
             _settings.Theme = item.Tag.ToString() ?? "System Default";
@@ -197,7 +196,7 @@ public partial class MainWindow
         _settings.SpeedReadingMode = SpeedReadingCheckBox.IsChecked ?? false;
         SpeedReadingBoldPanel.IsVisible = _settings.SpeedReadingMode;
         _settings.Save();
-        
+
         // Force a layout refresh for the current text
         _renderedBasePosition = -1; // Reset to force complete text refresh
         UpdateDisplayedText();
@@ -206,13 +205,13 @@ public partial class MainWindow
     private void SpeedReadingBoldSlider_ValueChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
     {
         if (_controller.IsUpdatingFromCode || _settings == null || SpeedReadingBoldSlider == null || SpeedReadingBoldValueText == null) return;
-        
+
         int percent = (int)SpeedReadingBoldSlider.Value;
         SpeedReadingBoldValueText.Text = $"{percent}%";
-        
+
         _settings.SpeedReadingBoldRatio = percent / 100.0;
         _settings.Save();
-        
+
         _renderedBasePosition = -1; // Reset to force complete text refresh
         UpdateDisplayedText();
     }

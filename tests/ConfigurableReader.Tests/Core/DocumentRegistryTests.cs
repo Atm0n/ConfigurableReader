@@ -13,7 +13,7 @@ public class DocumentRegistryTests
         var registry = new DocumentRegistry();
         var mockParser = new Mock<IBookParser>();
         mockParser.Setup(p => p.SupportedExtensions).Returns(new[] { ".txt" });
-        
+
         registry.RegisterParser(mockParser.Object);
 
         // Act
@@ -31,7 +31,7 @@ public class DocumentRegistryTests
         var registry = new DocumentRegistry();
         var mockParser = new Mock<IBookParser>();
         mockParser.Setup(p => p.SupportedExtensions).Returns(new[] { ".pdf" });
-        
+
         registry.RegisterParser(mockParser.Object);
 
         // Act
@@ -46,14 +46,14 @@ public class DocumentRegistryTests
     {
         // Arrange
         var registry = new DocumentRegistry();
-        
+
         var mockSource = new Mock<IBookSource>();
         var mockParser = new Mock<IBookParser>();
-        
+
         mockParser.Setup(p => p.SupportedExtensions).Returns(new[] { ".txt" });
         mockParser.Setup(p => p.CreateSourceAsync(It.IsAny<string>()))
                   .ReturnsAsync(mockSource.Object);
-        
+
         registry.RegisterParser(mockParser.Object);
 
         // Act

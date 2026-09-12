@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ConfigurableReader.Core;
 
 public class BookmarkItem

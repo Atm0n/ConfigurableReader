@@ -1,6 +1,6 @@
+using ConfigurableReader.Core;
 using System.Text;
 using System.Text.RegularExpressions;
-using ConfigurableReader.Core;
 using UglyToad.PdfPig;
 
 namespace ConfigurableReader.Parsers.Pdf;
@@ -57,8 +57,8 @@ public partial class PdfBookParser : IBookParser
         foreach (var node in nodes)
         {
             var item = new BookmarkItem { Title = node.Title };
-            if (node is UglyToad.PdfPig.Outline.DocumentBookmarkNode docNode && 
-                docNode.Destination != null && 
+            if (node is UglyToad.PdfPig.Outline.DocumentBookmarkNode docNode &&
+                docNode.Destination != null &&
                 pageOffsets.TryGetValue(docNode.Destination.PageNumber, out int pos))
             {
                 item.Position = pos;

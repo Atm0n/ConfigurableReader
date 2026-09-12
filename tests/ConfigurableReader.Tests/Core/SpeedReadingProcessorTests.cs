@@ -17,7 +17,7 @@ public class SpeedReadingProcessorTests
         // Assert
         // "Reader" has 6 letters. At 0.5 ratio, bold length should be 3: "Rea" (Bold) + "der" (Normal)
         segments.Count.ShouldBe(2);
-        
+
         segments[0].Text.ShouldBe("Rea");
         segments[0].IsBold.ShouldBeTrue();
 
@@ -37,7 +37,7 @@ public class SpeedReadingProcessorTests
 
         // Assert
         segments.Count.ShouldBe(2);
-        
+
         segments[0].Text.ShouldBe("Con");
         segments[0].IsBold.ShouldBeTrue();
 

@@ -1,9 +1,8 @@
-using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
-using Avalonia.Threading;
+using System;
 
 namespace ConfigurableReader.Views;
 
@@ -83,13 +82,13 @@ public partial class MainWindow
         if (_currentTextLayout == null || MainTextBlock.Text == null) return (currentPos, 0, false);
 
         int localIndex = Math.Clamp(currentPos - _renderedBasePosition, 0, _currentRenderedText?.Length ?? 0);
-        
+
         var startRect = _currentTextLayout.HitTestTextPosition(localIndex);
         double absoluteTargetX = startRect.Left + targetOffset;
 
         var hit = _currentTextLayout.HitTestPoint(new Point(absoluteTargetX, 0));
         int newGlobalPos = _renderedBasePosition + hit.TextPosition;
-        
+
         if (newGlobalPos >= _readerService.TotalLength) return (_readerService.TotalLength, 0, true);
         if (newGlobalPos < 0) return (0, 0, true);
 
@@ -105,7 +104,7 @@ public partial class MainWindow
 
         int localIndex = Math.Clamp(_readerService.CurrentPosition - _renderedBasePosition, 0, _currentRenderedText?.Length ?? 0);
         var rect = _currentTextLayout.HitTestTextPosition(localIndex);
-        
+
         _textTranslateTransform.X = -(rect.Left - _readerService.CurrentOffsetX);
 
         if (ReadingAreaCanvas.Bounds.Height > 0)
@@ -122,7 +121,7 @@ public partial class MainWindow
         if (string.IsNullOrEmpty(_readerService.BufferText)) return;
 
         // Ensure current position is within the buffer before attempting to render
-        if (_readerService.CurrentPosition < _readerService.BufferStartPosition || 
+        if (_readerService.CurrentPosition < _readerService.BufferStartPosition ||
             _readerService.CurrentPosition >= _readerService.BufferStartPosition + _readerService.BufferText.Length)
         {
             return;
@@ -130,7 +129,7 @@ public partial class MainWindow
 
         const int safeZone = 2000;
         bool isForcedRefresh = _renderedBasePosition == -1;
-        bool needsUpdate = isForcedRefresh || 
+        bool needsUpdate = isForcedRefresh ||
                            _readerService.CurrentPosition < _renderedBasePosition ||
                            _readerService.CurrentPosition > _renderedBasePosition + AppConstants.MaxBufferLength - safeZone;
 
@@ -139,10 +138,10 @@ public partial class MainWindow
             // _renderedBasePosition must be relative to the buffer for substring to work,
             // OR we map absolute to relative. Let's keep _renderedBasePosition as absolute.
             _renderedBasePosition = Math.Max(_readerService.BufferStartPosition, _readerService.CurrentPosition - safeZone);
-            
+
             int relativeBase = _renderedBasePosition - _readerService.BufferStartPosition;
             int length = Math.Min(AppConstants.MaxBufferLength, _readerService.BufferText.Length - relativeBase);
-            
+
             if (length > 0)
             {
                 string newText = _readerService.BufferText.Substring(relativeBase, length);
@@ -150,7 +149,7 @@ public partial class MainWindow
                 if (isForcedRefresh || _currentRenderedText != newText)
                 {
                     _currentRenderedText = newText;
-                    
+
                     if (_settings.SpeedReadingMode)
                     {
                         MainTextBlock.Text = null;
@@ -169,16 +168,16 @@ public partial class MainWindow
 
                         var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
                         var boldTypeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, FontWeight.Bold);
-                        
+
                         var overrides = new System.Collections.Generic.List<global::Avalonia.Utilities.ValueSpan<TextRunProperties>>();
                         var boldProperties = new GenericTextRunProperties(boldTypeface, MainTextBlock.FontSize, null, MainTextBlock.Foreground);
-                        
+
                         var boldSpans = ConfigurableReader.Core.SpeedReadingProcessor.GetBoldSpans(newText, _settings.SpeedReadingBoldRatio);
                         foreach (var (spanIndex, spanLength) in boldSpans)
                         {
                             overrides.Add(new global::Avalonia.Utilities.ValueSpan<TextRunProperties>(spanIndex, spanLength, boldProperties));
                         }
-                        
+
                         _currentTextLayout = new TextLayout(
                             newText,
                             typeface,
@@ -190,7 +189,7 @@ public partial class MainWindow
                     {
                         if (MainTextBlock.Inlines != null) MainTextBlock.Inlines.Clear();
                         MainTextBlock.Text = newText;
-                        
+
                         var typeface = new Typeface(MainTextBlock.FontFamily, MainTextBlock.FontStyle, MainTextBlock.FontWeight);
                         _currentTextLayout = new TextLayout(
                             newText,
@@ -225,11 +224,11 @@ public partial class MainWindow
 
         double speedPixels = SpeedSlider.Value;
         double fontSize = MainTextBlock.FontSize > 0 ? MainTextBlock.FontSize : 48;
-        
+
         // Average character width for proportional Latin fonts is approx 0.55 * fontSize
         double avgCharWidth = fontSize * 0.55;
         double charsPerSecond = speedPixels / Math.Max(1.0, avgCharWidth);
-        
+
         // Standard typographic calculation: 5 characters per word
         double wpm = (charsPerSecond * 60.0) / 5.0;
 
@@ -239,8 +238,8 @@ public partial class MainWindow
             double secondsRemaining = remainingChars / charsPerSecond;
             int totalMinutes = (int)Math.Ceiling(secondsRemaining / 60.0);
 
-            string timeEst = totalMinutes >= 60 
-                ? $"{totalMinutes / 60}h {totalMinutes % 60}m" 
+            string timeEst = totalMinutes >= 60
+                ? $"{totalMinutes / 60}h {totalMinutes % 60}m"
                 : $"{totalMinutes}m";
 
             ReadingStatsText.Text = $"{wpm:F0} WPM • ~{timeEst} left";
@@ -261,8 +260,8 @@ public partial class MainWindow
         double newSize = MainTextBlock.FontSize + delta;
         MainTextBlock.FontSize = Math.Clamp(newSize, AppConstants.MinFontSize, AppConstants.MaxFontSize);
         FontSizeNumeric.Value = (decimal)MainTextBlock.FontSize;
-        
-        _renderedBasePosition = -1; 
+
+        _renderedBasePosition = -1;
         UpdateDisplayedText();
         UpdateRenderTransform();
     }

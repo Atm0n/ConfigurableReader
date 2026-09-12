@@ -11,7 +11,7 @@ public class MarkdownParserTests
         // Arrange
         string tempFile = Path.GetTempFileName() + ".md";
         await File.WriteAllTextAsync(tempFile, "# Hello\n\nThis is **Markdown**.", TestContext.Current.CancellationToken);
-        
+
         var parser = new MarkdownBookParser();
 
         // Act
@@ -21,7 +21,7 @@ public class MarkdownParserTests
         // Assert
         text.ShouldContain("Hello");
         text.ShouldContain("This is Markdown.");
-        
+
         File.Delete(tempFile);
     }
 }

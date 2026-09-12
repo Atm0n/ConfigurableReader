@@ -40,7 +40,7 @@ public class ReaderServiceTests
         service.IsPaused = false; // Unpause
 
         // Act
-        service.Advance(10.0, (pos, offset) => 
+        service.Advance(10.0, (pos, offset) =>
         {
             // Dummy mapping function that advances by 5 chars
             return (pos + 5, 0.0, false);

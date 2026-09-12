@@ -12,10 +12,10 @@ public class ReaderControllerTests
         // Arrange
         var registry = new DocumentRegistry();
         var readerService = new ReaderService();
-        
+
         // Act
         var controller = new ReaderController(registry, readerService);
-        
+
         // Assert
         // This will be empty if BookRecordStore.Load() returns empty or file doesn't exist during test.
         controller.BookRecords.ShouldNotBeNull();
@@ -29,7 +29,7 @@ public class ReaderControllerTests
         var readerService = new ReaderService();
         var controller = new ReaderController(registry, readerService);
         int initialCount = controller.BookRecords.Count;
-        
+
         // Act
         var record = controller.GetOrCreateRecord("C:\\test\\book.txt");
 

@@ -1,11 +1,11 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using ConfigurableReader.Models;
 using ConfigurableReader.Services;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ConfigurableReader.Views;
 
@@ -16,7 +16,7 @@ public partial class MainWindow
         StopReading();
         LibraryViewContainer.IsVisible = true;
         ReaderViewContainer.IsVisible = false;
-        
+
         ApplyLibraryFilter();
     }
 
@@ -27,7 +27,7 @@ public partial class MainWindow
 
         if (!string.IsNullOrEmpty(query))
         {
-            records = records.Where(b => 
+            records = records.Where(b =>
                 b.DisplayTitle.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                 Path.GetFileName(b.FilePath).Contains(query, StringComparison.OrdinalIgnoreCase));
         }

@@ -1,11 +1,10 @@
-using System;
-using System.Collections.Generic;
 using Avalonia.Threading;
+using ConfigurableReader.Common;
 using DevDecoder.HIDDevices;
 using DevDecoder.HIDDevices.Controllers;
 using DevDecoder.HIDDevices.Converters;
-
-using ConfigurableReader.Common;
+using System;
+using System.Collections.Generic;
 
 namespace ConfigurableReader.Services;
 
@@ -134,8 +133,8 @@ public class GamepadService : IDisposable
 
         if (upPressed && !_lastDPadUpState)
         {
-            int step = (DateTime.Now - _lastDPadUpTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs 
-                ? AppConstants.LargeFontSizeStep 
+            int step = (DateTime.Now - _lastDPadUpTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs
+                ? AppConstants.LargeFontSizeStep
                 : AppConstants.SmallFontSizeStep;
             _lastDPadUpTime = DateTime.Now;
             FontSizeAdjustmentRequested?.Invoke(step);
@@ -144,8 +143,8 @@ public class GamepadService : IDisposable
 
         if (downPressed && !_lastDPadDownState)
         {
-            int step = (DateTime.Now - _lastDPadDownTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs 
-                ? -AppConstants.LargeFontSizeStep 
+            int step = (DateTime.Now - _lastDPadDownTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs
+                ? -AppConstants.LargeFontSizeStep
                 : -AppConstants.SmallFontSizeStep;
             _lastDPadDownTime = DateTime.Now;
             FontSizeAdjustmentRequested?.Invoke(step);

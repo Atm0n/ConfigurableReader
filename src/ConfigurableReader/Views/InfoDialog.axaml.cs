@@ -1,11 +1,10 @@
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-
-using System;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using DevDecoder.HIDDevices;
 using DevDecoder.HIDDevices.Controllers;
+using System;
 
 namespace ConfigurableReader.Views;
 

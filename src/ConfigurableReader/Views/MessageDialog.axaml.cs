@@ -1,12 +1,11 @@
-using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-
-using System;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using DevDecoder.HIDDevices;
 using DevDecoder.HIDDevices.Controllers;
+using System;
+using System.Threading.Tasks;
 
 namespace ConfigurableReader.Views;
 
@@ -19,7 +18,7 @@ public partial class MessageDialog : Window
     public MessageDialog()
     {
         InitializeComponent();
-        
+
         _gamepadSubscription = _devices.Controllers<Gamepad>().Subscribe(gamepad =>
         {
             gamepad.Connect();

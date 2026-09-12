@@ -1,6 +1,6 @@
+using ConfigurableReader.Core;
 using System;
 using System.Threading.Tasks;
-using ConfigurableReader.Core;
 
 namespace ConfigurableReader.Services;
 
@@ -27,19 +27,19 @@ public class ReaderService : IDisposable
     public int TotalLength => _source?.TotalLength ?? 0;
 
     public string BufferText
-    { 
-        get => _buffer; 
+    {
+        get => _buffer;
     }
 
-    public bool IsPaused 
-    { 
-        get => _isPaused; 
+    public bool IsPaused
+    {
+        get => _isPaused;
         set { _isPaused = value; OnStateChanged(); }
     }
 
-    public bool IsReversing 
-    { 
-        get => _isReversing; 
+    public bool IsReversing
+    {
+        get => _isReversing;
         set { _isReversing = value; OnStateChanged(); }
     }
 
@@ -63,9 +63,9 @@ public class ReaderService : IDisposable
 
         long loadId = ++_latestLoadId;
         int newStartPosition = Math.Max(0, position - (BufferSize / 2));
-        
+
         string newBuffer = await _source.GetTextAsync(newStartPosition, BufferSize);
-        
+
         if (loadId == _latestLoadId)
         {
             _bufferStartPosition = newStartPosition;
@@ -84,7 +84,7 @@ public class ReaderService : IDisposable
         if (_isPaused || _source == null || string.IsNullOrEmpty(_buffer)) return;
 
         var result = mapPixelsToPosition(_currentPosition, _isReversing ? -pixels + _subCharOffset : pixels + _subCharOffset);
-        
+
         _currentPosition = result.newPos;
         _subCharOffset = result.newOffset;
 
@@ -121,7 +121,7 @@ public class ReaderService : IDisposable
     {
         _currentPosition = Math.Clamp(charPosition, 0, TotalLength);
         _subCharOffset = 0;
-        
+
         // If we jump outside current buffer, reload
         if (_currentPosition < _bufferStartPosition || _currentPosition > _bufferStartPosition + _buffer.Length)
         {
@@ -173,18 +173,18 @@ public class ReaderService : IDisposable
 
         int totalLength = _source.TotalLength;
         if (startPosition < 0) return -1;
-        
+
         int startPos = Math.Min(startPosition, totalLength - 1);
         int chunkSize = 100000;
         int overlap = query.Length - 1;
-        
+
         int currentEnd = startPos + 1;
 
         while (currentEnd > 0)
         {
             int currentStart = Math.Max(0, currentEnd - chunkSize);
             int readCount = currentEnd - currentStart;
-            
+
             string chunk = await _source.GetTextAsync(currentStart, readCount);
             if (string.IsNullOrEmpty(chunk))
                 break;
@@ -204,7 +204,7 @@ public class ReaderService : IDisposable
 
         return -1;
     }
-    
+
 
 
     public void Dispose()

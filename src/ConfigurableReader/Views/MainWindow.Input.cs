@@ -1,8 +1,8 @@
-using System;
-using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
 using ConfigurableReader.Common;
+using System;
+using System.Linq;
 
 namespace ConfigurableReader.Views;
 
@@ -24,15 +24,15 @@ public partial class MainWindow
             case Key.Right: _readerService.IsReversing = false; break;
             case Key.Space: ToggleStartStop(); break;
             case Key.Up:
-                int upStep = (DateTime.Now - _lastKeyUpTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs 
-                    ? AppConstants.LargeFontSizeStep 
+                int upStep = (DateTime.Now - _lastKeyUpTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs
+                    ? AppConstants.LargeFontSizeStep
                     : AppConstants.SmallFontSizeStep;
                 _lastKeyUpTime = DateTime.Now;
                 AdjustFontSize(upStep);
                 break;
             case Key.Down:
-                int downStep = (DateTime.Now - _lastKeyDownTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs 
-                    ? -AppConstants.LargeFontSizeStep 
+                int downStep = (DateTime.Now - _lastKeyDownTime).TotalMilliseconds < AppConstants.DoubleTapThresholdMs
+                    ? -AppConstants.LargeFontSizeStep
                     : -AppConstants.SmallFontSizeStep;
                 _lastKeyDownTime = DateTime.Now;
                 AdjustFontSize(downStep);

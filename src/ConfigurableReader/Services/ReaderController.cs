@@ -1,10 +1,10 @@
+using ConfigurableReader.Core;
+using ConfigurableReader.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ConfigurableReader.Core;
-using ConfigurableReader.Models;
 
 namespace ConfigurableReader.Services;
 
@@ -87,7 +87,7 @@ public class ReaderController
         CurrentBookFilePath = filePath;
         var source = await _documentRegistry.CreateSourceAsync(filePath);
         var record = GetOrCreateRecord(filePath);
-        
+
         record.LastReadDate = DateTime.Now;
         record.TotalLength = source.TotalLength;
         // Optionally extract title if supported by the parser in the future, for now fallback to filename

@@ -1,5 +1,5 @@
-using System.Text.RegularExpressions;
 using ConfigurableReader.Core;
+using System.Text.RegularExpressions;
 
 namespace ConfigurableReader.Parsers.Markdown;
 
@@ -20,7 +20,7 @@ public partial class MarkdownBookParser : IBookParser
     private async Task<string> ExtractTextAsync(string filePath)
     {
         string markdown = await File.ReadAllTextAsync(filePath);
-        
+
         return await Task.Run(() =>
         {
             // Some versions of Markdig have ToPlainText extension

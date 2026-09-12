@@ -28,7 +28,7 @@ public interface IBookParser
 {
     string FormatName { get; }
     string[] SupportedExtensions { get; }
-    
+
     /// <summary>
     /// Creates a source that can provide text chunks for the book.
     /// </summary>

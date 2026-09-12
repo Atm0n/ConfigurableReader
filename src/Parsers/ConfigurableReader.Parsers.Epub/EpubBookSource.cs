@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using ConfigurableReader.Core;
+using System.Text;
 using VersOne.Epub;
 
 namespace ConfigurableReader.Parsers.Epub;
@@ -123,7 +120,7 @@ public class EpubBookSource : IBookSource
                 int relativeCount = sliceEnd - sliceStart;
 
                 string chapterText = await GetChapterTextAsync(chapter.Index);
-                
+
                 if (relativeStart < chapterText.Length)
                 {
                     int actualCount = Math.Min(relativeCount, chapterText.Length - relativeStart);

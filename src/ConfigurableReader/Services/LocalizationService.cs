@@ -1,10 +1,10 @@
+using Avalonia;
+using Avalonia.Markup.Xaml.Styling;
+using ConfigurableReader.Common;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Avalonia;
-using Avalonia.Markup.Xaml.Styling;
-using ConfigurableReader.Common;
 
 namespace ConfigurableReader.Services;
 
@@ -40,7 +40,7 @@ public static class LocalizationService
         }
 
         var newSource = new Uri($"avares://ConfigurableReader/Localization/{languageCode}.axaml");
-        
+
         var resourceInclude = new ResourceInclude((Uri?)null)
         {
             Source = newSource
@@ -52,7 +52,7 @@ public static class LocalizationService
     public static string GetSystemLanguage()
     {
         var uiCulture = CultureInfo.CurrentUICulture;
-        
+
         // 1. Try exact match (e.g. "es-ES")
         if (AppConstants.SupportedLanguages.Any(l => l.Code == uiCulture.Name))
             return uiCulture.Name;
