@@ -10,37 +10,64 @@ namespace ConfigurableReader.Parsers.Epub;
 public class EpubBookSource : IBookSource
 {
     private readonly EpubBook _book;
-    private readonly List<EpubChapterInfo> _chapters = new();
+    private readonly List<EpubChapterInfo> _chapters = [];
     private readonly int _totalLength;
 
     // Thread-safe LRU Cache
     private readonly Dictionary<int, string> _chapterTextCache = new();
-    private readonly List<int> _cacheOrder = new();
+    private readonly List<int> _cacheOrder = [];
     private const int MaxCacheSize = 5;
     private readonly object _cacheLock = new();
 
     public int TotalLength => _totalLength;
     public IReadOnlyList<BookmarkItem> TableOfContents { get; }
 
+    public static async Task<EpubBookSource> CreateAsync(EpubBook book)
+    {
+        return await Task.Run(() => new EpubBookSource(book));
+    }
+
     public EpubBookSource(EpubBook book)
     {
         _book = book ?? throw new ArgumentNullException(nameof(book));
 
-        int currentStart = 0;
-        for (int i = 0; i < _book.ReadingOrder.Count; i++)
+        int count = _book.ReadingOrder.Count;
+        var chapterLengths = new int[count];
+        string? firstChapterText = null;
+
+        // Parallelize chapter text extraction and length computation across CPU cores
+        Parallel.For(0, count, i =>
         {
             var contentFile = _book.ReadingOrder[i];
             string rawHtml = contentFile.Content ?? string.Empty;
-            
-            // Build the chapter plain-text and capture its normalized character length
             string plainText = EpubBookParser.NormalizeWhitespace(EpubBookParser.ExtractTextFromHtml(rawHtml));
-            int length = plainText.Length;
+            chapterLengths[i] = plainText.Length;
 
+            if (i == 0)
+            {
+                firstChapterText = plainText;
+            }
+        });
+
+        int currentStart = 0;
+        for (int i = 0; i < count; i++)
+        {
+            int length = chapterLengths[i];
             _chapters.Add(new EpubChapterInfo(i, currentStart, length));
             currentStart += length + 1; // 1 virtual space between chapters
         }
 
         _totalLength = Math.Max(0, currentStart - 1);
+
+        // Pre-seed chapter 0 into cache to avoid re-parsing on initial load
+        if (firstChapterText != null)
+        {
+            lock (_cacheLock)
+            {
+                _chapterTextCache[0] = firstChapterText;
+                _cacheOrder.Add(0);
+            }
+        }
 
         TableOfContents = BuildToc(_book.Navigation);
     }
@@ -84,6 +111,9 @@ public class EpubBookSource : IBookSource
             int chapterStart = chapter.StartPosition;
             int chapterEnd = chapter.EndPosition;
 
+            // Stop early once past the requested range
+            if (chapterStart >= end) break;
+
             // 1. Slice chapter content if it falls inside the range
             if (start < chapterEnd && end > chapterStart)
             {
@@ -99,7 +129,7 @@ public class EpubBookSource : IBookSource
                     int actualCount = Math.Min(relativeCount, chapterText.Length - relativeStart);
                     if (actualCount > 0)
                     {
-                        sb.Append(chapterText.Substring(relativeStart, actualCount));
+                        sb.Append(chapterText.AsSpan(relativeStart, actualCount));
                     }
                 }
             }

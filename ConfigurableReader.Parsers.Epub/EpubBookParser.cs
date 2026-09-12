@@ -17,10 +17,10 @@ public partial class EpubBookParser : IBookParser
     public async Task<IBookSource> CreateSourceAsync(string filePath)
     {
         EpubBook book = await EpubReader.ReadBookAsync(filePath);
-        return new EpubBookSource(book);
+        return await EpubBookSource.CreateAsync(book);
     }
 
-    internal static string ExtractTextFromHtml(string html)
+    public static string ExtractTextFromHtml(string html)
     {
         if (string.IsNullOrEmpty(html)) return string.Empty;
 
@@ -50,7 +50,7 @@ public partial class EpubBookParser : IBookParser
         return doc.DocumentNode.InnerText;
     }
 
-    internal static string NormalizeWhitespace(string text)
+    public static string NormalizeWhitespace(string text)
     {
         if (string.IsNullOrEmpty(text)) return string.Empty;
 
