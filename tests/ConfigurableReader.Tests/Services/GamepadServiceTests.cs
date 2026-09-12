@@ -2,10 +2,6 @@ using ConfigurableReader.Common;
 using ConfigurableReader.Services;
 using DevDecoder.HIDDevices.Converters;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace ConfigurableReader.Tests.Services;
 

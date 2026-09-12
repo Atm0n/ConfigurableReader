@@ -44,8 +44,8 @@ public partial class MainWindow
                 Path.GetFileName(b.FilePath).Contains(query, StringComparison.OrdinalIgnoreCase));
         }
 
-        string sortKey = (LibrarySortComboBox?.SelectedItem as ComboBoxItem)?.Tag?.ToString() 
-            ?? _settings.LibrarySortOption 
+        string sortKey = (LibrarySortComboBox?.SelectedItem as ComboBoxItem)?.Tag?.ToString()
+            ?? _settings.LibrarySortOption
             ?? "Recent";
 
         records = sortKey switch

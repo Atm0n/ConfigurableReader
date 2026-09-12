@@ -1,10 +1,7 @@
-using System;
-using System.Linq;
 using ConfigurableReader.Models;
 using Shouldly;
-using Xunit;
 
-namespace ConfigurableReader.Tests;
+namespace ConfigurableReader.Tests.Models;
 
 public class ReaderThemeTests
 {

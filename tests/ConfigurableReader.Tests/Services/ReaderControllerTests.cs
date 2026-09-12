@@ -43,7 +43,7 @@ public class ReaderControllerTests
     [Fact]
     public void BookRecord_ProgressPercentageAndFormattedProgress_CalculatesCorrectly()
     {
-        var record = new Models.BookRecord
+        var record = new global::ConfigurableReader.Models.BookRecord
         {
             ScrollPosition = 250,
             TotalLength = 1000
@@ -56,7 +56,7 @@ public class ReaderControllerTests
     [Fact]
     public void BookRecord_FormattedProgress_WhenTotalLengthZero_ReturnsZeroPercent()
     {
-        var record = new Models.BookRecord
+        var record = new global::ConfigurableReader.Models.BookRecord
         {
             ScrollPosition = 0,
             TotalLength = 0

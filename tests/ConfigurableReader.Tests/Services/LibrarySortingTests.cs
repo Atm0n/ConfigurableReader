@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using ConfigurableReader.Models;
 using Shouldly;
-using Xunit;
 
-namespace ConfigurableReader.Tests;
+namespace ConfigurableReader.Tests.Services;
 
 public class LibrarySortingTests
 {

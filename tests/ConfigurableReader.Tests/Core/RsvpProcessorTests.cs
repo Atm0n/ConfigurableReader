@@ -1,9 +1,7 @@
 using ConfigurableReader.Core;
 using Shouldly;
-using System.Linq;
-using Xunit;
 
-namespace ConfigurableReader.Tests;
+namespace ConfigurableReader.Tests.Core;
 
 public class RsvpProcessorTests
 {

@@ -1,11 +1,9 @@
 using Avalonia.Input;
 using ConfigurableReader.Models;
 using Shouldly;
-using System;
 using System.Text.Json;
-using Xunit;
 
-namespace ConfigurableReader.Tests;
+namespace ConfigurableReader.Tests.Models;
 
 public class KeyBindingsConfigTests
 {

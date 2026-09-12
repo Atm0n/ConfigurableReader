@@ -3,10 +3,6 @@ using ConfigurableReader.Models;
 using ConfigurableReader.Services;
 using Moq;
 using Shouldly;
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace ConfigurableReader.Tests.Services;
 
