@@ -113,47 +113,47 @@ public class GamepadService : IDisposable
 
                 var subs = new List<IDisposable>();
 
-            subs.Add(gamepad.ConnectionState.Subscribe(isConnected =>
-            {
-                DispatchToUI(() =>
+                subs.Add(gamepad.ConnectionState.Subscribe(isConnected =>
                 {
-                    if (isConnected)
+                    DispatchToUI(() =>
                     {
-                        _activeGamepads.Add(gamepad);
-                    }
-                    else
-                    {
-                        _activeGamepads.Remove(gamepad);
-                        _gamepadStates.TryRemove(gamepad, out _);
-                        UpdateTriggerTimerState();
-                    }
-                    InputModeChanged?.Invoke(HasActiveGamepads);
-                });
-            }));
+                        if (isConnected)
+                        {
+                            _activeGamepads.Add(gamepad);
+                        }
+                        else
+                        {
+                            _activeGamepads.Remove(gamepad);
+                            _gamepadStates.TryRemove(gamepad, out _);
+                            UpdateTriggerTimerState();
+                        }
+                        InputModeChanged?.Invoke(HasActiveGamepads);
+                    });
+                }));
 
-            var state = _gamepadStates.GetOrAdd(gamepad, _ => new GamepadDeviceState());
+                var state = _gamepadStates.GetOrAdd(gamepad, _ => new GamepadDeviceState());
 
-            subs.Add(gamepad.Changes.Subscribe(changes =>
-            {
-                var snapshot = new GamepadInputSnapshot(
-                    gamepad.AButton,
-                    gamepad.BButton,
-                    gamepad.XButton,
-                    gamepad.YButton,
-                    gamepad.Start,
-                    gamepad.Select,
-                    gamepad.LeftBumper,
-                    gamepad.RightBumper,
-                    gamepad.Hat,
-                    gamepad.LeftTrigger,
-                    gamepad.RightTrigger
-                );
+                subs.Add(gamepad.Changes.Subscribe(changes =>
+                {
+                    var snapshot = new GamepadInputSnapshot(
+                        gamepad.AButton,
+                        gamepad.BButton,
+                        gamepad.XButton,
+                        gamepad.YButton,
+                        gamepad.Start,
+                        gamepad.Select,
+                        gamepad.LeftBumper,
+                        gamepad.RightBumper,
+                        gamepad.Hat,
+                        gamepad.LeftTrigger,
+                        gamepad.RightTrigger
+                    );
 
-                ProcessInput(state, snapshot, changes);
-            }));
+                    ProcessInput(state, snapshot, changes);
+                }));
 
-            _gamepadSubscriptions[gamepad] = subs;
-        });
+                _gamepadSubscriptions[gamepad] = subs;
+            });
         }
         catch (Exception ex)
         {
