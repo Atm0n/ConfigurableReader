@@ -65,4 +65,24 @@ public class ReaderControllerTests
         record.ProgressPercentage.ShouldBe(0);
         record.FormattedProgress.ShouldBe("0%");
     }
+
+    [Fact]
+    public async Task OpenBookAsync_WhenParsingFails_DoesNotChangeCurrentBookOrCreateRecord()
+    {
+        // Arrange: registry with no parsers, so any open throws NotSupportedException
+        var registry = new DocumentRegistry();
+        var readerService = new ReaderService();
+        var controller = new ReaderController(registry, readerService);
+        const string badPath = @"C:\test\unsupported.xyz";
+        int initialCount = controller.BookRecords.Count;
+
+        // Act
+        await Should.ThrowAsync<NotSupportedException>(() => controller.OpenBookAsync(badPath));
+
+        // Assert
+        controller.CurrentBookFilePath.ShouldBeNull();
+        controller.CurrentRecord.ShouldBeNull();
+        controller.BookRecords.Count.ShouldBe(initialCount);
+        controller.BookRecords.ShouldNotContain(r => r.FilePath == badPath);
+    }
 }

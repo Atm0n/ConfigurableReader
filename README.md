@@ -1,6 +1,6 @@
 # ConfigurableReader
 
-A modern, highly customizable desktop reading application built with [.NET 10](https://dotnet.microsoft.com/) and [Avalonia UI](https://github.com/AvaloniaUI/Avalonia). Designed for comfortable, hands-free reading, rapid comprehension, and effortless book management from either your desk or couch.
+A modern, highly customizable desktop reading application built with [.NET 11](https://dotnet.microsoft.com/) and [Avalonia UI](https://github.com/AvaloniaUI/Avalonia). Designed for comfortable, hands-free reading, rapid comprehension, and effortless book management from either your desk or couch.
 
 ---
 
@@ -98,7 +98,7 @@ A modern, highly customizable desktop reading application built with [.NET 10](h
 ## 🚀 Getting Started
 
 ### Prerequisites
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [.NET 11 SDK](https://dotnet.microsoft.com/download/dotnet/11.0)
 
 ### Building and Running
 ```bash
@@ -124,7 +124,10 @@ ConfigurableReader/
 │   ├── Parsers/
 │   │   ├── ConfigurableReader.Parsers.Epub/ # EPUB parsing & cover extraction (VersOne.Epub)
 │   │   ├── ConfigurableReader.Parsers.Pdf/  # PDF text, TOC & cover extraction (PdfPig)
-│   │   └── ConfigurableReader.Parsers.Html/ # Web article extractor & HTML parser (HtmlAgilityPack)
+│   │   ├── ConfigurableReader.Parsers.Html/ # Web article extractor & HTML parser (HtmlAgilityPack)
+│   │   ├── ConfigurableReader.Parsers.Docx/ # Word document parsing (DocumentFormat.OpenXml)
+│   │   ├── ConfigurableReader.Parsers.Markdown/ # Markdown parsing (Markdig)
+│   │   └── ConfigurableReader.Parsers.Txt/  # Plain text source
 │   └── ConfigurableReader/              # Avalonia 12 UI Application
 │       ├── Common/                      # Constants & utilities
 │       ├── Models/                      # AppSettings, BookRecord, ReaderTheme

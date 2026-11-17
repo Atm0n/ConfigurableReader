@@ -15,7 +15,7 @@ public class ReaderController
     private List<BookRecord> _bookRecords = [];
 
     public string? CurrentBookFilePath { get; private set; }
-    public BookRecord? CurrentRecord => CurrentBookFilePath != null ? GetOrCreateRecord(CurrentBookFilePath) : null;
+    public BookRecord? CurrentRecord => CurrentBookFilePath != null ? FindRecord(CurrentBookFilePath) : null;
 
     private int _suppressCodeUpdatesCount;
     public bool IsUpdatingFromCode => _suppressCodeUpdatesCount > 0;
@@ -60,9 +60,12 @@ public class ReaderController
 
     public List<BookRecord> BookRecords => _bookRecords;
 
+    private BookRecord? FindRecord(string filePath) =>
+        _bookRecords.FirstOrDefault(r => r.FilePath == filePath);
+
     public BookRecord GetOrCreateRecord(string filePath)
     {
-        var record = _bookRecords.FirstOrDefault(r => r.FilePath == filePath);
+        var record = FindRecord(filePath);
         if (record == null)
         {
             record = new BookRecord { FilePath = filePath };
@@ -73,9 +76,9 @@ public class ReaderController
 
     public void SaveCurrentPosition()
     {
-        if (CurrentBookFilePath != null)
+        var record = CurrentRecord;
+        if (record != null)
         {
-            var record = GetOrCreateRecord(CurrentBookFilePath);
             record.ScrollPosition = _readerService.CurrentPosition;
             record.LastReadDate = DateTime.Now;
             BookRecordStore.Save(_bookRecords);
@@ -84,8 +87,10 @@ public class ReaderController
 
     public async Task<string> OpenBookAsync(string filePath)
     {
-        CurrentBookFilePath = filePath;
+        // Parse first: if this throws, the previously opened book stays current
+        // and no library record is created for the failed path.
         var source = await _documentRegistry.CreateSourceAsync(filePath);
+        CurrentBookFilePath = filePath;
         var record = GetOrCreateRecord(filePath);
 
         record.LastReadDate = DateTime.Now;
