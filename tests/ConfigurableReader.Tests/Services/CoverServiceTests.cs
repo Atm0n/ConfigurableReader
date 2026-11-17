@@ -33,7 +33,7 @@ public class CoverServiceTests
         registry.RegisterParser(mockParser.Object);
 
         var coverService = new CoverService(registry);
-        string? cachedPath = await coverService.EnsureCoverExtractedAsync("test_file.test");
+        string? cachedPath = await coverService.EnsureCoverExtractedAsync("test_file.test", TestContext.Current.CancellationToken);
 
         cachedPath.ShouldNotBeNull();
         File.Exists(cachedPath).ShouldBeTrue();
@@ -84,5 +84,60 @@ public class CoverServiceTests
         // Setting to null when already null should not fire
         coverBitmapChanged.ShouldBeFalse();
         hasCoverChanged.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task EnsureCoverExtractedAsync_RemembersMissingCover_AndDoesNotReparse()
+    {
+        string dir = Path.Combine(Path.GetTempPath(), "cr-covers-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var mockParser = new Mock<IBookParser>();
+            mockParser.Setup(p => p.SupportedExtensions).Returns([".nocov"]);
+            mockParser.Setup(p => p.ExtractCoverImageAsync(It.IsAny<string>())).ReturnsAsync((byte[]?)null);
+
+            var registry = new DocumentRegistry();
+            registry.RegisterParser(mockParser.Object);
+            var coverService = new CoverService(registry, dir);
+
+            (await coverService.EnsureCoverExtractedAsync("book.nocov", TestContext.Current.CancellationToken)).ShouldBeNull();
+            (await coverService.EnsureCoverExtractedAsync("book.nocov", TestContext.Current.CancellationToken)).ShouldBeNull();
+
+            mockParser.Verify(p => p.ExtractCoverImageAsync("book.nocov"), Times.Once);
+        }
+        finally
+        {
+            try { Directory.Delete(dir, recursive: true); } catch { }
+        }
+    }
+
+    [Fact]
+    public async Task EnsureCoverExtractedAsync_RetriesAfterMarkerExpires()
+    {
+        string dir = Path.Combine(Path.GetTempPath(), "cr-covers-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var mockParser = new Mock<IBookParser>();
+            mockParser.Setup(p => p.SupportedExtensions).Returns([".nocov"]);
+            mockParser.Setup(p => p.ExtractCoverImageAsync(It.IsAny<string>())).ReturnsAsync((byte[]?)null);
+
+            var registry = new DocumentRegistry();
+            registry.RegisterParser(mockParser.Object);
+            var coverService = new CoverService(registry, dir);
+
+            await coverService.EnsureCoverExtractedAsync("book.nocov", TestContext.Current.CancellationToken);
+
+            // Age the marker past the retry interval.
+            string marker = Directory.GetFiles(dir, "*.nocover").ShouldHaveSingleItem();
+            File.SetLastWriteTimeUtc(marker, DateTime.UtcNow - CoverService.NoCoverRetryInterval - TimeSpan.FromMinutes(1));
+
+            await coverService.EnsureCoverExtractedAsync("book.nocov", TestContext.Current.CancellationToken);
+
+            mockParser.Verify(p => p.ExtractCoverImageAsync("book.nocov"), Times.Exactly(2));
+        }
+        finally
+        {
+            try { Directory.Delete(dir, recursive: true); } catch { }
+        }
     }
 }

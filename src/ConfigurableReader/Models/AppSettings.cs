@@ -42,7 +42,7 @@ public class AppSettings
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error loading settings: {ex.Message}");
+            Common.AppLog.Error("Error loading settings", ex);
         }
         return new AppSettings();
     }
@@ -60,7 +60,7 @@ public class AppSettings
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error saving settings: {ex.Message}");
+            Common.AppLog.Error("Error saving settings", ex);
         }
     }
 }

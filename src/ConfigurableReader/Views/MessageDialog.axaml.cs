@@ -1,9 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Threading;
-using DevDecoder.HIDDevices;
-using DevDecoder.HIDDevices.Controllers;
+using ConfigurableReader.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -11,38 +9,35 @@ namespace ConfigurableReader.Views;
 
 public partial class MessageDialog : Window
 {
-    private readonly Devices _devices = new();
-    private IDisposable? _gamepadSubscription;
+    private readonly GamepadService? _gamepadService;
     private readonly DateTime _creationTime = DateTime.Now;
 
-    public MessageDialog()
+    /// <summary>Parameterless constructor required by the Avalonia XAML compiler and designer.</summary>
+    public MessageDialog() : this(null)
+    {
+    }
+
+    public MessageDialog(GamepadService? gamepadService)
     {
         InitializeComponent();
 
-        _gamepadSubscription = _devices.Controllers<Gamepad>().Subscribe(gamepad =>
+        _gamepadService = gamepadService;
+        if (_gamepadService != null)
         {
-            gamepad.Connect();
-            gamepad.Changes.Subscribe(_ =>
-            {
-                if ((DateTime.Now - _creationTime).TotalMilliseconds < 500) return;
-
-                if (gamepad.BButton || gamepad.AButton || gamepad.Start || gamepad.Select)
-                {
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        if (IsActive)
-                        {
-                            Close();
-                        }
-                    });
-                }
-            });
-        });
+            _gamepadService.DialogDismissRequested += OnGamepadDismissRequested;
+        }
     }
 
-    public static async Task ShowAsync(Window owner, string message)
+    private void OnGamepadDismissRequested()
     {
-        var dialog = new MessageDialog();
+        // Ignore the press that may have opened this dialog.
+        if ((DateTime.Now - _creationTime).TotalMilliseconds < 500) return;
+        if (IsActive) Close();
+    }
+
+    public static async Task ShowAsync(Window owner, string message, GamepadService? gamepadService = null)
+    {
+        var dialog = new MessageDialog(gamepadService);
         dialog.FindControl<TextBlock>("MessageText")!.Text = message;
         await dialog.ShowDialog(owner);
     }
@@ -63,8 +58,10 @@ public partial class MessageDialog : Window
 
     protected override void OnClosed(EventArgs e)
     {
-        _gamepadSubscription?.Dispose();
-        _devices.Dispose();
+        if (_gamepadService != null)
+        {
+            _gamepadService.DialogDismissRequested -= OnGamepadDismissRequested;
+        }
         base.OnClosed(e);
     }
 }

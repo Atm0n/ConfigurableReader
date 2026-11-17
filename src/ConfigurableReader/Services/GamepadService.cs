@@ -86,6 +86,13 @@ public class GamepadService : IDisposable
     public event Action<bool>? SetReverseDirectionRequested;
     public event Action<bool>? InputModeChanged;
 
+    /// <summary>
+    /// Raised on the UI thread when A, B, Start or Select is newly pressed, regardless of
+    /// whether the main window is focused. Modal dialogs use it to close themselves, so they
+    /// don't need to open their own HID device enumeration.
+    /// </summary>
+    public event Action? DialogDismissRequested;
+
     public Func<bool>? IsActive { get; set; }
 
     public bool HasActiveGamepads => _activeGamepads.Count > 0;
@@ -107,57 +114,57 @@ public class GamepadService : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[GamepadService] Could not connect gamepad: {ex.Message}");
+                    Common.AppLog.Error("[GamepadService] Could not connect gamepad", ex);
                     return;
                 }
 
                 var subs = new List<IDisposable>();
 
-            subs.Add(gamepad.ConnectionState.Subscribe(isConnected =>
-            {
-                DispatchToUI(() =>
+                subs.Add(gamepad.ConnectionState.Subscribe(isConnected =>
                 {
-                    if (isConnected)
+                    DispatchToUI(() =>
                     {
-                        _activeGamepads.Add(gamepad);
-                    }
-                    else
-                    {
-                        _activeGamepads.Remove(gamepad);
-                        _gamepadStates.TryRemove(gamepad, out _);
-                        UpdateTriggerTimerState();
-                    }
-                    InputModeChanged?.Invoke(HasActiveGamepads);
-                });
-            }));
+                        if (isConnected)
+                        {
+                            _activeGamepads.Add(gamepad);
+                        }
+                        else
+                        {
+                            _activeGamepads.Remove(gamepad);
+                            _gamepadStates.TryRemove(gamepad, out _);
+                            UpdateTriggerTimerState();
+                        }
+                        InputModeChanged?.Invoke(HasActiveGamepads);
+                    });
+                }));
 
-            var state = _gamepadStates.GetOrAdd(gamepad, _ => new GamepadDeviceState());
+                var state = _gamepadStates.GetOrAdd(gamepad, _ => new GamepadDeviceState());
 
-            subs.Add(gamepad.Changes.Subscribe(changes =>
-            {
-                var snapshot = new GamepadInputSnapshot(
-                    gamepad.AButton,
-                    gamepad.BButton,
-                    gamepad.XButton,
-                    gamepad.YButton,
-                    gamepad.Start,
-                    gamepad.Select,
-                    gamepad.LeftBumper,
-                    gamepad.RightBumper,
-                    gamepad.Hat,
-                    gamepad.LeftTrigger,
-                    gamepad.RightTrigger
-                );
+                subs.Add(gamepad.Changes.Subscribe(changes =>
+                {
+                    var snapshot = new GamepadInputSnapshot(
+                        gamepad.AButton,
+                        gamepad.BButton,
+                        gamepad.XButton,
+                        gamepad.YButton,
+                        gamepad.Start,
+                        gamepad.Select,
+                        gamepad.LeftBumper,
+                        gamepad.RightBumper,
+                        gamepad.Hat,
+                        gamepad.LeftTrigger,
+                        gamepad.RightTrigger
+                    );
 
-                ProcessInput(state, snapshot, changes);
-            }));
+                    ProcessInput(state, snapshot, changes);
+                }));
 
-            _gamepadSubscriptions[gamepad] = subs;
-        });
+                _gamepadSubscriptions[gamepad] = subs;
+            });
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[GamepadService] Failed to initialize gamepad subsystem: {ex.Message}");
+            Common.AppLog.Error("[GamepadService] Failed to initialize gamepad subsystem", ex);
         }
     }
 
@@ -197,8 +204,16 @@ public class GamepadService : IDisposable
             }
         }
 
+        var dispatchUnfiltered = customDispatcher ?? DispatchToUIUnfiltered;
+
         lock (state)
         {
+            if ((aPressed && !state.AButton) || (bPressed && !state.BButton) ||
+                (startPressed && !state.Start) || (selectPressed && !state.Select))
+            {
+                dispatchUnfiltered(() => DialogDismissRequested?.Invoke());
+            }
+
             // Face button: A
             if (aPressed && !state.AButton)
             {
@@ -441,6 +456,12 @@ public class GamepadService : IDisposable
                 }
             });
         }
+    }
+
+    private static void DispatchToUIUnfiltered(Action action)
+    {
+        if (Dispatcher.UIThread.CheckAccess()) action();
+        else Dispatcher.UIThread.Post(action);
     }
 
     public void Dispose()

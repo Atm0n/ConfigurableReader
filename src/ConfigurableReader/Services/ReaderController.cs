@@ -15,7 +15,7 @@ public class ReaderController
     private List<BookRecord> _bookRecords = [];
 
     public string? CurrentBookFilePath { get; private set; }
-    public BookRecord? CurrentRecord => CurrentBookFilePath != null ? GetOrCreateRecord(CurrentBookFilePath) : null;
+    public BookRecord? CurrentRecord => CurrentBookFilePath != null ? FindRecord(CurrentBookFilePath) : null;
 
     private int _suppressCodeUpdatesCount;
     public bool IsUpdatingFromCode => _suppressCodeUpdatesCount > 0;
@@ -60,9 +60,28 @@ public class ReaderController
 
     public List<BookRecord> BookRecords => _bookRecords;
 
+    private BookRecord? FindRecord(string filePath) =>
+        _bookRecords.FirstOrDefault(r => PathsEqual(r.FilePath, filePath));
+
+    /// <summary>
+    /// Compares library identifiers. Local paths are case-insensitive on Windows and macOS
+    /// (default file systems), so "C:\Books\A.epub" and "c:\books\a.epub" map to one record.
+    /// URLs and Linux paths stay case-sensitive.
+    /// </summary>
+    public static bool PathsEqual(string? a, string? b)
+    {
+        if (a == null || b == null) return a == b;
+
+        bool isUrl = a.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                     a.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+        bool caseInsensitive = !isUrl && (OperatingSystem.IsWindows() || OperatingSystem.IsMacOS());
+
+        return string.Equals(a, b, caseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+    }
+
     public BookRecord GetOrCreateRecord(string filePath)
     {
-        var record = _bookRecords.FirstOrDefault(r => r.FilePath == filePath);
+        var record = FindRecord(filePath);
         if (record == null)
         {
             record = new BookRecord { FilePath = filePath };
@@ -73,9 +92,9 @@ public class ReaderController
 
     public void SaveCurrentPosition()
     {
-        if (CurrentBookFilePath != null)
+        var record = CurrentRecord;
+        if (record != null)
         {
-            var record = GetOrCreateRecord(CurrentBookFilePath);
             record.ScrollPosition = _readerService.CurrentPosition;
             record.LastReadDate = DateTime.Now;
             BookRecordStore.Save(_bookRecords);
@@ -84,8 +103,10 @@ public class ReaderController
 
     public async Task<string> OpenBookAsync(string filePath)
     {
-        CurrentBookFilePath = filePath;
+        // Parse first: if this throws, the previously opened book stays current
+        // and no library record is created for the failed path.
         var source = await _documentRegistry.CreateSourceAsync(filePath);
+        CurrentBookFilePath = filePath;
         var record = GetOrCreateRecord(filePath);
 
         record.LastReadDate = DateTime.Now;
@@ -112,7 +133,7 @@ public class ReaderController
     {
         _bookRecords.Remove(record);
         BookRecordStore.Save(_bookRecords);
-        if (CurrentBookFilePath == record.FilePath)
+        if (PathsEqual(CurrentBookFilePath, record.FilePath))
         {
             CurrentBookFilePath = null;
         }

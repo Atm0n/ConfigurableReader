@@ -188,4 +188,44 @@ public class HtmlBookParserTests
         registry.GetParserForFile("page.htm").ShouldBe(htmlParser);
         registry.GetParserForFile("book.txt").ShouldBeNull();
     }
+
+    private sealed class CoverStubHandler(int imageBytes, bool sendContentLength) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            if (request.RequestUri!.AbsolutePath.EndsWith(".jpg"))
+            {
+                var content = new StreamContent(new MemoryStream(new byte[imageBytes]));
+                if (sendContentLength) content.Headers.ContentLength = imageBytes;
+                else content.Headers.ContentLength = null;
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = content });
+            }
+
+            const string html = "<html><head><meta property='og:image' content='https://example.com/cover.jpg'></head><body><p>Hi</p></body></html>";
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(html) });
+        }
+    }
+
+    [Fact]
+    public async Task ExtractCoverImageAsync_ReturnsSmallCover()
+    {
+        var parser = new HtmlBookParser(new HttpClient(new CoverStubHandler(1024, sendContentLength: true)));
+
+        byte[]? bytes = await parser.ExtractCoverImageAsync("https://example.com/article");
+
+        bytes.ShouldNotBeNull();
+        bytes.Length.ShouldBe(1024);
+    }
+
+    [Theory]
+    [InlineData(true)]  // rejected from the Content-Length header
+    [InlineData(false)] // rejected while streaming
+    public async Task ExtractCoverImageAsync_RejectsOversizedCover(bool sendContentLength)
+    {
+        var parser = new HtmlBookParser(new HttpClient(new CoverStubHandler(HtmlBookParser.MaxCoverBytes + 1, sendContentLength)));
+
+        byte[]? bytes = await parser.ExtractCoverImageAsync("https://example.com/article");
+
+        bytes.ShouldBeNull();
+    }
 }
