@@ -14,6 +14,10 @@ public class ReaderService : IDisposable
     private const int BufferSize = 50000; // 50k chars buffer
     private const int BufferThreshold = 10000; // Reload when 10k from edge
     private long _latestLoadId = 0;
+    private Task? _pendingSlide;
+
+    /// <summary>The in-flight background buffer slide, if any. Exposed for tests.</summary>
+    internal Task? PendingBufferSlide => _pendingSlide;
 
     private bool _isPaused = true;
     private bool _isReversing = false;
@@ -130,11 +134,23 @@ public class ReaderService : IDisposable
         bool nearEnd = _currentPosition > _bufferStartPosition + BufferSize - BufferThreshold;
         bool nearStart = _currentPosition < _bufferStartPosition + BufferThreshold && _bufferStartPosition > 0;
 
-        if (nearEnd || nearStart)
+        // Only one background slide at a time: Advance runs every frame, and without this
+        // guard each frame would start another overlapping read until the first completes.
+        if ((nearEnd || nearStart) && (_pendingSlide == null || _pendingSlide.IsCompleted))
         {
-            // Trigger async load (fire and forget for now, or await in Advance?)
-            // To keep it simple and safe, we'll block briefly for the first iteration
-            _ = LoadBufferAsync(_currentPosition);
+            _pendingSlide = SlideBufferAsync(_currentPosition);
+        }
+    }
+
+    private async Task SlideBufferAsync(int position)
+    {
+        try
+        {
+            await LoadBufferAsync(position);
+        }
+        catch (Exception ex)
+        {
+            Common.AppLog.Error($"Failed to slide reading buffer to position {position}", ex);
         }
     }
 

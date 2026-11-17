@@ -86,6 +86,13 @@ public class GamepadService : IDisposable
     public event Action<bool>? SetReverseDirectionRequested;
     public event Action<bool>? InputModeChanged;
 
+    /// <summary>
+    /// Raised on the UI thread when A, B, Start or Select is newly pressed, regardless of
+    /// whether the main window is focused. Modal dialogs use it to close themselves, so they
+    /// don't need to open their own HID device enumeration.
+    /// </summary>
+    public event Action? DialogDismissRequested;
+
     public Func<bool>? IsActive { get; set; }
 
     public bool HasActiveGamepads => _activeGamepads.Count > 0;
@@ -107,7 +114,7 @@ public class GamepadService : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[GamepadService] Could not connect gamepad: {ex.Message}");
+                    Common.AppLog.Error("[GamepadService] Could not connect gamepad", ex);
                     return;
                 }
 
@@ -157,7 +164,7 @@ public class GamepadService : IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[GamepadService] Failed to initialize gamepad subsystem: {ex.Message}");
+            Common.AppLog.Error("[GamepadService] Failed to initialize gamepad subsystem", ex);
         }
     }
 
@@ -197,8 +204,16 @@ public class GamepadService : IDisposable
             }
         }
 
+        var dispatchUnfiltered = customDispatcher ?? DispatchToUIUnfiltered;
+
         lock (state)
         {
+            if ((aPressed && !state.AButton) || (bPressed && !state.BButton) ||
+                (startPressed && !state.Start) || (selectPressed && !state.Select))
+            {
+                dispatchUnfiltered(() => DialogDismissRequested?.Invoke());
+            }
+
             // Face button: A
             if (aPressed && !state.AButton)
             {
@@ -441,6 +456,12 @@ public class GamepadService : IDisposable
                 }
             });
         }
+    }
+
+    private static void DispatchToUIUnfiltered(Action action)
+    {
+        if (Dispatcher.UIThread.CheckAccess()) action();
+        else Dispatcher.UIThread.Post(action);
     }
 
     public void Dispose()

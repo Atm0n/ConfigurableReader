@@ -77,4 +77,33 @@ public class ReaderServiceTests
         service.IsPaused.ShouldBeTrue();
         eofFired.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task Advance_NearBufferEdge_StartsOnlyOneBackgroundSlideAtATime()
+    {
+        // Arrange: initial load returns immediately; later loads block until released.
+        var service = new ReaderService();
+        var release = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        int calls = 0;
+        var mockSource = new Mock<IBookSource>();
+        mockSource.Setup(s => s.TotalLength).Returns(200_000);
+        mockSource.Setup(s => s.GetTextAsync(It.IsAny<int>(), It.IsAny<int>()))
+                  .Returns(() => ++calls == 1 ? Task.FromResult(new string('a', 50_000)) : release.Task);
+
+        await service.SetSourceAsync(mockSource.Object, 0);
+        service.IsPaused = false;
+
+        // Act: several frames close to the end of the 50k buffer while the slide is in flight.
+        for (int i = 0; i < 5; i++)
+        {
+            service.Advance(1.0, (pos, _) => (45_000 + i, 0.0, false));
+        }
+
+        // Assert: one initial load + exactly one slide.
+        calls.ShouldBe(2);
+
+        release.SetResult(new string('b', 50_000));
+        await service.PendingBufferSlide.ShouldNotBeNull();
+        service.BufferStartPosition.ShouldBe(45_000 - 25_000);
+    }
 }

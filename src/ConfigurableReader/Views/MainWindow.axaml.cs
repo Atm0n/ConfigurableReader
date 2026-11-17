@@ -72,11 +72,11 @@ public partial class MainWindow : Window
         try
         {
             StopReading();
-            await MessageDialog.ShowAsync(this, LocalizationService.GetString("StartReached"));
+            await MessageDialog.ShowAsync(this, LocalizationService.GetString("StartReached"), _gamepadService);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error showing start of book dialog: {ex.Message}");
+            Common.AppLog.Error("Error showing start of book dialog", ex);
         }
     }
 
@@ -85,11 +85,11 @@ public partial class MainWindow : Window
         try
         {
             StopReading();
-            await MessageDialog.ShowAsync(this, LocalizationService.GetString("EndReached"));
+            await MessageDialog.ShowAsync(this, LocalizationService.GetString("EndReached"), _gamepadService);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error showing end of book dialog: {ex.Message}");
+            Common.AppLog.Error("Error showing end of book dialog", ex);
         }
     }
 
@@ -108,7 +108,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("FailedToLoadBook")}\n{ex.Message}");
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("FailedToLoadBook")}\n{ex.Message}", _gamepadService);
         }
     }
 
@@ -156,7 +156,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("CouldNotOpenFile")} {ex.Message}");
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("CouldNotOpenFile")} {ex.Message}", _gamepadService);
         }
     }
 
@@ -195,7 +195,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("FailedToLoadBook")}\n{ex.Message}");
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("FailedToLoadBook")}\n{ex.Message}", _gamepadService);
             ShowLibrary();
         }
     }
@@ -238,13 +238,13 @@ public partial class MainWindow : Window
             else
             {
                 string message = string.Format(LocalizationService.GetString("SearchNoResults"), query);
-                await MessageDialog.ShowAsync(this, message);
+                await MessageDialog.ShowAsync(this, message, _gamepadService);
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error during search: {ex.Message}");
-            await MessageDialog.ShowAsync(this, $"Error: {ex.Message}");
+            Common.AppLog.Error("Error during search", ex);
+            await MessageDialog.ShowAsync(this, $"Error: {ex.Message}", _gamepadService);
         }
     }
 
@@ -275,12 +275,12 @@ public partial class MainWindow : Window
     {
         try
         {
-            var dialog = new InfoDialog();
+            var dialog = new InfoDialog(_gamepadService);
             await dialog.ShowDialog(this);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error showing info: {ex.Message}");
+            Common.AppLog.Error("Error showing info", ex);
         }
     }
 
@@ -311,7 +311,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error updating text from slider: {ex.Message}");
+            Common.AppLog.Error("Error updating text from slider", ex);
         }
     }
 

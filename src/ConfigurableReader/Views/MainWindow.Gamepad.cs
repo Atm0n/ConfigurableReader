@@ -79,7 +79,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error adjusting position via gamepad: {ex.Message}");
+            Common.AppLog.Error("Error adjusting position via gamepad", ex);
         }
     }
 }

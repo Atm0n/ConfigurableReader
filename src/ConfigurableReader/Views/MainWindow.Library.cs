@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ConfigurableReader.Views;
@@ -66,21 +67,44 @@ public partial class MainWindow
             EmptyLibraryText.IsVisible = list.Count == 0;
         }
 
-        PopulateCovers(list);
+        _ = PopulateCoversAsync(list);
     }
 
-    private void PopulateCovers(IEnumerable<BookRecord> records)
+    private CancellationTokenSource? _coverLoadCts;
+
+    /// <summary>
+    /// Loads missing covers one by one. Runs from the UI thread (extraction itself is offloaded
+    /// inside <see cref="CoverService"/>) so bound record properties are updated on the UI thread.
+    /// Any previous pass is cancelled, so typing in the search box doesn't pile up work.
+    /// </summary>
+    private async Task PopulateCoversAsync(IReadOnlyList<BookRecord> records)
     {
-        _ = Task.Run(async () =>
+        // Install the new token before awaiting, so a re-entrant call always cancels the latest pass.
+        // The old source is not disposed: its token may still be observed by an in-flight extraction.
+        var previous = _coverLoadCts;
+        var cts = new CancellationTokenSource();
+        _coverLoadCts = cts;
+
+        try
         {
+            if (previous != null)
+            {
+                await previous.CancelAsync();
+            }
+
             foreach (var record in records)
             {
+                if (cts.IsCancellationRequested) return;
                 if (!record.HasCoverBitmap)
                 {
-                    await _coverService.PopulateCoverForRecordAsync(record);
+                    await _coverService.PopulateCoverForRecordAsync(record, cts.Token);
                 }
             }
-        });
+        }
+        catch (Exception ex)
+        {
+            Common.AppLog.Error("Error loading library covers", ex);
+        }
     }
 
     private void LibrarySearchTextBox_TextChanged(object? sender, TextChangedEventArgs e)
@@ -128,7 +152,7 @@ public partial class MainWindow
                 }
                 else
                 {
-                    await MessageDialog.ShowAsync(this, LocalizationService.GetString("FileNotFound"));
+                    await MessageDialog.ShowAsync(this, LocalizationService.GetString("FileNotFound"), _gamepadService);
                     _controller.RemoveBookRecord(record);
                     ShowLibrary();
                 }
@@ -136,7 +160,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("Error")}: {ex.Message}");
+            await MessageDialog.ShowAsync(this, $"{LocalizationService.GetString("Error")}: {ex.Message}", _gamepadService);
         }
     }
 

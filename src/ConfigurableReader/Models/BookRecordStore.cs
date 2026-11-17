@@ -27,7 +27,7 @@ public static class BookRecordStore
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to load book records: {ex.Message}");
+            Common.AppLog.Error("Failed to load book records", ex);
         }
         return [];
     }
@@ -45,7 +45,7 @@ public static class BookRecordStore
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to save book records: {ex.Message}");
+            Common.AppLog.Error("Failed to save book records", ex);
         }
     }
 }

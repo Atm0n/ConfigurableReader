@@ -1,42 +1,37 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Threading;
-using DevDecoder.HIDDevices;
-using DevDecoder.HIDDevices.Controllers;
+using ConfigurableReader.Services;
 using System;
 
 namespace ConfigurableReader.Views;
 
 public partial class InfoDialog : Window
 {
-    private readonly Devices _devices = new();
-    private IDisposable? _gamepadSubscription;
+    private readonly GamepadService? _gamepadService;
     private readonly DateTime _creationTime = DateTime.Now;
 
-    public InfoDialog()
+    /// <summary>Parameterless constructor required by the Avalonia XAML compiler and designer.</summary>
+    public InfoDialog() : this(null)
+    {
+    }
+
+    public InfoDialog(GamepadService? gamepadService)
     {
         InitializeComponent();
 
-        _gamepadSubscription = _devices.Controllers<Gamepad>().Subscribe(gamepad =>
+        _gamepadService = gamepadService;
+        if (_gamepadService != null)
         {
-            gamepad.Connect();
-            gamepad.Changes.Subscribe(_ =>
-            {
-                if ((DateTime.Now - _creationTime).TotalMilliseconds < 500) return;
+            _gamepadService.DialogDismissRequested += OnGamepadDismissRequested;
+        }
+    }
 
-                if (gamepad.BButton || gamepad.AButton || gamepad.Start || gamepad.Select)
-                {
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        if (IsActive)
-                        {
-                            Close();
-                        }
-                    });
-                }
-            });
-        });
+    private void OnGamepadDismissRequested()
+    {
+        // Ignore the press that may have opened this dialog.
+        if ((DateTime.Now - _creationTime).TotalMilliseconds < 500) return;
+        if (IsActive) Close();
     }
 
     private void CloseButton_Click(object? sender, RoutedEventArgs e)
@@ -55,8 +50,10 @@ public partial class InfoDialog : Window
 
     protected override void OnClosed(EventArgs e)
     {
-        _gamepadSubscription?.Dispose();
-        _devices.Dispose();
+        if (_gamepadService != null)
+        {
+            _gamepadService.DialogDismissRequested -= OnGamepadDismissRequested;
+        }
         base.OnClosed(e);
     }
 }

@@ -113,6 +113,9 @@ dotnet test ConfigurableReader.slnx
 dotnet run --project src/ConfigurableReader
 ```
 
+### Troubleshooting
+Errors are logged to `%APPDATA%\ConfigurableReader\logs\app.log` (on Linux/macOS: `~/.config/ConfigurableReader/logs/app.log`). Please attach this file when reporting a bug.
+
 ---
 
 ## 🏗️ Architecture

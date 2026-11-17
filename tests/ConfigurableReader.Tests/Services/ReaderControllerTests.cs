@@ -85,4 +85,20 @@ public class ReaderControllerTests
         controller.BookRecords.Count.ShouldBe(initialCount);
         controller.BookRecords.ShouldNotContain(r => r.FilePath == badPath);
     }
+
+    [Fact]
+    public void PathsEqual_IgnoresCaseForLocalPathsOnlyOnWindowsAndMac()
+    {
+        bool expected = OperatingSystem.IsWindows() || OperatingSystem.IsMacOS();
+        ReaderController.PathsEqual(@"C:\Books\Novel.epub", @"c:\books\novel.epub").ShouldBe(expected);
+        ReaderController.PathsEqual(@"C:\Books\Novel.epub", @"C:\Books\Novel.epub").ShouldBeTrue();
+    }
+
+    [Fact]
+    public void PathsEqual_UrlsAreCaseSensitive()
+    {
+        ReaderController.PathsEqual("https://example.com/Article", "https://example.com/article").ShouldBeFalse();
+        ReaderController.PathsEqual(null, null).ShouldBeTrue();
+        ReaderController.PathsEqual("a.txt", null).ShouldBeFalse();
+    }
 }

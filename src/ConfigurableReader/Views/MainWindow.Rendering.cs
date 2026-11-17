@@ -73,7 +73,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error in OnAnimationFrame: {ex.Message}");
+            Common.AppLog.Error("Error in OnAnimationFrame", ex);
         }
 
         if (!_readerService.IsPaused)

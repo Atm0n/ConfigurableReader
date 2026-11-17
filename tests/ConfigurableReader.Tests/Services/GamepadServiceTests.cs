@@ -230,4 +230,43 @@ public class GamepadServiceTests
         state.RtWasDown.ShouldBeTrue();
         state.RtBoosted.ShouldBeTrue();
     }
+
+    [Theory]
+    [InlineData("A")]
+    [InlineData("B")]
+    [InlineData("Start")]
+    [InlineData("Select")]
+    public void DismissButtons_PressDown_RaiseDialogDismissOnce(string button)
+    {
+        using var service = new GamepadService();
+        var state = new GamepadDeviceState();
+        int dismissCount = 0;
+        service.DialogDismissRequested += () => dismissCount++;
+
+        var down = button switch
+        {
+            "A" => new GamepadInputSnapshot { AButton = true },
+            "B" => new GamepadInputSnapshot { BButton = true },
+            "Start" => new GamepadInputSnapshot { Start = true },
+            _ => new GamepadInputSnapshot { Select = true },
+        };
+
+        service.ProcessInput(state, down, customDispatcher: ExecuteSynchronously);
+        service.ProcessInput(state, down, customDispatcher: ExecuteSynchronously); // held
+
+        dismissCount.ShouldBe(1);
+    }
+
+    [Fact]
+    public void NonDismissButtons_DoNotRaiseDialogDismiss()
+    {
+        using var service = new GamepadService();
+        var state = new GamepadDeviceState();
+        int dismissCount = 0;
+        service.DialogDismissRequested += () => dismissCount++;
+
+        service.ProcessInput(state, new GamepadInputSnapshot { XButton = true, YButton = true, LeftBumper = true }, customDispatcher: ExecuteSynchronously);
+
+        dismissCount.ShouldBe(0);
+    }
 }

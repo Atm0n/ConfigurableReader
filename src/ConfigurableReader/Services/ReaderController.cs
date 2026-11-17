@@ -61,7 +61,23 @@ public class ReaderController
     public List<BookRecord> BookRecords => _bookRecords;
 
     private BookRecord? FindRecord(string filePath) =>
-        _bookRecords.FirstOrDefault(r => r.FilePath == filePath);
+        _bookRecords.FirstOrDefault(r => PathsEqual(r.FilePath, filePath));
+
+    /// <summary>
+    /// Compares library identifiers. Local paths are case-insensitive on Windows and macOS
+    /// (default file systems), so "C:\Books\A.epub" and "c:\books\a.epub" map to one record.
+    /// URLs and Linux paths stay case-sensitive.
+    /// </summary>
+    public static bool PathsEqual(string? a, string? b)
+    {
+        if (a == null || b == null) return a == b;
+
+        bool isUrl = a.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                     a.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+        bool caseInsensitive = !isUrl && (OperatingSystem.IsWindows() || OperatingSystem.IsMacOS());
+
+        return string.Equals(a, b, caseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+    }
 
     public BookRecord GetOrCreateRecord(string filePath)
     {
@@ -117,7 +133,7 @@ public class ReaderController
     {
         _bookRecords.Remove(record);
         BookRecordStore.Save(_bookRecords);
-        if (CurrentBookFilePath == record.FilePath)
+        if (PathsEqual(CurrentBookFilePath, record.FilePath))
         {
             CurrentBookFilePath = null;
         }

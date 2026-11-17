@@ -62,7 +62,7 @@ public partial class HtmlBookParser : IBookParser
             var article = HtmlArticleExtractor.Extract(rawHtml);
             if (!string.IsNullOrEmpty(article.CoverImageUrl))
             {
-                return await _httpClient.GetByteArrayAsync(article.CoverImageUrl);
+                return await DownloadCoverAsync(article.CoverImageUrl);
             }
         }
         catch
@@ -70,6 +70,42 @@ public partial class HtmlBookParser : IBookParser
             // Fallback to null
         }
         return null;
+    }
+
+    /// <summary>Upper bound for a downloaded cover image; larger responses are discarded.</summary>
+    public const int MaxCoverBytes = 5 * 1024 * 1024;
+
+    private static readonly TimeSpan CoverDownloadTimeout = TimeSpan.FromSeconds(10);
+
+    /// <summary>
+    /// Downloads a cover image with its own short timeout and a size cap, so a huge or slow
+    /// og:image can't stall the library or fill memory. Returns null if either limit is hit.
+    /// </summary>
+    private async Task<byte[]?> DownloadCoverAsync(string imageUrl)
+    {
+        using var cts = new CancellationTokenSource(CoverDownloadTimeout);
+        using var response = await _httpClient.GetAsync(imageUrl, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+        if (!response.IsSuccessStatusCode) return null;
+
+        if (response.Content.Headers.ContentLength is long declared && declared > MaxCoverBytes)
+        {
+            return null;
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(cts.Token);
+        using var buffer = new MemoryStream();
+        byte[] chunk = new byte[81920];
+        int read;
+        while ((read = await stream.ReadAsync(chunk, cts.Token)) > 0)
+        {
+            if (buffer.Length + read > MaxCoverBytes)
+            {
+                return null;
+            }
+            buffer.Write(chunk, 0, read);
+        }
+
+        return buffer.Length > 0 ? buffer.ToArray() : null;
     }
 
     private static string GetTitleFromUrl(string url)

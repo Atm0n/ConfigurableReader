@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="ConfigurableReader.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ConfigurableReader.Core\ConfigurableReader.Core.csproj" />
     <ProjectReference Include="..\Parsers\ConfigurableReader.Parsers.Txt\ConfigurableReader.Parsers.Txt.csproj" />
     <ProjectReference Include="..\Parsers\ConfigurableReader.Parsers.Epub\ConfigurableReader.Parsers.Epub.csproj" />
